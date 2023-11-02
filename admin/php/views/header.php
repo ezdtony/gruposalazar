@@ -1735,7 +1735,7 @@
           </a> -->
 
           <!-- Custmization offcanvas -->
-          <!-- <div
+          <div
             class="offcanvas offcanvas-end"
             tabindex="-1"
             id="offcanvasCustomize"
@@ -2098,7 +2098,7 @@
                 </div>
               </div>
             </div>
-          </div> -->
+          </div>
           <!-- Separator -->
           <div class="vr bg-gray-700 mx-2 mx-lg-3"></div>
 
