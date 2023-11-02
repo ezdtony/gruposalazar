@@ -36,7 +36,7 @@
         const setTheme = function(theme) {
             if (
                 theme === "auto" &&
-                window.matchMedia("(prefers-color-scheme: dark)").matches
+                window.matchMedia("(prefers-color-scheme: light)").matches
             ) {
                 document.documentElement.dataset.theme = window.matchMedia(
                         "(prefers-color-scheme: light)"
@@ -79,7 +79,7 @@
 
         if (typeof themeSwitcher != "undefined") {
             window
-                .matchMedia("(prefers-color-scheme: dark)")
+                .matchMedia("(prefers-color-scheme: light)")
                 .addEventListener("change", (e) => {
                     if (localStorage.getItem("theme") != null) {
                         if (localStorage.getItem("theme") == "auto") {
@@ -149,13 +149,13 @@
 
                 if (theme === "auto") {
                     document.documentElement.dataset.theme = window.matchMedia(
-                            "(prefers-color-scheme: dark)"
+                            "(prefers-color-scheme: light)"
                         ).matches ?
                         "dark" :
                         "light";
 
                     window
-                        .matchMedia("(prefers-color-scheme: dark)")
+                        .matchMedia("(prefers-color-scheme: light)")
                         .addEventListener("change", (e) => {
                             e.matches ?
                                 (document.documentElement.dataset.theme = "dark") :
