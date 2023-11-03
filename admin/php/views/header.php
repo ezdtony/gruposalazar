@@ -316,7 +316,7 @@
           </div>
  -->
           <!-- Separator -->
-          <div class="vr bg-gray-700 mx-2 mx-lg-3"></div>
+          <!-- <div class="vr bg-gray-700 mx-2 mx-lg-3"></div> -->
 
           <!-- Button -->
           <a
@@ -2116,7 +2116,7 @@
             >
               <div class="avatar avatar-circle avatar-sm avatar-online">
                 <img
-                  src="https://d33wubrfki0l68.cloudfront.net/053f2dfd0df2f52c41e903a21d177b0b44abc9b1/1282c/assets/images/profiles/profile-06.jpeg"
+                  src="images/perfil-del-usuario.png"
                   alt="..."
                   class="avatar-img"
                   width="40"
@@ -2130,7 +2130,7 @@
                 <div class="d-flex align-items-center">
                   <div class="avatar avatar-sm avatar-circle">
                     <img
-                      src="https://d33wubrfki0l68.cloudfront.net/053f2dfd0df2f52c41e903a21d177b0b44abc9b1/1282c/assets/images/profiles/profile-06.jpeg"
+                      src="images/perfil-del-usuario.png"
                       alt="..."
                       class="avatar-img"
                       width="40"
