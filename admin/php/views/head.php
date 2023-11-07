@@ -1,3 +1,9 @@
+<?
+include "php/controllers/login.php";
+if (!isset($_SESSION['user'])) {
+    header('Location: logIn.php?');
+} 
+?>
 <!DOCTYPE html>
 <html lang="es" data-theme="light" data-sidebar-behaviour="fixed" data-navigation-color="default" data-is-fluid="true">
 
