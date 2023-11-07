@@ -20,7 +20,7 @@ function getUserInfo()
     $queries = new Queries;
 
         $stmt = "SELECT * 
-        FROM u803991314_main.colaborators";    
+        FROM u803991314_main.colaborators WHERE id_colaborator = 2";    
          
     $getUserInfo = $queries->getData($stmt);
 
