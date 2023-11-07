@@ -19,7 +19,7 @@
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" />
     </noscript>
 
-    <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=QrzAoBDR3WSbuQPTmlarSHyCLU04Or_zrHIYkFwS4S3VHwQVu04Krrt-ic9ufKyM" charset="UTF-8"></script>
+    <!-- <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=QrzAoBDR3WSbuQPTmlarSHyCLU04Or_zrHIYkFwS4S3VHwQVu04Krrt-ic9ufKyM" charset="UTF-8"></script> -->
     <script>
         // Theme switcher
 
