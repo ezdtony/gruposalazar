@@ -1,3 +1,8 @@
+<?php
+include "php/controllers/login.php";
+session_destroy();
+
+?>
 <html lang="en" data-theme="light"><head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -10,7 +15,8 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
         <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&amp;display=swap">
         <link rel="stylesheet" onload="this.onload=null;this.removeAttribute('media');" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&amp;display=swap">
-        
+        <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <!-- no-JS fallback -->
         <noscript>
             <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap">
@@ -87,7 +93,7 @@
             }
         </script>
         <!-- Favicon -->
-        <link rel="icon" href="./assets/favicon/favicon.ico" sizes="any">
+        <link rel="icon" href="./images/favicon.ico" sizes="any" />
         
             <!-- Demo script -->
             <script>
@@ -169,7 +175,7 @@
                                     </label>
     
                                     <!-- Input -->
-                                    <input type="email" class="form-control" placeholder="Tu correo o código de usuario">
+                                    <input type="email" class="form-control" id="user" placeholder="Tu correo o código de usuario">
                                 </div>
                             </div>
 
@@ -195,9 +201,9 @@
     
                                     <!-- Input -->
                                     <div class="input-group input-group-merge">
-                                        <input type="password" class="form-control" autocomplete="off" data-toggle-password-input="" placeholder="Ingresa tu contraseña">
+                                        <input type="password" class="form-control" id="password" autocomplete="off" data-toggle-password-input="" placeholder="Ingresa tu contraseña">
                                         
-                                        <button type="button" class="input-group-text px-4 text-secondary link-primary" data-toggle-password=""></button>
+                                        <button type="button" class="input-group-text px-4 text-secondary link-primary"></button>
                                     </div>
                                 </div>
                             </div>
@@ -215,7 +221,7 @@
                             <div class="col-12">
 
                                 <!-- Button -->
-                                <button type="button" class="btn w-100 btn-primary mt-6 mb-2">Ingresar</button>
+                                <button type="button" class="btn w-100 btn-primary mt-6 mb-2"  id="login">Ingresar</button>
                             </div>
 
                             <!-- <div class="col-12">
@@ -231,5 +237,6 @@
 
         <!-- JAVASCRIPT-->
         <!-- Theme JS -->
+        <script src="js/login.js"></script>
         <script src="./assets/js/theme.bundle.js"></script>    
 </body></html>

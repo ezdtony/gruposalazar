@@ -2,7 +2,13 @@
 include("php/views/head.php");
 include("php/views/navbar.php");
 include("php/views/header.php");
+include("php/models/colabs/colabs_model.php");
+
+$active_module="coalbs";
+
+$colabs_model = new Colabs();
 ?>
+
 <div class="container-fluid">
 
     <?php
@@ -10,17 +16,18 @@ include("php/views/header.php");
         $submodule = $_GET['submodule'];
         switch ($submodule) {
             default:
-                $include_file = 'php/views/index/start_body.php';
+                $include_file = 'php/views/colabs/colabs.php';
                 break;
         }
         include $include_file;
     } else {
-        include("php/views/index/start_body.php");
+        include("php/views/colabs/colabs.php");
     }
     ?>
 </div>
+
 <script>
-    $(".index-nav-link").addClass("active");
+    $(".colabs-nav-link").addClass("active");
 </script>
 <?php
 include("php/views/footer.php");

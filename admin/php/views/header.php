@@ -2138,8 +2138,8 @@
                     />
                   </div>
                   <div class="flex-grow-1 ms-3">
-                    <h4 class="mb-0">Ellie Tucker</h4>
-                    <p class="card-text">ellie.tucker@dashly.com</p>
+                    <h4 class="mb-0"><?=$_SESSION['user_name']?></h4>
+                    <p class="card-text"><?=$_SESSION['business_mail']?></p>
                   </div>
                 </div>
               </div>
@@ -2147,7 +2147,7 @@
               <hr class="dropdown-divider" />
 
               <!-- Dropdown -->
-              <div class="dropdown dropend">
+             <!--  <div class="dropdown dropend">
                 <a
                   class="dropdown-item dropdown-toggle"
                   href="javascript: void(0);"
@@ -2181,17 +2181,17 @@
                     Reset status
                   </a>
                 </div>
-              </div>
+              </div> -->
               <!-- End Dropdown -->
-
+<!-- 
               <a class="dropdown-item" href="javascript: void(0);"
-                >Profile &amp; account</a
+                >Perfil y cuenta</a
               >
-              <a class="dropdown-item" href="javascript: void(0);">Settings</a>
+              <a class="dropdown-item" href="javascript: void(0);">Settings</a> -->
 
               <hr class="dropdown-divider" />
 
-              <a class="dropdown-item" href="javascript: void(0);">Sign out</a>
+              <a class="dropdown-item" href="logIn.php">Cerrar sesión</a>
             </div>
           </div>
         </div>

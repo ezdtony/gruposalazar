@@ -35,12 +35,17 @@
             <!-- Navigation -->
             <ul class="navbar-nav mb-lg-7">
                 <li class="nav-item">
-                    <a class="nav-link active" href="index.php">
+                    <a class="nav-link index-nav-link" href="index.php">
                         <svg viewBox="0 0 24 24" class="nav-link-icon" height="18" width="18" xmlns="http://www.w3.org/2000/svg">
                             <path d="M3.753,13.944v8.25h6v-6a1.5,1.5,0,0,1,1.5-1.5h1.5a1.5,1.5,0,0,1,1.5,1.5v6h6v-8.25" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
                             <path d="M.753,12.444,10.942,2.255a1.5,1.5,0,0,1,2.122,0L23.253,12.444" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path>
                         </svg>
                         <span>Principal</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link colabs-nav-link" href="colabs.php">
+                    <i class="fa-solid fa-briefcase" style="margin-right:7px;"></i> <span>Personal </span>
                     </a>
                 </li>
                 <!-- <li class="nav-item dropdown">
