@@ -85,10 +85,9 @@
                             </div>
                         </div>
                         <div class="col-6">
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.3.1/js/tom-select.complete.js" integrity="sha512-96+GeOCMUo6K6W5zoFwGYN9dfyvJNorkKL4cv+hFVmLYx/JZS5vIxOk77GqiK0qYxnzBB+4LbWRVgu5XcIihAQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
                         <label class="form-label">Estado<span class="legend-circle bg-danger"></span></label>
-                            <select class="form-select" autocomplete="off" data-select='{"placeholder": "Seleccione uun estado..."}'>
-                                <option value="">Seleccione un estado...</option>
+                            <select class="form-select js-example-basic-single" id="selectState" autocomplete="off" >
+                                <option disabled selected value="">Seleccione un estado...</option>
                                 <option value="Thomas Edison">Thomas Edison</option>
                                 <option value="John Doe">John Doe</option>
                                 <option value="Nikola Tesla">Nikola Tesla</option>

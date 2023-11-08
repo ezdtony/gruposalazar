@@ -61,7 +61,7 @@ $getCollaborators = $colabs_model->getAllColabs();
         </div>
     </div>
 </div>
-
+<script src="js/functions/colabs.js"></script>
 <?php
 include 'modals/modalNewColab.php';
 ?>
