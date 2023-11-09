@@ -1,5 +1,8 @@
 <?php
 $getCollaborators = $colabs_model->getAllColabs();
+$getSates = $colabs_model->getAllStates();
+$getSubsidiary = $colabs_model->getSubsidiary();
+$getPositions = $colabs_model->getPositions();
 ?>
 <h1 class="h2">Colaboradores</h1>
 
@@ -46,11 +49,11 @@ $getCollaborators = $colabs_model->getAllColabs();
                                     </div>
                                 </div>
                             </td> -->
-                            <td><?=$colab->colaborator_code?></td>
-                            <td><?=$colab->name?> <?=$colab->lastname?></td>
-                            <td><?=$colab->business_mail?></td>
+                                <td><?= $colab->colaborator_code ?></td>
+                                <td><?= $colab->name ?> <?= $colab->lastname ?></td>
+                                <td><?= $colab->business_mail ?></td>
                                 <td class="text-end">
-                                    <div class="fw-bold"><?=$colab->password_access?></div>
+                                    <div class="fw-bold"><?= $colab->password_access ?></div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

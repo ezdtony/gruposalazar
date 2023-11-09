@@ -41,10 +41,17 @@
                             </div>
                         </div>
 
-                        <div class="col-12">
+                        <div class="col-6">
                             <div class="mb-4">
                                 <label class="form-label">RFC</label>
                                 <input type="email" id="rfc" class="form-control" placeholder="RFC">
+                            </div>
+                        </div>
+
+                        <div class="col-6">
+                            <div class="mb-4">
+                                <label class="form-label">NSS <span class="legend-circle bg-danger"></span></label>
+                                <input type="email" id="nss" class="form-control" placeholder="RFC">
                             </div>
                         </div>
                     </div>
@@ -68,7 +75,7 @@
                         </div>
                         <div class="col-6">
                             <div class="mb-4">
-                                <label class="form-label">Número Int.<span class="legend-circle bg-danger"></span></label>
+                                <label class="form-label">Número Int.</label>
                                 <input id="int_num" type="text" class="form-control obligatory" placeholder="Núm. Int.">
                             </div>
                         </div>
@@ -85,80 +92,96 @@
                             </div>
                         </div>
                         <div class="col-6">
-                        <label class="form-label">Estado<span class="legend-circle bg-danger"></span></label>
-                            <select class="form-select js-example-basic-single" id="selectState" autocomplete="off" >
+                            <label class="form-label">Estado<span class="legend-circle bg-danger"></span></label><br>
+                            <select class="form-select js-example-basic-single" id="selectState" autocomplete="off">
                                 <option disabled selected value="">Seleccione un estado...</option>
-                                <option value="Thomas Edison">Thomas Edison</option>
-                                <option value="John Doe">John Doe</option>
-                                <option value="Nikola Tesla">Nikola Tesla</option>
-                                <option value="Arnold Schwarzenegger">Arnold Schwarzenegger</option>
+                                <?php foreach ($getSates as $state) : ?>
+                                    <option value="<?= $state->id ?>"><?= $state->estado ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
-
-                        <div class="col-12">
-                            <div class="mb-4">
-                                <!-- Label -->
-                                <label class="form-label">
-                                    Password
-                                </label>
-
-                                <!-- Input -->
-                                <div class="input-group input-group-merge">
-                                    <input type="password" class="form-control" autocomplete="off" data-toggle-password-input="" placeholder="Your password">
-
-                                    <button type="button" class="input-group-text px-4 text-secondary link-primary" data-toggle-password=""></button>
-                                </div>
-                            </div>
+                        <div class="col-6">
+                            <label class="form-label">Municipio<span class="legend-circle bg-danger"></span></label><br>
+                            <select disabled class="form-select js-example-basic-single" id="selectCity" autocomplete="off">
+                                <option disabled selected value="">Seleccione un estado...</option>
+                            </select>
                         </div>
-
-                        <div class="col-12">
-                            <div class="mb-4">
-
-                                <!-- Label -->
-                                <label class="form-label">
-                                    Confirm password
-                                </label>
-
-                                <!-- Input -->
-                                <div class="input-group input-group-merge">
-                                    <input type="password" class="form-control" autocomplete="off" data-toggle-password-input="" placeholder="Your password again">
-
-                                    <button type="button" class="input-group-text px-4 text-secondary link-primary" data-toggle-password=""></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div> <!-- / .row -->
-
-                    <div class="form-check">
-
-                        <!-- Input -->
-                        <input type="checkbox" class="form-check-input" id="agree">
-
-                        <!-- Label -->
-                        <label class="form-check-label" for="agree">
-                            I agree with <a href="javascript: void(0);">Terms &amp; Conditions</a> and have understood <a href="javascript: void(0);">Privacy Policy</a>
-                        </label>
                     </div>
+                    <div class="row">
+                        <br>
+                        <h4 style="margin-top:20px">Información de Acceso y Puesto</h4>
 
-                    <div class="row align-items-center text-center">
+                        <br><br>
                         <div class="col-12">
-
-                            <!-- Button -->
-                            <button type="button" class="btn w-100 btn-primary mt-6 mb-2">Get started</button>
+                            <label class="form-label">Sucursal base<span class="legend-circle bg-danger"></span></label><br>
+                            <select class="form-select js-example-basic-single" id="selectSubsidiary" autocomplete="off">
+                                <option disabled selected value="">Seleccione una Sucursal...</option>
+                                <?php foreach ($getSubsidiary as $subsidiary) : ?>
+                                    <option value="<?= $subsidiary->id_subsidiary ?>"><?= $subsidiary->subsidiary_prefix ?> | <?= $subsidiary->subsidiary_name ?></option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
-
                         <div class="col-12">
-
-                            <!-- Link -->
-                            <small class="mb-0 text-muted">Already registered? <a href="./sign-in-basic.html" class="fw-semibold">Login</a></small>
+                            <label class="form-label">Puesto<span class="legend-circle bg-danger"></span></label><br>
+                            <select class="form-select js-example-basic-single" id="selectPosition" autocomplete="off">
+                                <option disabled selected value="">Seleccione un puesto...</option>
+                                <?php foreach ($getPositions as $position) : ?>
+                                    <option value="<?= $position->id_user_profiles ?>"><?= $position->description ?> </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
-                    </div> <!-- / .row -->
-                </form>
+                        <div class="col-12">
+                            <div class="mb-4">
+                                <label class="form-label">Correo asignado <span class="legend-circle bg-danger"></span></label>
+                                <input type="email" id="assigned_mail" class="form-control obligatory" placeholder="Correo electrónico empresarial">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-4">
+                                <!-- Label -->
+                                <label class="form-label">
+                                    Contraseña <span class="legend-circle bg-danger"></span>
+                                </label>
+
+                                <!-- Input -->
+                                <div class="input-group input-group-merge">
+                                    <input type="text" class="form-control" id="password" autocomplete="off" placeholder="Contraseña">
+
+                                    <!-- <button type="button" class="input-group-text px-4 text-secondary link-primary" data-toggle-password=""></button> -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="password" class="form-label">Generar contraseña</label>
+                            <button type="button" id="generate_password" class="btn btn-outline-info btn-rounded">Generar</button>
+                        </div>
+                    </div>
+<!-- 
+            <div class="form-check">
+
+                <input type="checkbox" class="form-check-input" id="agree">
+
+                <label class="form-check-label" for="agree">
+                    I agree with <a href="javascript: void(0);">Terms &amp; Conditions</a> and have understood <a href="javascript: void(0);">Privacy Policy</a>
+                </label>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary">Registrar</button>
-            </div>
+
+            <div class="row align-items-center text-center">
+                <div class="col-12">
+
+                    <button type="button" class="btn w-100 btn-primary mt-6 mb-2">Get started</button>
+                </div>
+
+                <div class="col-12">
+                    <small class="mb-0 text-muted">Already registered? <a href="./sign-in-basic.html" class="fw-semibold">Login</a></small>
+                </div>
+            </div> -->
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary">Registrar</button>
         </div>
     </div>
+</div>
 </div>
