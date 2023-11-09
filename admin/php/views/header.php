@@ -2139,6 +2139,8 @@
                   </div>
                   <div class="flex-grow-1 ms-3">
                     <h4 class="mb-0"><?=$_SESSION['user_name']?></h4>
+                    <br>
+                    <h4 class="mb-0"><?=$_SESSION['user_profile']?></h4>
                     <p class="card-text"><?=$_SESSION['business_mail']?></p>
                   </div>
                 </div>
