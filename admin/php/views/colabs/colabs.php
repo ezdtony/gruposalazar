@@ -24,7 +24,7 @@ $getPositions = $colabs_model->getPositions();
 
             <!-- Table -->
             <div class="table-responsive">
-                <table class="table table-sm table-borderless align-middle mb-0">
+                <table class="table table-sm table-borderless align-middle mb-0" id="tableColabs">
                     <thead class="thead-light">
                         <tr>
                             <th>Código</th>
@@ -34,7 +34,7 @@ $getPositions = $colabs_model->getPositions();
                         </tr>
                     </thead>
 
-                    <tbody>
+                    <tbody id="tbodyColabs">
                         <?php foreach ($getCollaborators as $colab) : ?>
                             <tr>
                                 <!-- <td>

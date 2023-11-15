@@ -30,21 +30,21 @@
                         <div class="col-12">
                             <div class="mb-4">
                                 <label class="form-label">Número telefónico <span class="legend-circle bg-danger"></span></label>
-                                <input type="email" id="phone_number" class="form-control obligatory" placeholder="Número telefónico">
+                                <input type="text" id="phone_number" class="form-control obligatory" placeholder="Número telefónico">
                             </div>
                         </div>
 
                         <div class="col-12">
                             <div class="mb-4">
                                 <label class="form-label">CURP <span class="legend-circle bg-danger"></span></label>
-                                <input type="email" id="curp" class="form-control obligatory" placeholder="CURP">
+                                <input type="text" id="curp" class="form-control obligatory" placeholder="CURP">
                             </div>
                         </div>
 
                         <div class="col-6">
                             <div class="mb-4">
                                 <label class="form-label">RFC</label>
-                                <input type="email" id="rfc" class="form-control" placeholder="RFC">
+                                <input type="text" id="rfc" class="form-control" placeholder="RFC">
                             </div>
                         </div>
 
@@ -179,8 +179,8 @@
             </form>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
-            <button type="button" class="btn btn-primary">Registrar</button>
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="closeModalNewUser">Cerrar</button>
+            <button type="button" class="btn btn-primary" id="btnSaveNewUser">Registrar</button>
         </div>
     </div>
 </div>
