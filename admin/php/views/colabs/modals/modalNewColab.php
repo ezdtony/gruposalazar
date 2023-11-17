@@ -156,7 +156,7 @@
                             <button type="button" id="generate_password" class="btn btn-outline-info btn-rounded">Generar</button>
                         </div>
                     </div>
-<!-- 
+                    <!-- 
             <div class="form-check">
 
                 <input type="checkbox" class="form-check-input" id="agree">
@@ -176,12 +176,12 @@
                     <small class="mb-0 text-muted">Already registered? <a href="./sign-in-basic.html" class="fw-semibold">Login</a></small>
                 </div>
             </div> -->
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="closeModalNewUser">Cerrar</button>
-            <button type="button" class="btn btn-primary" id="btnSaveNewUser">Registrar</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" id="closeModalNewUser">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btnSaveNewUser">Registrar</button>
+            </div>
         </div>
     </div>
-</div>
 </div>

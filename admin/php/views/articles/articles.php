@@ -18,7 +18,7 @@ $getPositions = $articles_model->getPositions(); */
                 </h2>
 
                 <!-- Link -->
-                <a class="small fw-bold" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#newColabModal">
+                <a class="small fw-bold" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalNewArticle">
                     Registrar producto
                 </a>
             </div>
@@ -75,7 +75,7 @@ $getPositions = $articles_model->getPositions(); */
                                     <div class="avatar avatar-sm" style="margin-right:10px">
                                         <img src="<?= $article->thumbnail ?>" alt="..." class="avatar-img">
                                     </div>
-                                    <?= $article->product_short_name ?>
+                                    <?= $article->product_name ?>
                                 </td>
                                 <td class="price text-end">
                                     $<?= number_format($article->price, 2, '.') ?>
