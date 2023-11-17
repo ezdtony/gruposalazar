@@ -1,3 +1,10 @@
+<?php
+include("php/models/navbar_model.php");
+
+$navbar_model = new Navbar();
+$navbarItems = $navbar_model->getAllNavbarItems();
+?>
+
 <!-- NAVIGATION -->
 <nav id="mainNavbar" class="navbar navbar-vertical navbar-expand-lg scrollbar bg-dark navbar-dark">
     <!-- Theme configuration (navbar) -->
@@ -43,16 +50,13 @@
                         <span>Principal</span>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link colabs-nav-link" href="colabs.php">
-                    <i class="fa-solid fa-briefcase" style="margin-right:7px;"></i> <span>Personal </span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link articles-nav-link" href="articles.php">
-                    <i class="fa-solid fa-shop" style="margin-right:7px;"></i> <span> Productos </span>
-                    </a>
-                </li>
+                <?php foreach ($navbarItems as $item) : ?>
+                    <li class="nav-item">
+                        <a class="nav-link <?=$item->item_class?>" href="<?=$item->item_href?>">
+                            <?=$item->item_icon?> <span><?=$item->item_title?> </span>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
                 <!-- <li class="nav-item dropdown">
                     <a class="nav-link" href="#pagesCollapse" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="pagesCollapse">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="nav-link-icon" height="18" width="18">
