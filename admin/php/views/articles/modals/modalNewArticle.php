@@ -23,14 +23,12 @@
                         </div>
                         <div class="col-4">
                             <div class="mb-3">
-                                <label class="form-label" for="prod_brand">Marca <span class="form-label-secondary"></span></label>
-                                <select id="prod_brand" class="form-control">
-                                    <option>Choose an option</option>
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
+                                <label class="form-label">Marca: <span class="legend-circle bg-danger"></span></label><br>
+                                <select class="form-select js-example-basic-single js-example-responsive" style="width: 75%" id="prod_brand" autocomplete="off">
+                                    <option disabled selected value="">Seleccione una marca...</option>
+                                    <?php foreach ($getAllBrands as $brand) : ?>
+                                        <option value="<?= $brand->id_brands ?>"><?= $brand->brand ?></option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                         </div>
@@ -43,33 +41,36 @@
                         <div class="col-4">
                             <div class="mb-4">
                                 <label class="form-label">Código de barras: <span class="legend-circle bg-danger"></span></label>
-                                <input type="text" id="prod_barcode" class="form-control obligatory" placeholder="Código de barras">
+                                <input type="number" id="prod_barcode" class="form-control obligatory" placeholder="Código de barras">
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div class="col-4">
+                        <div class="col-3">
                             <div class="mb-3">
-                                <label class="form-label" for="prod_meassure">U. Medida: <span class="form-label-secondary"></span></label>
-                                <select id="prod_meassure" class="form-control">
-                                    <option>Choose an option</option>
-                                    <option>1</option>
-                                    <option>2</option>
-                                    <option>3</option>
-                                    <option>4</option>
-                                    <option>5</option>
+                                <label class="form-label">U. Medida: <span class="legend-circle bg-danger"></span></label><br>
+                                <select class="form-select js-example-basic-single js-example-responsive" style="width: 75%" id="prod_meassure" autocomplete="off">
+                                    <option disabled selected value="">Seleccione una marca...</option>
+                                    <?php foreach ($getAllMU as $mu) : ?>
+                                        <option value="<?= $mu->id_measurement_units ?>"><?= $mu->type_measure ?> (<?= $mu->measure_symbol ?>)</option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                         </div>
-
-                        <div class="col-4">
+                        <div class="col-3">
                             <div class="mb-4">
-                                <label class="form-label">Precio unitario: <span class="legend-circle bg-danger"></span></label>
+                                <label class="form-label">Precio de compra: <span class="legend-circle bg-danger"></span></label>
+                                <input id="prod_purchase_price" type="text" class="form-control obligatory" placeholder="Precio de compra">
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="mb-4">
+                                <label class="form-label">Precio unitario (Venta al público): <span class="legend-circle bg-danger"></span></label>
                                 <input id="prod_price" type="text" class="form-control obligatory" placeholder="Precio unitario">
                             </div>
                         </div>
-                        <div class="col-4">
+                        <div class="col-3">
                             <div class="mb-4">
                                 <br><br>
                                 <div class="form-check form-switch">
@@ -93,7 +94,7 @@
                         <div class="col-4">
                             <div class="mb-4">
                                 <label class="form-label">Stock máximo: <span class="legend-circle bg-danger"></span></label>
-                                <input type="text" id="prod_man_stock" class="form-control obligatory" placeholder="Stock máximo">
+                                <input type="text" id="prod_max_stock" class="form-control obligatory" placeholder="Stock máximo">
                             </div>
                         </div>
                         <div class="col-12">
@@ -101,6 +102,12 @@
                                 <label class="form-label">Descripción: <span class="legend-circle bg-danger"></span></label>
                                 <textarea class="form-control" placeholder="Descripción" id="prod_description" rows="4"></textarea>
 
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="col-md-8">
+                                <label for="validationValidFileInput1">Imagen:  <span class="legend-circle bg-danger"></span></label>
+                                <input type="file" id="prod_image" class="form-control">
                             </div>
                         </div>
 

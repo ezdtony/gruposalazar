@@ -15,36 +15,24 @@ class Articles
         return ($getSites);
     }
 
-    public function getAllStates()
+    public function getAllBrands()
     {
         include_once('php/models/petitions.php');
         $queries = new Queries;
         $sql_colabs = "SELECT *
-        FROM u803991314_main.estados AS states
+        FROM u803991314_main.brands AS states
         ";
 
         $getSites = $queries->getData($sql_colabs);
 
         return ($getSites);
     }
-    public function getSubsidiary()
+    public function getAllMU()
     {
         include_once('php/models/petitions.php');
         $queries = new Queries;
         $sql_colabs = "SELECT *
-        FROM u803991314_main.subsidiary AS subs
-        ";
-
-        $getSites = $queries->getData($sql_colabs);
-
-        return ($getSites);
-    }
-    public function getPositions()
-    {
-        include_once('php/models/petitions.php');
-        $queries = new Queries;
-        $sql_colabs = "SELECT *
-        FROM u803991314_main.user_profiles AS prof
+        FROM u803991314_main.measurement_units AS mu
         ";
 
         $getSites = $queries->getData($sql_colabs);

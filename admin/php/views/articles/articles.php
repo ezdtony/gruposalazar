@@ -1,5 +1,7 @@
 <?php
 $getArticles = $articles_model->getAllArticles();
+$getAllBrands = $articles_model->getAllBrands();
+$getAllMU = $articles_model->getAllMU();
 /* $getSates = $articles_model->getAllStates();
 $getSubsidiary = $articles_model->getSubsidiary();
 $getPositions = $articles_model->getPositions(); */
