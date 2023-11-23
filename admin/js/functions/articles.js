@@ -80,6 +80,39 @@ $(document).ready(function () {
     }
   });
 
+  $(document).on("click", ".btnSeeStockSubsidiary", function () {
+    loading();
+    var id_product = $(this).attr("data-id-product");
+    var product_name = $(this).attr("data-product-name");
+
+    $.ajax({
+      url: "php/controllers/articles/articles_controller.php",
+      method: "POST",
+      data: {
+        mod: "getProductStocks",
+        id_product: id_product,
+        product_name: product_name,
+      },
+    })
+      .done(function (data) {
+        var data = JSON.parse(data);
+        //console.log(data);
+        if (data.response == true) {
+          Swal.close();
+          $("#divStocksSubsidiarys").html(data.html);
+        } else {
+          Swal.close();
+          $("#divStocksSubsidiarys").html(data.html);
+        }
+      })
+      .fail(function (message) {
+        Swal.fire({
+          title: "No se pudoo completar el proceso!",
+          icon: "error",
+        });
+      });
+  });
+
   $(document).on("click", ".btnGenerateBarcode", function () {
     var product_barcode = $(this).attr("data-barcode");
     JsBarcode("#barcodeImg", product_barcode, { format: "itf14" });
@@ -88,6 +121,7 @@ $(document).ready(function () {
   });
 
   function saveNewProd() {
+    loading();
     var prod_code = $("#prod_code").val().trim();
     var prod_name = $("#prod_name").val().trim();
     var prod_brand = $("#prod_brand option:selected").val();
@@ -146,6 +180,7 @@ $(document).ready(function () {
       prod_image.files.length > 0
     ) {
       let formData = new FormData();
+      formData.append("mod", "saveNewProd");
       formData.append("prod_image", prod_image.files[0]);
       formData.append("prod_code", prod_code);
       formData.append("prod_name", prod_name);
@@ -164,7 +199,6 @@ $(document).ready(function () {
 
       fetch("php/controllers/articles/articles_controller.php", {
         method: "POST",
-        function: "saveNewProd",
         body: formData,
       })
         .then((respuesta) => respuesta.json())
@@ -210,6 +244,17 @@ $(document).ready(function () {
     // my_window.document.write(printablEelement.innerHTML);
     // my_window.document.write('</body></html>');
     // my_window.print();
+  }
+  function loading() {
+    Swal.fire({
+      title: "Cargando...",
+      html: '<img src="images/paint-loading-2.gif" width="300" height="175">',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showCloseButton: false,
+      showCancelButton: false,
+      showConfirmButton: false,
+    });
   }
 
   $(".js-example-basic-single").select2();

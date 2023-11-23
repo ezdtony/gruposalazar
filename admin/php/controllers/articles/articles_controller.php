@@ -9,12 +9,6 @@ if (!empty($_POST['mod'])) {
     $function();
 }
 
-if (!empty($_POST['function'])) {
-    echo "hola";
-    $function = $_POST['function'];
-    $function();
-}
-
 
 
 
@@ -42,13 +36,13 @@ function saveNewProd()
 
 
     $nm_Archivo_img = "gpo_slzr_prodimg_" . time();
-    $extension_img = basename($_FILES["factura"]["type"]);
+    $extension_img = basename($_FILES["prod_image"]["type"]);
 
     $directorio_img =  dirname(__DIR__ . '', 4) . '/uploads/prodsimg';
 
     $archivo_img = $directorio_img . "/" .  $nm_Archivo_img . "." . $extension_img;
 
-    $ruta_sql_img = 'uploads/prodsimg/' .  $nm_Archivo_img . "." . $extension_img;
+    $ruta_sql_img = '../uploads/prodsimg/' .  $nm_Archivo_img . "." . $extension_img;
 
     $queries = new Queries;
 
@@ -58,12 +52,6 @@ function saveNewProd()
     }
 
     if (move_uploaded_file($_FILES["prod_image"]["tmp_name"], $archivo_img)) {
-
-        $data = array(
-            'response' => true,
-            'message' => 'Se guardó el archivo correctamente'
-        );
-        echo json_encode($data);
 
         $sql = "INSERT INTO u803991314_main.products
     (
@@ -119,7 +107,7 @@ function saveNewProd()
             $last_id = $insert['last_id'];
             $data = array(
                 'response' => true,
-                'message' => 'Se guardó el crédito correctamente',
+                'message' => 'Se guardó el producto correctamente',
                 'last_id' => $last_id
             );
         } else {
@@ -138,6 +126,70 @@ function saveNewProd()
 
     echo json_encode($data);
 }
+
+
+function getProductStocks()
+{
+
+    $id_product = $_POST['id_product'];
+    $product_name = $_POST['product_name'];
+
+    $html = "";
+    $html .= '<h4>' . $product_name . '</h4>';
+
+    $html .= '  <table class="table table-striped">
+    <thead>
+        <tr>
+            <th scope="col">Sucursal</th>
+            <th scope="col">Stock</th>
+        </tr>
+    </thead>
+    <tbody>
+       ';
+    $queries = new Queries;
+
+
+    $sql = "SELECT sub.subsidiary_name, stk.stock
+        FROM u803991314_main.subsidiary AS sub
+        LEFT JOIN u803991314_main.subsidiary_stocks AS stk  ON sub.id_subsidiary = stk.id_subsidiary AND stk.prducts_id_prducts = $id_product
+        LEFT JOIN u803991314_main.products AS prd  ON prd.id_prducts = stk.prducts_id_prducts AND prd.id_prducts = $id_product";
+
+    $queries = new Queries;
+    $stocks = $queries->getData($sql);
+
+
+    if (!empty($stocks)) {
+        foreach ($stocks as $stock) {
+            $html .= '
+                    <tr>
+                        <th scope="row">' . $stock->subsidiary_name . '</th>
+                        <td>' . $stock->stock . '</td>
+                    </tr>';
+        }
+
+        $html .= '
+                </tbody>
+            </table>';
+        $data = array(
+            'response' => true,
+            'html' => $html
+        );
+    } else {
+
+        $html .= '
+                    </tbody>
+                </table>';
+        $data = array(
+            'response' => false,
+            'html' => $html
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+
 
 function generateRandomString($length)
 {

@@ -45,11 +45,11 @@ $getPositions = $articles_model->getPositions(); */
                                     Precio unitario
                                 </a>
                             </th>
-                            <th class="text-end">
+                            <!-- <th class="text-end">
                                 <a href="javascript: void(0);" class="text-muted list-sort" data-sort="quantity">
                                     Stock
                                 </a>
-                            </th>
+                            </th> -->
                             <th class="text-end">
                                 <a href="javascript: void(0);" class="text-muted list-sort" data-sort="barcode">
                                     Código de Barras
@@ -58,6 +58,11 @@ $getPositions = $articles_model->getPositions(); */
                             <th class="text-end pe-7 min-w-200px">
                                 <a href="javascript: void(0);" class="text-muted list-sort" data-sort="sales">
                                     Ventas
+                                </a>
+                            </th>
+                            <th class="text-end pe-7 min-w-200px">
+                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="sales">
+                                    Acciones
                                 </a>
                             </th>
                         </tr>
@@ -82,20 +87,45 @@ $getPositions = $articles_model->getPositions(); */
                                 <td class="price text-end">
                                     $<?= number_format($article->price, 2, '.') ?>
                                 </td>
-                                <td class="quantity text-end">
+                               <!--  <td class="quantity text-end">
                                     <?= $article->stock ?>
-                                </td>
+                                </td> -->
                                 <td class="barcode fw-bold text-center">
                                     <button type="button" data-barcode="<?= $article->product_barcode ?>" class="btn btn-secondary btnGenerateBarcode" data-bs-toggle="modal" data-bs-target="#viewBarcode">
                                         <i class="fa-solid fa-barcode"></i>
                                     </button>
                                 </td>
                                 <td class="sales" data-sales="81">
-                                    <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex justify-content-between align-items-center text-center">
                                         <div class="progress d-flex flex-grow-1">
                                             <div class="progress-bar" role="progressbar" style="width: <?= $percentage ?>%" aria-valuenow="<?= $article->stock ?>" aria-valuemin="0" aria-valuemax="<?= $article->ideal_stock ?>"></div>
                                         </div>
                                         <span class="ms-3 text-muted"><?= $percentage ?>%</span>
+                                    </div>
+                                    <button title="Ver stock en sucursales"  data-bs-toggle="modal" data-bs-target="#subsidiaryStocks" data-product-name="<?= $article->product_short_name ?> / <?= $article->product_code ?> | <?= $article->product_name ?>" data-id-product="<?= $article->id_prducts ?>" type="button" class="btn btn-info btn-sm btnSeeStockSubsidiary"><i class="fa-solid fa-cubes"></i></button>
+                                </td>
+                                <td class="barcode fw-bold text-center">
+                                    <div class="dropdown">
+                                        <a href="javascript: void(0);" class="dropdown-toggle no-arrow text-secondary" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="14" width="14">
+                                                <g>
+                                                    <circle cx="12" cy="3.25" r="3.25" style="fill: currentColor"></circle>
+                                                    <circle cx="12" cy="12" r="3.25" style="fill: currentColor"></circle>
+                                                    <circle cx="12" cy="20.75" r="3.25" style="fill: currentColor"></circle>
+                                                </g>
+                                            </svg>
+                                        </a>
+                                        <div class="dropdown-menu">
+                                            <a href="javascript: void(0);" class="dropdown-item">
+                                                Editar
+                                            </a>
+                                            <a href="javascript: void(0);" class="dropdown-item">
+                                                Editar stock en sucursales
+                                            </a>
+                                            <a href="javascript: void(0);" class="dropdown-item" style="color:red !important;">
+                                                Borrar
+                                            </a>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -111,5 +141,6 @@ $getPositions = $articles_model->getPositions(); */
 <?php
 include 'modals/modalNewArticle.php';
 include 'modals/modalViewBarcode.php';
+include 'modals/subsidiaryStocks.php';
 
 ?>
