@@ -149,27 +149,34 @@ function getProductStocks()
     $queries = new Queries;
 
 
-    $sql = "SELECT sub.subsidiary_name, stk.stock
+    $sql = "SELECT sub.id_subsidiary, sub.subsidiary_name, stk.stock
         FROM u803991314_main.subsidiary AS sub
         LEFT JOIN u803991314_main.subsidiary_stocks AS stk  ON sub.id_subsidiary = stk.id_subsidiary AND stk.prducts_id_prducts = $id_product
         LEFT JOIN u803991314_main.products AS prd  ON prd.id_prducts = stk.prducts_id_prducts AND prd.id_prducts = $id_product";
 
     $queries = new Queries;
     $stocks = $queries->getData($sql);
-
+    $total_stock = 0;
 
     if (!empty($stocks)) {
         foreach ($stocks as $stock) {
+            $total_stock = $total_stock + $stock->stock;
             $html .= '
                     <tr>
                         <th scope="row">' . $stock->subsidiary_name . '</th>
-                        <td>' . $stock->stock . '</td>
+                        <td class="tdStock" id="tdStockSubs' . $stock->id_subsidiary . '" data-stock="' . $stock->stock . '" data-id-subsidiary="' . $stock->id_subsidiary . '" data-id-prod="' . $id_product . '">' . $stock->stock . '</td>
                     </tr>';
         }
 
+        $html .= '</tbody><tfoot>';
+        $html .= '<tr>
+        <th style="background-color:#a6cce3 !important;" scope="row"><strong>TOTAL</strong></th>
+        <td class="tdStock" id="tdTotalStock" style="background-color:#a6cce3 !important;" data-total-stock="' . $total_stock . '"><strong>' . $total_stock . '</strong></td>
+        </tr>';
         $html .= '
-                </tbody>
-            </table>';
+            </tfoot>
+        </table>';
+
         $data = array(
             'response' => true,
             'html' => $html

@@ -119,6 +119,145 @@ $(document).ready(function () {
 
     /* printBarcode(); */
   });
+  $(document).on("dblclick", ".tdStock", function () {
+    var stock = $(this).attr("data-stock");
+    var id_subsidiary = $(this).attr("data-id-subsidiary");
+    var id_product = $(this).attr("data-id-prod");
+
+    //console.log(ammount);
+    var html = "";
+    html +=
+      '<input class="editSubsStock" data-id-subsidiary="' +
+      id_subsidiary +
+      '" id="editStockSubs' +
+      id_subsidiary +
+      '" data-id-prod="' +
+      id_product +
+      '" type="text" data-og-stock="' +
+      stock +
+      '" value="' +
+      stock +
+      '">';
+    $(this).closest("td").removeClass("tdStock");
+    /* $(this).closest("td").removeClass("text-center"); */
+    $(this).closest("td").html(html);
+
+    var strLength = $("#editStockSubs" + id_subsidiary).val().length * 2;
+
+    $("#editStockSubs" + id_subsidiary).focus();
+    $("#editStockSubs" + id_subsidiary)[0].setSelectionRange(
+      strLength,
+      strLength
+    );
+
+    $("#editStockSubs" + id_subsidiary).focus();
+  });
+
+  $(document).on("focusout", ".editSubsStock", function () {
+    loading();
+    let USDollar = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+    //--- --- ---//
+    var stock = $(this).val();
+    var id_subsidiary = $(this).attr("data-id-subsidiary");
+    var id_product = $(this).attr("data-id-prod");
+    var og_stock = $(this).attr("data-og-stock");
+
+    var html = "";
+    //    html += USDollar.format(stock);
+    html += stock;
+
+    $("#tdStockSubs" + id_subsidiary)
+      .empty()
+      .html(html);
+    $("#tdStockSubs" + id_subsidiary).addClass("tdStock");
+    $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
+    $(this).closest("td").addClass("text-center");
+
+    var total_stock = $("#tdTotalStock").attr("data-total-stock");
+    total_stock = parseFloat(total_stock);
+    if (og_stock != "") {
+      og_stock = parseFloat(og_stock);
+    } else {
+      og_stock = 0;
+    }
+    if (stock != "") {
+      stock = parseFloat(stock);
+    } else {
+      stock = 0;
+    }
+
+    /*  if (stock > 0 && total_stock != "") {
+      if (!$("#checkMonth" + id_subsidiary).is(":checked")) {
+        $("#checkMonth" + id_subsidiary).trigger("click");
+      }
+    } else {
+      if ($("#checkMonth" + id_subsidiary).is(":checked")) {
+        $("#checkMonth" + id_subsidiary).trigger("click");
+      }
+    } */
+
+    var new_total_stock = total_stock - og_stock;
+    new_total_stock = new_total_stock + stock;
+    console.log(og_stock);
+    $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
+    $("#tdTotalStock").text(new_total_stock);
+    $("#tdTotalStock").attr("data-total-stock", new_total_stock);
+
+    Swal.close();
+    /*  console.log(ammount);
+    console.log(og_ammount);
+    
+    console.log(new_total_ammount); */
+    /*  */
+
+    /*  $.ajax({
+      url: "php/controllers/MainController.php",
+      method: "POST",
+      data: {
+        mod: "updateMonthPayment",
+        ammount: ammount,
+        id_family: id_family,
+        id_month: id_month,
+        id_payment_concepts: id_payment_concepts,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response == true) {
+          $("#totalBillingPlan").attr("data-total-ammount", new_total_ammount);
+          $("#tdAmmount" + id_month).attr("data-ammount", ammount);
+          $("#totalBillingPlan").fadeOut(1000, function () {
+            $("#totalBillingPlan")
+              .text(USDollar.format(new_total_ammount))
+              .fadeIn(500);
+          });
+        } else {
+          Swal.fire(
+            "Error!",
+            "Ocurrió un error al realizar la operación solicitada!",
+            "error"
+          );
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      }); */
+
+    //--- --- ---//
+  });
 
   function saveNewProd() {
     loading();
