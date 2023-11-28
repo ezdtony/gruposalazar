@@ -27,6 +27,8 @@ include_once "php/controllers/login.php";
     <script src="js/mainFunctions.js"></script>
     <link href="assets/select2/css/select2.min.css" rel="stylesheet" />
     <script src="assets/select2/js/select2.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <!-- no-JS fallback -->
     <noscript>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" />

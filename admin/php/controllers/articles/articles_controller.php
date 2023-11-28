@@ -197,6 +197,69 @@ function getProductStocks()
     echo json_encode($data);
 }
 
+function updateStocksSubsidiary()
+{
+
+
+    $id_product = $_POST['id_product'];
+    $id_subsidiary = $_POST['id_subsidiary'];
+    $stock = $_POST['stock'];
+
+    $queries = new Queries;
+
+    $sqlCI = "SELECT * FROM u803991314_main.subsidiary_stocks
+    WHERE prducts_id_prducts = $id_product AND id_subsidiary = $id_subsidiary";
+
+    if (empty($queries->getData($sqlCI))) {
+        $sqlInsertStock = "INSERT INTO u803991314_main.subsidiary_stocks (
+            stock,
+            id_subsidiary,
+            prducts_id_prducts
+            )
+            VALUES ('$stock',
+            $id_subsidiary,
+            $id_product
+            )";
+        $insert = $queries->InsertData($sqlInsertStock);
+
+        if (!empty($insert)) {
+            $last_id = $insert['last_id'];
+            $data = array(
+                'response' => true,
+                'message' => 'Stock actualizado',
+                'last_id' => $last_id
+            );
+        } else {
+            $data = array(
+                'response' => false,
+                'message' => 'Eror al actualizar stock'
+            );
+        }
+    } else {
+        $sql = "UPDATE u803991314_main.subsidiary_stocks
+                SET stock = '$stock' WHERE prducts_id_prducts = $id_product AND id_subsidiary = $id_subsidiary";
+
+        $queries = new Queries;
+        $insert = $queries->insertData($sql);
+
+
+        if (!empty($insert)) {
+            $last_id = $insert['last_id'];
+            $data = array(
+                'response' => true,
+                'message' => 'Stock actualizado',
+                'last_id' => $last_id
+            );
+        } else {
+            $data = array(
+                'response' => false,
+                'message' => 'Eror al actualizar stock'
+            );
+        }
+    }
+
+    echo json_encode($data);
+}
 
 function generateRandomString($length)
 {

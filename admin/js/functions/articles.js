@@ -153,7 +153,7 @@ $(document).ready(function () {
     $("#editStockSubs" + id_subsidiary).focus();
   });
 
-  $(document).on("focusout", ".editSubsStock", function () {
+/*   $(document).on("focusout", ".editSubsStock", function () {
     loading();
     let USDollar = new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -169,79 +169,54 @@ $(document).ready(function () {
     //    html += USDollar.format(stock);
     html += stock;
 
-    $("#tdStockSubs" + id_subsidiary)
-      .empty()
-      .html(html);
-    $("#tdStockSubs" + id_subsidiary).addClass("tdStock");
-    $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
-    $(this).closest("td").addClass("text-center");
-
-    var total_stock = $("#tdTotalStock").attr("data-total-stock");
-    total_stock = parseFloat(total_stock);
-    if (og_stock != "") {
-      og_stock = parseFloat(og_stock);
-    } else {
-      og_stock = 0;
-    }
-    if (stock != "") {
-      stock = parseFloat(stock);
-    } else {
-      stock = 0;
-    }
-
-    /*  if (stock > 0 && total_stock != "") {
-      if (!$("#checkMonth" + id_subsidiary).is(":checked")) {
-        $("#checkMonth" + id_subsidiary).trigger("click");
-      }
-    } else {
-      if ($("#checkMonth" + id_subsidiary).is(":checked")) {
-        $("#checkMonth" + id_subsidiary).trigger("click");
-      }
-    } */
-
-    var new_total_stock = total_stock - og_stock;
-    new_total_stock = new_total_stock + stock;
-    console.log(og_stock);
-    $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
-    $("#tdTotalStock").text(new_total_stock);
-    $("#tdTotalStock").attr("data-total-stock", new_total_stock);
-
-    Swal.close();
-    /*  console.log(ammount);
-    console.log(og_ammount);
-    
-    console.log(new_total_ammount); */
-    /*  */
-
-    /*  $.ajax({
-      url: "php/controllers/MainController.php",
+    $.ajax({
+      url: "php/controllers/articles/articles_controller.php",
       method: "POST",
       data: {
-        mod: "updateMonthPayment",
-        ammount: ammount,
-        id_family: id_family,
-        id_month: id_month,
-        id_payment_concepts: id_payment_concepts,
+        mod: "updateStocksSubsidiary",
+        stock: stock,
+        id_subsidiary: id_subsidiary,
+        id_product: id_product,
       },
     })
       .done(function (data) {
         Swal.close();
+
         var data = JSON.parse(data);
         console.log(data);
         if (data.response == true) {
-          $("#totalBillingPlan").attr("data-total-ammount", new_total_ammount);
-          $("#tdAmmount" + id_month).attr("data-ammount", ammount);
-          $("#totalBillingPlan").fadeOut(1000, function () {
-            $("#totalBillingPlan")
-              .text(USDollar.format(new_total_ammount))
-              .fadeIn(500);
+          doneToast(data.message);
+          $("#tdStockSubs" + id_subsidiary)
+            .empty()
+            .html(html);
+          $("#tdStockSubs" + id_subsidiary).addClass("tdStock");
+          $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
+          $(this).closest("td").addClass("text-center");
+          var total_stock = $("#tdTotalStock").attr("data-total-stock");
+          total_stock = parseFloat(total_stock);
+          if (og_stock != "") {
+            og_stock = parseFloat(og_stock);
+          } else {
+            og_stock = 0;
+          }
+          if (stock != "") {
+            stock = parseFloat(stock);
+          } else {
+            stock = 0;
+          }
+
+          var new_total_stock = total_stock - og_stock;
+          new_total_stock = new_total_stock + stock;
+          console.log(og_stock);
+          $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
+          $("#tdTotalStock").text(new_total_stock);
+          $("#tdTotalStock").attr("data-total-stock", new_total_stock);
+
+          $("#tdTotalStock").fadeOut(1000, function () {
+            $("#tdTotalStock").text(new_total_stock).fadeIn(500);
           });
         } else {
-          Swal.fire(
-            "Error!",
-            "Ocurrió un error al realizar la operación solicitada!",
-            "error"
-          );
+          errorToast(data.message);
         }
 
         //--- --- ---//
@@ -254,9 +229,87 @@ $(document).ready(function () {
           duration: 3000,
         });
         myToast.showToast();
-      }); */
+      });
 
     //--- --- ---//
+  }); */
+
+  $(document).on("keypress", ".editSubsStock", function (event) {
+    var keycode = event.keyCode || event.which;
+    if (keycode == 13) {
+      var stock = $(this).val();
+      var id_subsidiary = $(this).attr("data-id-subsidiary");
+      var id_product = $(this).attr("data-id-prod");
+      var og_stock = $(this).attr("data-og-stock");
+
+      var html = "";
+      //    html += USDollar.format(stock);
+      html += stock;
+
+      $.ajax({
+        url: "php/controllers/articles/articles_controller.php",
+        method: "POST",
+        data: {
+          mod: "updateStocksSubsidiary",
+          stock: stock,
+          id_subsidiary: id_subsidiary,
+          id_product: id_product,
+        },
+      })
+        .done(function (data) {
+          Swal.close();
+
+          var data = JSON.parse(data);
+          console.log(data);
+          if (data.response == true) {
+            doneToast(data.message);
+            $("#tdStockSubs" + id_subsidiary)
+              .empty()
+              .html(html);
+            $("#tdStockSubs" + id_subsidiary).addClass("tdStock");
+            $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
+            $(this).closest("td").addClass("text-center");
+            var total_stock = $("#tdTotalStock").attr("data-total-stock");
+            total_stock = parseFloat(total_stock);
+            if (og_stock != "") {
+              og_stock = parseFloat(og_stock);
+            } else {
+              og_stock = 0;
+            }
+            if (stock != "") {
+              stock = parseFloat(stock);
+            } else {
+              stock = 0;
+            }
+
+            var new_total_stock = total_stock - og_stock;
+            new_total_stock = new_total_stock + stock;
+            console.log(og_stock);
+            $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
+            $("#tdTotalStock").text(new_total_stock);
+            $("#tdTotalStock").attr("data-total-stock", new_total_stock);
+
+            $("#tdTotalStock").fadeOut(1000, function () {
+              $("#tdTotalStock").text(new_total_stock).fadeIn(500);
+            });
+          } else {
+            errorToast(data.message);
+          }
+
+          //--- --- ---//
+          //--- --- ---//
+        })
+        .fail(function (message) {
+          Swal.close();
+          var myToast = Toastify({
+            text: data.message,
+            duration: 3000,
+          });
+          myToast.showToast();
+        });
+
+      //--- --- ---//
+    }
   });
 
   function saveNewProd() {
@@ -394,6 +447,40 @@ $(document).ready(function () {
       showCancelButton: false,
       showConfirmButton: false,
     });
+  }
+  function doneToast(text) {
+    Toastify({
+      text: text,
+      duration: 3000,
+      destination: "https://github.com/apvarun/toastify-js",
+      newWindow: true,
+      close: true,
+      gravity: "top", // `top` or `bottom`
+      position: "left", // `left`, `center` or `right`
+      stopOnFocus: true, // Prevents dismissing of toast on hover
+      style: {
+        background: "#00b09b",
+        //background: "linear-gradient(to right, #00b09b, #96c93d)",
+      },
+      onClick: function () {}, // Callback after click
+    }).showToast();
+  }
+  function errorToast(text) {
+    Toastify({
+      text: text,
+      duration: 3000,
+      destination: "https://github.com/apvarun/toastify-js",
+      newWindow: true,
+      close: true,
+      gravity: "top", // `top` or `bottom`
+      position: "left", // `left`, `center` or `right`
+      stopOnFocus: true, // Prevents dismissing of toast on hover
+      style: {
+        background: "#ff3333",
+        //background: "linear-gradient(to right, #00b09b, #96c93d)",
+      },
+      onClick: function () {}, // Callback after click
+    }).showToast();
   }
 
   $(".js-example-basic-single").select2();
