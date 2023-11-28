@@ -18,7 +18,7 @@ $(document).ready(function () {
     var prod_description = $("#prod_description").val();
     const prod_image = document.querySelector("#prod_image");
 
-    console.log("prod_code: " + prod_code);
+   /*  console.log("prod_code: " + prod_code);
     console.log("prod_name: " + prod_name);
     console.log("prod_brand: " + prod_brand);
     console.log("prod_sku: " + prod_sku);
@@ -31,7 +31,7 @@ $(document).ready(function () {
     console.log("prod_min_stock: " + prod_min_stock);
     console.log("prod_max_stock: " + prod_max_stock);
     console.log("prod_description: " + prod_description);
-    console.log("prod_image: " + prod_image.files[0]);
+    console.log("prod_image: " + prod_image.files[0]); */
     if (
       prod_code != null &&
       prod_code != "" &&
@@ -260,7 +260,7 @@ $(document).ready(function () {
           Swal.close();
 
           var data = JSON.parse(data);
-          console.log(data);
+          /* console.log(data); */
           if (data.response == true) {
             doneToast(data.message);
             $("#tdStockSubs" + id_subsidiary)
@@ -284,7 +284,7 @@ $(document).ready(function () {
 
             var new_total_stock = total_stock - og_stock;
             new_total_stock = new_total_stock + stock;
-            console.log(og_stock);
+            /* console.log(og_stock); */
             $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
             $("#tdTotalStock").text(new_total_stock);
             $("#tdTotalStock").attr("data-total-stock", new_total_stock);
