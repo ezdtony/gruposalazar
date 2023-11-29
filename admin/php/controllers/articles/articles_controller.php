@@ -261,6 +261,35 @@ function updateStocksSubsidiary()
     echo json_encode($data);
 }
 
+function getProductInfo()
+{
+
+
+    $id_product = $_POST['id_product'];
+
+    $queries = new Queries;
+    $prod_info = array();
+
+    $sqlCI = "SELECT * FROM u803991314_main.products
+    WHERE id_prducts = $id_product";
+    $prod_info = $queries->getData($sqlCI);
+    if (empty($prod_info)) {
+        $data = array(
+            'response' => true,
+            'message' => '',
+            'prod_info' => $prod_info
+        );
+    } else {
+        $data = array(
+            'response' => true,
+            'message' => 'Error al consultar producto',
+            'prod_info' => $prod_info
+        );
+    }
+
+    echo json_encode($data);
+}
+
 function generateRandomString($length)
 {
     return substr(str_shuffle(str_repeat($x = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length / strlen($x)))), 1, $length);

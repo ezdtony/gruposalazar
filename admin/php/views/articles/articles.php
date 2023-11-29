@@ -116,12 +116,12 @@ $getPositions = $articles_model->getPositions(); */
                                             </svg>
                                         </a>
                                         <div class="dropdown-menu">
-                                            <a href="javascript: void(0);" class="dropdown-item">
+                                            <a  data-id-product="<?= $article->id_prducts ?>" class="dropdown-item editProduct"data-bs-toggle="modal" data-bs-target="#modalEditArticle" >
                                                 Editar
                                             </a>
-                                            <a href="javascript: void(0);" class="dropdown-item">
+                                           <!--  <a href="javascript: void(0);" class="dropdown-item">
                                                 Editar stock en sucursales
-                                            </a>
+                                            </a> -->
                                             <a href="javascript: void(0);" class="dropdown-item" style="color:red !important;">
                                                 Borrar
                                             </a>
@@ -140,6 +140,7 @@ $getPositions = $articles_model->getPositions(); */
 <script src="js/functions/articles.js"></script>
 <?php
 include 'modals/modalNewArticle.php';
+include 'modals/editModalNewArticle.php';
 include 'modals/modalViewBarcode.php';
 include 'modals/subsidiaryStocks.php';
 

@@ -18,7 +18,7 @@ $(document).ready(function () {
     var prod_description = $("#prod_description").val();
     const prod_image = document.querySelector("#prod_image");
 
-   /*  console.log("prod_code: " + prod_code);
+    /*  console.log("prod_code: " + prod_code);
     console.log("prod_name: " + prod_name);
     console.log("prod_brand: " + prod_brand);
     console.log("prod_sku: " + prod_sku);
@@ -153,7 +153,7 @@ $(document).ready(function () {
     $("#editStockSubs" + id_subsidiary).focus();
   });
 
-/*   $(document).on("focusout", ".editSubsStock", function () {
+  /* $(document).on("focusout", ".editSubsStock", function () {
     loading();
     let USDollar = new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -237,6 +237,7 @@ $(document).ready(function () {
   $(document).on("keypress", ".editSubsStock", function (event) {
     var keycode = event.keyCode || event.which;
     if (keycode == 13) {
+      loading();
       var stock = $(this).val();
       var id_subsidiary = $(this).attr("data-id-subsidiary");
       var id_product = $(this).attr("data-id-prod");
@@ -310,6 +311,190 @@ $(document).ready(function () {
 
       //--- --- ---//
     }
+  });
+  $(document).on("keypress", ".editProduct", function (event) {
+    var keycode = event.keyCode || event.which;
+    if (keycode == 13) {
+      loading();
+      var stock = $(this).val();
+      var id_subsidiary = $(this).attr("data-id-subsidiary");
+      var id_product = $(this).attr("data-id-prod");
+      var og_stock = $(this).attr("data-og-stock");
+
+      var html = "";
+      //    html += USDollar.format(stock);
+      html += stock;
+
+      $.ajax({
+        url: "php/controllers/articles/articles_controller.php",
+        method: "POST",
+        data: {
+          mod: "updateStocksSubsidiary",
+          stock: stock,
+          id_subsidiary: id_subsidiary,
+          id_product: id_product,
+        },
+      })
+        .done(function (data) {
+          Swal.close();
+
+          var data = JSON.parse(data);
+          /* console.log(data); */
+          if (data.response == true) {
+            doneToast(data.message);
+            $("#tdStockSubs" + id_subsidiary)
+              .empty()
+              .html(html);
+            $("#tdStockSubs" + id_subsidiary).addClass("tdStock");
+            $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
+            $(this).closest("td").addClass("text-center");
+            var total_stock = $("#tdTotalStock").attr("data-total-stock");
+            total_stock = parseFloat(total_stock);
+            if (og_stock != "") {
+              og_stock = parseFloat(og_stock);
+            } else {
+              og_stock = 0;
+            }
+            if (stock != "") {
+              stock = parseFloat(stock);
+            } else {
+              stock = 0;
+            }
+
+            var new_total_stock = total_stock - og_stock;
+            new_total_stock = new_total_stock + stock;
+            /* console.log(og_stock); */
+            $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
+            $("#tdTotalStock").text(new_total_stock);
+            $("#tdTotalStock").attr("data-total-stock", new_total_stock);
+
+            $("#tdTotalStock").fadeOut(1000, function () {
+              $("#tdTotalStock").text(new_total_stock).fadeIn(500);
+            });
+          } else {
+            errorToast(data.message);
+          }
+
+          //--- --- ---//
+          //--- --- ---//
+        })
+        .fail(function (message) {
+          Swal.close();
+          var myToast = Toastify({
+            text: data.message,
+            duration: 3000,
+          });
+          myToast.showToast();
+        });
+
+      //--- --- ---//
+    }
+  });
+
+  $(document).on("click", ".editProduct", function (event) {
+    loading();
+    var id_product = $(this).attr("data-id-product");
+
+    $.ajax({
+      url: "php/controllers/articles/articles_controller.php",
+      method: "POST",
+      data: {
+        mod: "getProductInfo",
+        id_product: id_product,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response == true) {
+          $("#edit_prod_code").val(data.prod_info[0].product_short_name);
+          $("#edit_prod_name").val(data.prod_info[0].product_name);
+          $("#edit_prod_brand").val(data.prod_info[0].id_brands); // Select the option with a value of '1'
+          $("#edit_prod_brand").trigger("change"); // Notify any JS components that the value changed
+          $("#edit_prod_sku").val(data.prod_info[0].product_code);
+          $("#edit_prod_barcode").val(data.prod_info[0].product_barcode);
+          $("#edit_prod_meassure").val(data.prod_info[0].id_measurement_units); // Select the option with a value of '1'
+          $("#edit_prod_meassure").trigger("change"); // Notify any JS components that the value changed
+          $("#edit_prod_purchase_price").val(data.prod_info[0].purchase_price);
+          $("#edit_prod_price").val(data.prod_info[0].price);
+          if (data.prod_info[0].bulk_sell) {
+            $("#edit_prod_bulk").prop("checked", true);
+          }
+          $("#edit_prod_stock").val(data.prod_info[0].stock);
+          $("#edit_prod_min_stock").val(data.prod_info[0].min_stock);
+          $("#edit_prod_max_stock").val(data.prod_info[0].ideal_stock);
+          $("#edit_prod_description").val(data.prod_info[0].description);
+        } else {
+          errorToast(data.message);
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+
+    //--- --- ---//
+  });
+
+  $(document).on("click", ".updateProduct", function (event) {
+    loading();
+    var id_product = $(this).attr("data-id-product");
+
+    $.ajax({
+      url: "php/controllers/articles/articles_controller.php",
+      method: "POST",
+      data: {
+        mod: "getProductInfo",
+        id_product: id_product,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response == true) {
+          var prod_code = $("#edit_prod_code").val().trim();
+          var prod_name = $("#edit_prod_name").val().trim();
+          var prod_brand = $("#edit_prod_brand option:selected").val();
+          var prod_sku = $("#edit_prod_sku").val();
+          var prod_barcode = $("#edit_prod_barcode").val();
+          var prod_meassure = $("#edit_prod_meassure option:selected").val();
+          var prod_purchase_price = $("#edit_prod_purchase_price").val();
+          var prod_price = $("#edit_prod_price").val();
+          var prod_bulk = 0;
+          if ($("#edit_prod_bulk").is(":checked")) {
+            prod_bulk = 1;
+          }
+          var prod_stock = $("#edit_prod_stock").val();
+          var prod_min_stock = $("#edit_prod_min_stock").val();
+          var prod_max_stock = $("#edit_prod_max_stock").val();
+          var prod_description = $("#edit_prod_description").val();
+          const prod_image = document.querySelector("#prod_image");
+        } else {
+          errorToast(data.message);
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+
+    //--- --- ---//
   });
 
   function saveNewProd() {
@@ -456,7 +641,7 @@ $(document).ready(function () {
       newWindow: true,
       close: true,
       gravity: "top", // `top` or `bottom`
-      position: "left", // `left`, `center` or `right`
+      position: "right", // `left`, `center` or `right`
       stopOnFocus: true, // Prevents dismissing of toast on hover
       style: {
         background: "#00b09b",
@@ -490,5 +675,12 @@ $(document).ready(function () {
   });
   $("#prod_meassure").select2({
     dropdownParent: $("#modalNewArticle"),
+  });
+
+  $("#edit_prod_brand").select2({
+    dropdownParent: $("#modalEditArticle"),
+  });
+  $("#edit_prod_meassure").select2({
+    dropdownParent: $("#modalEditArticle"),
   });
 });
