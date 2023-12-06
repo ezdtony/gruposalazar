@@ -35,7 +35,12 @@ $getPositions = $articles_model->getPositions(); */
                         <tr>
                             <th>
                                 <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
-                                    Código / SKU
+                                    Código
+                                </a>
+                            </th>
+                            <th>
+                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                    SKU
                                 </a>
                             </th>
                             <th>
@@ -89,6 +94,9 @@ $getPositions = $articles_model->getPositions(); */
                             <tr>
                                 <td class="name fw-bold" id="tdproduct_short_nameId<?= $article->id_prducts ?>">
                                     <?= $article->product_short_name ?> <!-- / <?= $article->prodDuct_code ?> -->
+                                </td>
+                                <td class="name fw-bold" id="tdproduct_codeId<?= $article->id_prducts ?>">
+                                    <?= $article->product_code ?>
                                 </td>
                                 <td class="name fw-bold" id="tdthumbnailId<?= $article->id_prducts ?>">
 
