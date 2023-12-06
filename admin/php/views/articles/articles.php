@@ -37,7 +37,17 @@ $getPositions = $articles_model->getPositions(); */
                             </th>
                             <th>
                                 <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                    Imagen
+                                </a>
+                            </th>
+                            <th>
+                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
                                     Producto
+                                </a>
+                            </th>
+                            <th class="text-end">
+                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="price">
+                                    Precio de compra
                                 </a>
                             </th>
                             <th class="text-end">
@@ -74,24 +84,29 @@ $getPositions = $articles_model->getPositions(); */
                             $percentage = number_format((($article->stock / $article->ideal_stock) * 100), 0);
                             ?>
                             <tr>
-                                <td class="name fw-bold">
-                                    <?= $article->product_short_name ?> / <?= $article->product_code ?>
+                                <td class="name fw-bold" id="tdproduct_short_nameId<?= $article->id_prducts ?>">
+                                    <?= $article->product_short_name ?> <!-- / <?= $article->prodDuct_code ?> -->
                                 </td>
-                                <td class="name fw-bold">
+                                <td class="name fw-bold" id="tdthumbnailId<?= $article->id_prducts ?>">
 
                                     <div class="avatar avatar-sm" style="margin-right:10px">
                                         <img src="<?= $article->thumbnail ?>" alt="..." class="avatar-img">
                                     </div>
+                                </td>
+                                <td class="name fw-bold" id="tdproduct_nameId<?= $article->id_prducts ?>">
                                     <?= $article->product_name ?>
                                 </td>
-                                <td class="price text-end">
+                                <td class="price text-end" id="tdpurchase_priceId<?= $article->id_prducts ?>">
+                                    $<?= number_format($article->purchase_price, 2, '.') ?>
+                                </td>
+                                <td class="price text-end" id="tdpriceId<?= $article->id_prducts ?>">
                                     $<?= number_format($article->price, 2, '.') ?>
                                 </td>
-                               <!--  <td class="quantity text-end">
+                                <!--  <td class="quantity text-end">
                                     <?= $article->stock ?>
                                 </td> -->
                                 <td class="barcode fw-bold text-center">
-                                    <button type="button" data-barcode="<?= $article->product_barcode ?>" class="btn btn-secondary btnGenerateBarcode" data-bs-toggle="modal" data-bs-target="#viewBarcode">
+                                    <button type="button" data-barcode="<?= $article->product_barcode ?>" id="btnBarcode<?= $article->id_prducts ?>" class="btn btn-secondary btnGenerateBarcode" data-bs-toggle="modal" data-bs-target="#viewBarcode">
                                         <i class="fa-solid fa-barcode"></i>
                                     </button>
                                 </td>
@@ -102,7 +117,7 @@ $getPositions = $articles_model->getPositions(); */
                                         </div>
                                         <span class="ms-3 text-muted"><?= $percentage ?>%</span>
                                     </div>
-                                    <button title="Ver stock en sucursales"  data-bs-toggle="modal" data-bs-target="#subsidiaryStocks" data-product-name="<?= $article->product_short_name ?> / <?= $article->product_code ?> | <?= $article->product_name ?>" data-id-product="<?= $article->id_prducts ?>" type="button" class="btn btn-info btn-sm btnSeeStockSubsidiary"><i class="fa-solid fa-cubes"></i></button>
+                                    <button title="Ver stock en sucursales" data-bs-toggle="modal" data-bs-target="#subsidiaryStocks" data-product-name="<?= $article->product_short_name ?> / <?= $article->product_code ?> | <?= $article->product_name ?>" data-id-product="<?= $article->id_prducts ?>" type="button" class="btn btn-info btn-sm btnSeeStockSubsidiary"><i class="fa-solid fa-cubes"></i></button>
                                 </td>
                                 <td class="barcode fw-bold text-center">
                                     <div class="dropdown">
@@ -116,10 +131,10 @@ $getPositions = $articles_model->getPositions(); */
                                             </svg>
                                         </a>
                                         <div class="dropdown-menu">
-                                            <a  data-id-product="<?= $article->id_prducts ?>" class="dropdown-item editProduct"data-bs-toggle="modal" data-bs-target="#modalEditArticle" >
+                                            <a data-id-product="<?= $article->id_prducts ?>" class="dropdown-item editProduct" data-bs-toggle="modal" data-bs-target="#modalEditArticle">
                                                 Editar
                                             </a>
-                                           <!--  <a href="javascript: void(0);" class="dropdown-item">
+                                            <!--  <a href="javascript: void(0);" class="dropdown-item">
                                                 Editar stock en sucursales
                                             </a> -->
                                             <a href="javascript: void(0);" class="dropdown-item" style="color:red !important;">

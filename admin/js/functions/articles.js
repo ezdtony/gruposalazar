@@ -408,6 +408,7 @@ $(document).ready(function () {
         var data = JSON.parse(data);
         console.log(data);
         if (data.response == true) {
+          $(".closeModalEditProd").attr("data-id-product", id_product);
           $("#edit_prod_code").val(data.prod_info[0].product_short_name);
           $("#edit_prod_name").val(data.prod_info[0].product_name);
           $("#edit_prod_brand").val(data.prod_info[0].id_brands); // Select the option with a value of '1'
@@ -444,16 +445,20 @@ $(document).ready(function () {
     //--- --- ---//
   });
 
-  $(document).on("click", ".updateProduct", function (event) {
+  $(document).on("focusout", ".updateProduct", function (event) {
     loading();
-    var id_product = $(this).attr("data-id-product");
+    var id_product = $(".closeModalEditProd").attr("data-id-product");
+    var column_name = $(this).attr("data-column-name");
+    var new_val = $(this).val().trim();
 
     $.ajax({
       url: "php/controllers/articles/articles_controller.php",
       method: "POST",
       data: {
-        mod: "getProductInfo",
+        mod: "updateProduct",
         id_product: id_product,
+        column_name: column_name,
+        new_val: new_val,
       },
     })
       .done(function (data) {
@@ -461,23 +466,98 @@ $(document).ready(function () {
         var data = JSON.parse(data);
         console.log(data);
         if (data.response == true) {
-          var prod_code = $("#edit_prod_code").val().trim();
-          var prod_name = $("#edit_prod_name").val().trim();
-          var prod_brand = $("#edit_prod_brand option:selected").val();
-          var prod_sku = $("#edit_prod_sku").val();
-          var prod_barcode = $("#edit_prod_barcode").val();
-          var prod_meassure = $("#edit_prod_meassure option:selected").val();
-          var prod_purchase_price = $("#edit_prod_purchase_price").val();
-          var prod_price = $("#edit_prod_price").val();
-          var prod_bulk = 0;
-          if ($("#edit_prod_bulk").is(":checked")) {
-            prod_bulk = 1;
-          }
-          var prod_stock = $("#edit_prod_stock").val();
-          var prod_min_stock = $("#edit_prod_min_stock").val();
-          var prod_max_stock = $("#edit_prod_max_stock").val();
-          var prod_description = $("#edit_prod_description").val();
-          const prod_image = document.querySelector("#prod_image");
+          $("#td" + column_name + "Id" + id_product).text(new_val);
+          doneToast(data.message);
+        } else {
+          errorToast(data.message);
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+
+    //--- --- ---//
+  });
+  $(document).on("focusout", ".updateProductPrice", function (event) {
+    loading();
+    var id_product = $(".closeModalEditProd").attr("data-id-product");
+    var column_name = $(this).attr("data-column-name");
+    var new_val = $(this).val().trim();
+
+    let USDollar = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+
+    $.ajax({
+      url: "php/controllers/articles/articles_controller.php",
+      method: "POST",
+      data: {
+        mod: "updateProduct",
+        id_product: id_product,
+        column_name: column_name,
+        new_val: new_val,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response == true) {
+          $("#td" + column_name + "Id" + id_product).text(
+            USDollar.format(new_val)
+          );
+          doneToast(data.message);
+        } else {
+          errorToast(data.message);
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+
+    //--- --- ---//
+  });
+
+  $(document).on("focusout", ".updateProductBarcode", function (event) {
+    loading();
+    var id_product = $(".closeModalEditProd").attr("data-id-product");
+    var column_name = $(this).attr("data-column-name");
+    var new_val = $(this).val().trim();
+
+    $.ajax({
+      url: "php/controllers/articles/articles_controller.php",
+      method: "POST",
+      data: {
+        mod: "updateProduct",
+        id_product: id_product,
+        column_name: column_name,
+        new_val: new_val,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response == true) {
+          $("#btnBarcode" + id_product).attr("data-barcode", new_val);
+          doneToast(data.message);
         } else {
           errorToast(data.message);
         }
