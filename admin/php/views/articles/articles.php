@@ -6,7 +6,10 @@ $getAllMU = $articles_model->getAllMU();
 $getSubsidiary = $articles_model->getSubsidiary();
 $getPositions = $articles_model->getPositions(); */
 ?>
+<link rel="stylesheet" href="assets/css/imgViewer.css">
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+<script src="js\functions\imageViewer.js"></script>
+
 <h1 class="h2">Administración de Productos</h1>
 
 <div class="row">
@@ -90,7 +93,9 @@ $getPositions = $articles_model->getPositions(); */
                                 <td class="name fw-bold" id="tdthumbnailId<?= $article->id_prducts ?>">
 
                                     <div class="avatar avatar-sm" style="margin-right:10px">
-                                        <img src="<?= $article->thumbnail ?>" alt="..." class="avatar-img">
+                                        <div class="images">
+                                            <img src="<?= $article->thumbnail ?>" alt="" width="50px" >
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="name fw-bold" id="tdproduct_nameId<?= $article->id_prducts ?>">
@@ -158,5 +163,6 @@ include 'modals/modalNewArticle.php';
 include 'modals/editModalNewArticle.php';
 include 'modals/modalViewBarcode.php';
 include 'modals/subsidiaryStocks.php';
+include 'modals/imageViewer.php';
 
 ?>
