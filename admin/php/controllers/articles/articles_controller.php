@@ -289,6 +289,37 @@ function getProductInfo()
 
     echo json_encode($data);
 }
+function updateProduct()
+{
+
+    $id_product = $_POST['id_product'];
+    $column_name = $_POST['column_name'];
+    $new_val = $_POST['new_val'];
+
+    $queries = new Queries;
+
+    $sqlUpdateProd = "UPDATE u803991314_main.products SET
+                 $column_name = '$new_val'
+             WHERE id_prducts = $id_product";
+
+    $insert = $queries->InsertData($sqlUpdateProd);
+
+    if (!empty($insert)) {
+        $last_id = $insert['last_id'];
+        $data = array(
+            'response' => true,
+            'message' => 'Producto actualizado',
+            'last_id' => $last_id
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'Eror al actualizar Producto'
+        );
+    }
+
+    echo json_encode($data);
+}
 
 function generateRandomString($length)
 {
