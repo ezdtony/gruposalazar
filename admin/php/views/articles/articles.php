@@ -7,8 +7,12 @@ $getSubsidiary = $articles_model->getSubsidiary();
 $getPositions = $articles_model->getPositions(); */
 ?>
 <link rel="stylesheet" href="assets/css/imgViewer.css">
-<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-<script src="js\functions\imageViewer.js"></script>
+<script src="assets/js/JsBarcode.all.min.js"></script>
+<script src="js/functions/imageViewer.js"></script>
+<script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
+<link rel="stylesheet" href="https://printjs-4de6.kxcdn.com/print.min.css">
+
+
 
 <h1 class="h2">Administración de Productos</h1>
 
@@ -89,7 +93,11 @@ $getPositions = $articles_model->getPositions(); */
                     <tbody class="list">
                         <?php foreach ($getArticles as $article) : ?>
                             <?php
-                            $percentage = number_format((($article->stock / $article->ideal_stock) * 100), 0);
+                            $percentage = 0;
+                            if ($article->total_stock>0) {
+                                $percentage = number_format((($article->total_stock / $article->ideal_stock) * 100), 0);
+                            }
+                            
                             ?>
                             <tr>
                                 <td class="name fw-bold" id="tdproduct_short_nameId<?= $article->id_prducts ?>">
@@ -102,7 +110,7 @@ $getPositions = $articles_model->getPositions(); */
 
                                     <div class="avatar avatar-sm" style="margin-right:10px">
                                         <div class="images">
-                                            <img src="<?= $article->thumbnail ?>" alt="" width="50px" >
+                                            <img src="<?= $article->thumbnail ?>" alt="" width="50px">
                                         </div>
                                     </div>
                                 </td>
@@ -126,9 +134,9 @@ $getPositions = $articles_model->getPositions(); */
                                 <td class="sales" data-sales="81">
                                     <div class="d-flex justify-content-between align-items-center text-center">
                                         <div class="progress d-flex flex-grow-1">
-                                            <div class="progress-bar" role="progressbar" style="width: <?= $percentage ?>%" aria-valuenow="<?= $article->stock ?>" aria-valuemin="0" aria-valuemax="<?= $article->ideal_stock ?>"></div>
+                                            <div class="progress-bar" id="ProgressProd<?= $article->id_prducts ?>" role="progressbar" style="width: <?= $percentage ?>%" aria-valuenow="<?= $article->total_stock ?>" aria-valuemin="0" aria-valuemax="<?= $article->ideal_stock ?>"></div>
                                         </div>
-                                        <span class="ms-3 text-muted"><?= $percentage ?>%</span>
+                                        <span id="txtPercentage<?= $article->id_prducts ?>" class="ms-3 text-muted"><?= $percentage ?>%</span>
                                     </div>
                                     <button title="Ver stock en sucursales" data-bs-toggle="modal" data-bs-target="#subsidiaryStocks" data-product-name="<?= $article->product_short_name ?> / <?= $article->product_code ?> | <?= $article->product_name ?>" data-id-product="<?= $article->id_prducts ?>" type="button" class="btn btn-info btn-sm btnSeeStockSubsidiary"><i class="fa-solid fa-cubes"></i></button>
                                 </td>
@@ -144,7 +152,7 @@ $getPositions = $articles_model->getPositions(); */
                                             </svg>
                                         </a>
                                         <div class="dropdown-menu">
-                                            <a data-id-product="<?= $article->id_prducts ?>" class="dropdown-item editProduct" data-bs-toggle="modal" data-bs-target="#modalEditArticle">
+                                            <a href="javascript: void(0);" data-id-product="<?= $article->id_prducts ?>" class="dropdown-item editProduct" data-bs-toggle="modal" data-bs-target="#modalEditArticle">
                                                 Editar
                                             </a>
                                             <!--  <a href="javascript: void(0);" class="dropdown-item">

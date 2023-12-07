@@ -12,7 +12,7 @@ $(document).ready(function () {
     if ($("#prod_bulk").is(":checked")) {
       prod_bulk = 1;
     }
-    var prod_stock = $("#prod_stock").val();
+    /* var prod_stock = $("#prod_stock").val(); */
     var prod_min_stock = $("#prod_min_stock").val();
     var prod_max_stock = $("#prod_max_stock").val();
     var prod_description = $("#prod_description").val();
@@ -57,9 +57,6 @@ $(document).ready(function () {
       prod_price != null &&
       prod_price != "" &&
       prod_price != undefined &&
-      prod_stock != null &&
-      prod_stock != "" &&
-      prod_stock != undefined &&
       prod_min_stock != null &&
       prod_min_stock != "" &&
       prod_min_stock != undefined &&
@@ -115,9 +112,19 @@ $(document).ready(function () {
 
   $(document).on("click", ".btnGenerateBarcode", function () {
     var product_barcode = $(this).attr("data-barcode");
-    JsBarcode("#barcodeImg", product_barcode, { format: "itf14" });
+    JsBarcode("#barcodeImg", product_barcode, { format: "CODE128" });
 
     /* printBarcode(); */
+  });
+  $("#printBarcode").click(function () {
+    /* window.print($("#barcodeImg")); */
+    /* printJS('barcodeImg', ''); */
+    printJS({
+      printable: "barcodeImg",
+      type: "html",
+      header: "",
+      maxWidth: "1201234567891233",
+    });
   });
   $(document).on("dblclick", ".tdStock", function () {
     var stock = $(this).attr("data-stock");
@@ -292,6 +299,22 @@ $(document).ready(function () {
 
             $("#tdTotalStock").fadeOut(1000, function () {
               $("#tdTotalStock").text(new_total_stock).fadeIn(500);
+
+              var max_stock = $("#ProgressProd" + id_product).attr(
+                "aria-valuemax"
+              );
+              var now_stock = new_total_stock;
+              var new_percentage = Math.round((now_stock / max_stock) * 100);
+              var wid = "width:" + new_percentage + "%";
+              if (new_percentage > 100) {
+                wid = "width:100%";
+                new_percentage = "+"+100;
+              }
+              
+              $("#ProgressProd" + id_product).attr("style", wid);
+              $("#ProgressProd" + id_product).attr("aria-valuenow", now_stock);
+              
+              $("#txtPercentage"+ id_product).text(new_percentage + "%");
             });
           } else {
             errorToast(data.message);
@@ -577,6 +600,147 @@ $(document).ready(function () {
     //--- --- ---//
   });
 
+  $(document).on("change", ".slctUpdateProduct", function (event) {
+    loading();
+    var id_product = $(".closeModalEditProd").attr("data-id-product");
+    var column_name = $(this).attr("data-column-name");
+    allow_update = $(this).attr("allow-update");
+    var new_val = $(this).val().trim();
+    if (allow_update == 1) {
+      $.ajax({
+        url: "php/controllers/articles/articles_controller.php",
+        method: "POST",
+        data: {
+          mod: "updateProduct",
+          id_product: id_product,
+          column_name: column_name,
+          new_val: new_val,
+        },
+      })
+        .done(function (data) {
+          Swal.close();
+          var data = JSON.parse(data);
+          console.log(data);
+          if (data.response == true) {
+            /* $("#td" + column_name + "Id" + id_product).text(new_val); */
+            doneToast(data.message);
+          } else {
+            errorToast(data.message);
+          }
+
+          //--- --- ---//
+          //--- --- ---//
+        })
+        .fail(function (message) {
+          Swal.close();
+          var myToast = Toastify({
+            text: data.message,
+            duration: 3000,
+          });
+          myToast.showToast();
+        });
+
+      //--- --- ---//
+    } else {
+      $(this).attr("allow-update", 1);
+      Swal.close();
+    }
+  });
+  $(document).on("focusout", ".updateProductStockMin", function (event) {
+    loading();
+    var id_product = $(".closeModalEditProd").attr("data-id-product");
+    var column_name = $(this).attr("data-column-name");
+    var new_val = $(this).val().trim();
+
+    $.ajax({
+      url: "php/controllers/articles/articles_controller.php",
+      method: "POST",
+      data: {
+        mod: "updateProduct",
+        id_product: id_product,
+        column_name: column_name,
+        new_val: new_val,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response == true) {
+          //$("#ProgressProd" + id_product).attr("aria-valuemin",new_val);
+
+          doneToast(data.message);
+        } else {
+          errorToast(data.message);
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+
+    //--- --- ---//
+  });
+  $(document).on("focusout", ".updateProductStockMax", function (event) {
+    loading();
+    var id_product = $(".closeModalEditProd").attr("data-id-product");
+    var column_name = $(this).attr("data-column-name");
+    var new_val = $(this).val().trim();
+
+    $.ajax({
+      url: "php/controllers/articles/articles_controller.php",
+      method: "POST",
+      data: {
+        mod: "updateProduct",
+        id_product: id_product,
+        column_name: column_name,
+        new_val: new_val,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response == true) {
+          /* $("#ProgressProd" + id_product).attr("aria-valuemin",new_val); */
+          var now_stock = $("#ProgressProd" + id_product).attr("aria-valuenow");
+          var max_stock = new_val;
+          var new_percentage = Math.round((now_stock / max_stock) * 100);
+          var wid = "width:" + new_percentage + "%";
+          $("#ProgressProd" + id_product).attr("style", wid);
+          $("#ProgressProd" + id_product).attr("aria-valuemax", max_stock);
+          $("#txtPercentage"+ id_product).text(new_percentage + "%");
+
+          doneToast(data.message);
+        } else {
+          errorToast(data.message);
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+
+    //--- --- ---//
+  });
+  $("#modalEditArticle").on("hidden.bs.modal", function () {
+    $(".slctUpdateProduct").attr("allow-update", 0);
+  });
+
   function saveNewProd() {
     loading();
     var prod_code = $("#prod_code").val().trim();
@@ -591,7 +755,7 @@ $(document).ready(function () {
     if ($("#prod_bulk").is(":checked")) {
       prod_bulk = 1;
     }
-    var prod_stock = $("#prod_stock").val();
+    /* var prod_stock = $("#prod_stock").val(); */
     var prod_min_stock = $("#prod_min_stock").val();
     var prod_max_stock = $("#prod_max_stock").val();
     var prod_description = $("#prod_description").val();
@@ -622,9 +786,6 @@ $(document).ready(function () {
       prod_price != null &&
       prod_price != "" &&
       prod_price != undefined &&
-      prod_stock != null &&
-      prod_stock != "" &&
-      prod_stock != undefined &&
       prod_min_stock != null &&
       prod_min_stock != "" &&
       prod_min_stock != undefined &&
@@ -648,7 +809,7 @@ $(document).ready(function () {
       formData.append("prod_price", prod_price);
       formData.append("prod_purchase_price", prod_purchase_price);
       formData.append("prod_bulk", prod_bulk);
-      formData.append("prod_stock", prod_stock);
+      /* formData.append("prod_stock", prod_stock); */
       formData.append("prod_min_stock", prod_min_stock);
       formData.append("prod_max_stock", prod_max_stock);
       formData.append("prod_description", prod_description);

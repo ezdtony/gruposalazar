@@ -6,11 +6,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-            <div class="avatar avatar-xxl avatar-circle justify-content-center align-items-center" style="margin-left:60px">
-                    <svg id="barcodeImg"></svg>
+                <div class="avatar avatar-xxl avatar-circle justify-content-center align-items-center" style="margin-left:60px">
+                    <svg id="barcodeImg" class="barcodeImg"></svg>
                 </div>
+                <br>
+
             </div>
             <div class="modal-footer">
+                <button class="btn btn-info" id="printBarcode"><i class="fa-solid fa-print"></i> Imprimir</button>
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>

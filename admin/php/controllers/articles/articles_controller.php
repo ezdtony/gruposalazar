@@ -24,7 +24,7 @@ function saveNewProd()
     $prod_purchase_price = $_POST['prod_purchase_price'];
     $prod_price = $_POST['prod_price'];
     $prod_bulk = $_POST['prod_bulk'];
-    $prod_stock = $_POST['prod_stock'];
+    /* $prod_stock = $_POST['prod_stock']; */
     $prod_min_stock = $_POST['prod_min_stock'];
     $prod_max_stock = $_POST['prod_max_stock'];
     $prod_description = $_POST['prod_description'];
@@ -69,7 +69,6 @@ function saveNewProd()
         thumbnail,
         image,
         image_type,
-        stock,
         min_stock,
         ideal_stock,
         bulk_sell,
@@ -91,7 +90,6 @@ function saveNewProd()
         '$ruta_sql_img',
         '$ruta_sql_img',
         '$extension_img',
-        '$prod_stock',
         '$prod_min_stock',
         '$prod_max_stock',
         $prod_bulk,

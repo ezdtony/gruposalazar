@@ -6,8 +6,16 @@ class Articles
     {
         include_once('php/models/petitions.php');
         $queries = new Queries;
-        $sql_colabs = "SELECT *
+        $sql_colabs = "SELECT 
+        CASE 
+            WHEN sb_stk.prducts_id_prducts = prods.id_prducts THEN SUM(sb_stk.stock)
+            ELSE 0
+        END
+        AS total_stock, 
+        prods.*
         FROM u803991314_main.products AS prods
+        LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts
+        GROUP BY prods.id_prducts
         ";
 
         $getSites = $queries->getData($sql_colabs);

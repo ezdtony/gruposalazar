@@ -1,0 +1,10 @@
+#barcodeImg svg {
+  width: 102mm !important;
+  height: 192mm !important;
+}
+@media print {
+  #barcodeImg svg {
+    width: 102mm !important;
+    height: 192mm !important;
+  }
+}

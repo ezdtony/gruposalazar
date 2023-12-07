@@ -79,12 +79,12 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-4">
+                        <!-- <div class="col-4">
                             <div class="mb-4">
                                 <label class="form-label">Stock inicial: <span class="legend-circle bg-danger"></span></label>
                                 <input type="text" id="prod_stock" class="form-control obligatory" placeholder="Stock inicial">
                             </div>
-                        </div>
+                        </div> -->
                         <div class="col-4">
                             <div class="mb-4">
                                 <label class="form-label">Stock mínimo: <span class="legend-circle bg-danger"></span></label>
