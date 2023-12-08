@@ -34,7 +34,7 @@ $getPositions = $articles_model->getPositions(); */
 
             <!-- Table -->
             <div class="table-responsive">
-                <table class="table align-middle table-edge table-nowrap mb-0">
+                <table class="table align-middle table-edge table-nowrap mb-0 table-nowrap" id="tableProducts">
                     <thead class="thead-light">
                         <tr>
                             <th>
@@ -44,7 +44,7 @@ $getPositions = $articles_model->getPositions(); */
                             </th>
                             <th>
                                 <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
-                                    SKU
+                                    Código de Barras
                                 </a>
                             </th>
                             <th>
@@ -99,12 +99,12 @@ $getPositions = $articles_model->getPositions(); */
                             }
                             
                             ?>
-                            <tr>
+                            <tr id="trProduct<?= $article->id_prducts ?>">
                                 <td class="name fw-bold" id="tdproduct_short_nameId<?= $article->id_prducts ?>">
                                     <?= $article->product_short_name ?> <!-- / <?= $article->prodDuct_code ?> -->
                                 </td>
-                                <td class="name fw-bold" id="tdproduct_codeId<?= $article->id_prducts ?>">
-                                    <?= $article->product_code ?>
+                                <td class="name fw-bold" id="tdproduct_barcodeId<?= $article->id_prducts ?>">
+                                    <?= $article->product_barcode ?>
                                 </td>
                                 <td class="name fw-bold" id="tdthumbnailId<?= $article->id_prducts ?>">
 
@@ -158,7 +158,7 @@ $getPositions = $articles_model->getPositions(); */
                                             <!--  <a href="javascript: void(0);" class="dropdown-item">
                                                 Editar stock en sucursales
                                             </a> -->
-                                            <a href="javascript: void(0);" class="dropdown-item" style="color:red !important;">
+                                            <a href="javascript: void(0);" class="dropdown-item deleteProduct" data-id-product="<?= $article->id_prducts ?>" style="color:red !important;">
                                                 Borrar
                                             </a>
                                         </div>

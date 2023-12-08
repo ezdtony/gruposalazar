@@ -319,6 +319,35 @@ function updateProduct()
     echo json_encode($data);
 }
 
+function deleteProduct()
+{
+
+    $id_product = $_POST['id_product'];
+
+    $queries = new Queries;
+
+    $sqlUpdateProd = "UPDATE u803991314_main.products SET active_item = 0 WHERE id_prducts = $id_product";
+
+    $insert = $queries->InsertData($sqlUpdateProd);
+
+    if (!empty($insert)) {
+        $last_id = $insert['last_id'];
+        $data = array(
+            'response' => true,
+            'message' => 'Producto eliminado',
+            'last_id' => $last_id
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'Eror al eliminar Producto'
+        );
+    }
+
+    echo json_encode($data);
+}
+
+
 function generateRandomString($length)
 {
     return substr(str_shuffle(str_repeat($x = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length / strlen($x)))), 1, $length);

@@ -15,6 +15,7 @@ class Articles
         prods.*
         FROM u803991314_main.products AS prods
         LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts
+        WHERE active_item = 1
         GROUP BY prods.id_prducts
         ";
 

@@ -308,13 +308,13 @@ $(document).ready(function () {
               var wid = "width:" + new_percentage + "%";
               if (new_percentage > 100) {
                 wid = "width:100%";
-                new_percentage = "+"+100;
+                new_percentage = "+" + 100;
               }
-              
+
               $("#ProgressProd" + id_product).attr("style", wid);
               $("#ProgressProd" + id_product).attr("aria-valuenow", now_stock);
-              
-              $("#txtPercentage"+ id_product).text(new_percentage + "%");
+
+              $("#txtPercentage" + id_product).text(new_percentage + "%");
             });
           } else {
             errorToast(data.message);
@@ -579,6 +579,7 @@ $(document).ready(function () {
         var data = JSON.parse(data);
         console.log(data);
         if (data.response == true) {
+          $("#td" + column_name + "Id" + id_product).text(new_val);
           $("#btnBarcode" + id_product).attr("data-barcode", new_val);
           doneToast(data.message);
         } else {
@@ -716,7 +717,7 @@ $(document).ready(function () {
           var wid = "width:" + new_percentage + "%";
           $("#ProgressProd" + id_product).attr("style", wid);
           $("#ProgressProd" + id_product).attr("aria-valuemax", max_stock);
-          $("#txtPercentage"+ id_product).text(new_percentage + "%");
+          $("#txtPercentage" + id_product).text(new_percentage + "%");
 
           doneToast(data.message);
         } else {
@@ -739,6 +740,60 @@ $(document).ready(function () {
   });
   $("#modalEditArticle").on("hidden.bs.modal", function () {
     $(".slctUpdateProduct").attr("allow-update", 0);
+  });
+
+  $(document).on("focusout", ".deleteProduct", function (event) {
+    loading();
+    var id_product = $(this).attr("data-id-product");
+
+    Swal.fire({
+      title: "Está seguro?",
+      text: "Se eliminará el producto, esta acción no se podrá revertir, ¿desea continuar?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonText: "Cancelar",
+      confirmButtonText: "Sí",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        $.ajax({
+          url: "php/controllers/articles/articles_controller.php",
+          method: "POST",
+          data: {
+            mod: "deleteProduct",
+            id_product: id_product,
+          },
+        })
+          .done(function (data) {
+            Swal.close();
+            var data = JSON.parse(data);
+            console.log(data);
+            if (data.response == true) {
+              
+              $("#trProduct"+id_product).fadeTo("slow",0.7, function(){
+                $(this).remove();
+            })
+              
+              doneToast(data.message);
+            } else {
+              errorToast(data.message);
+            }
+
+            //--- --- ---//
+            //--- --- ---//
+          })
+          .fail(function (message) {
+            Swal.close();
+            var myToast = Toastify({
+              text: data.message,
+              duration: 3000,
+            });
+            myToast.showToast();
+          });
+      }
+    });
+
+    //--- --- ---//
   });
 
   function saveNewProd() {
@@ -908,6 +963,34 @@ $(document).ready(function () {
       onClick: function () {}, // Callback after click
     }).showToast();
   }
+
+  let table = new DataTable("#tableProducts", {
+    searching: true,
+    ordering: false,
+    language: {
+      decimal: "",
+      emptyTable: "No hay información",
+      info: "Mostrando _START_ a _END_ de _TOTAL_ Entradas",
+      infoEmpty: "Mostrando 0 to 0 of 0 Entradas",
+      infoFiltered: "(Filtrado de _MAX_ total entradas)",
+      infoPostFix: "",
+      thousands: ",",
+      lengthMenu: "Mostrar _MENU_ Entradas",
+      loadingRecords: "Cargando...",
+      processing: "Procesando...",
+      search: "Buscar:",
+      zeroRecords: "Sin resultados encontrados",
+      paginate: {
+        first: "Primero",
+        last: "Ultimo",
+        next: "Siguiente",
+        previous: "Anterior",
+      },
+    },
+  });
+
+  1;
+  new DataTable("#tableProducts");
 
   $(".js-example-basic-single").select2();
 
