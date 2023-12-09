@@ -27,7 +27,11 @@ $articles_model = new Articles();
 </div>
 
 <script>
+    $(".inventory-nav-link").addClass("active");
     $(".articles-nav-link").addClass("active");
+    $(".inventory-nav-link").attr("aria-expanded", true);
+    $(".coll-inventory-nav-link").show();
+    
 </script>
 <?php
 include("php/views/footer.php");

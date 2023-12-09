@@ -27,7 +27,10 @@ $colabs_model = new Colabs();
 </div>
 
 <script>
+    $(".users-nav-link").addClass("active");
     $(".colabs-nav-link").addClass("active");
+    $(".users-nav-link").attr("aria-expanded", true);
+    $(".coll-users-nav-link").show();
 </script>
 <?php
 include("php/views/footer.php");

@@ -50,11 +50,36 @@ $navbarItems = $navbar_model->getAllNavbarItems();
                         <span>Principal</span>
                     </a>
                 </li>
+
                 <?php foreach ($navbarItems as $item) : ?>
-                    <li class="nav-item">
-                        <a class="nav-link <?=$item->item_class?>" href="<?=$item->item_href?>">
-                            <?=$item->item_icon?> <span><?=$item->item_title?> </span>
+                    <!-- <li class="nav-item">
+                        <a class="nav-link <?= $item->item_class ?>" href="<?= $item->item_href ?>">
+                            <?= $item->item_icon ?> <span><?= $item->item_title ?> </span>
                         </a>
+                    </li> -->
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link <?= $item->item_class ?>" href="#pagesCollapse<?= $item->id_dashboard_items_navbar ?>" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="pagesCollapse<?= $item->id_dashboard_items_navbar ?>">
+                            <?= $item->item_icon ?> <span><?= $item->item_title ?> </span>
+                        </a>
+                        <div class="collapse coll-<?= $item->item_class ?>" id="pagesCollapse<?= $item->id_dashboard_items_navbar ?>">
+                            <ul class="nav flex-column">
+                                <?php $navbarSubItems = $navbar_model->getNavbarSubItems($item->id_dashboard_items_navbar); ?>
+                                <?php foreach ($navbarSubItems as $sub_item) : ?>
+                                    <li class="nav-item">
+                                        <a href="<?= $sub_item->item_href ?>" class="nav-link  <?= $sub_item->item_class ?>">
+                                            <span><?= $sub_item->item_title ?></span>
+                                        </a>
+                                    </li>
+                                <?php endforeach; ?>
+                                <!-- <li class="nav-item">
+                                    <a href="./landing.html" class="nav-link">
+                                        <span>Landing Page</span>
+                                        <span class="badge text-bg-success rounded-pill ms-auto">New</span>
+                                    </a>
+                                </li> -->
+                            </ul>
+                        </div>
                     </li>
                 <?php endforeach; ?>
                 <!-- <li class="nav-item dropdown">
