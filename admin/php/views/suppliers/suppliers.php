@@ -14,7 +14,7 @@ $getPositions = $articles_model->getPositions(); */
 
 
 
-<h1 class="h2">Administración de Productos</h1>
+<h1 class="h2">Proveedores</h1>
 
 <div class="row">
     <div class="col-xxl-12 d-flex">
@@ -23,63 +23,43 @@ $getPositions = $articles_model->getPositions(); */
             <div class="card-header border-0 border-0 card-header-space-between">
                 <!-- Title -->
                 <h2 class="card-header-title h4 text-uppercase">
-                    Todos los productos
+                    Todos los proveedores
                 </h2>
 
                 <!-- Link -->
                 <a class="small fw-bold" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalNewArticle">
-                    Registrar producto
+                    Registrar proveedor
                 </a>
             </div>
 
             <!-- Table -->
             <div class="table-responsive">
-                <table class="table align-middle table-edge table-nowrap mb-0 table-nowrap" id="tableProducts">
+                <table class="table align-middle table-edge table-nowrap mb-0 table-nowrap" id="tableSuppliers">
                     <thead class="thead-light">
                         <tr>
                             <th>
                                 <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
-                                    Código
+                                    Compañía
                                 </a>
                             </th>
                             <th>
                                 <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
-                                    Código de Barras
+                                    Nombre
                                 </a>
                             </th>
                             <th>
                                 <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
-                                    Imagen
+                                    Correo
                                 </a>
                             </th>
                             <th>
                                 <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
-                                    Producto
+                                    Teléfono
                                 </a>
                             </th>
                             <th class="text-end">
                                 <a href="javascript: void(0);" class="text-muted list-sort" data-sort="price">
-                                    Precio de compra
-                                </a>
-                            </th>
-                            <th class="text-end">
-                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="price">
-                                    Precio unitario
-                                </a>
-                            </th>
-                            <!-- <th class="text-end">
-                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="quantity">
-                                    Stock
-                                </a>
-                            </th> -->
-                            <th class="text-end">
-                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="barcode">
-                                    Código de Barras
-                                </a>
-                            </th>
-                            <th class="text-end pe-7 min-w-200px">
-                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="sales">
-                                    Ventas
+                                    Dirección
                                 </a>
                             </th>
                             <th class="text-end pe-7 min-w-200px">
@@ -91,13 +71,14 @@ $getPositions = $articles_model->getPositions(); */
                     </thead>
 
                     <tbody class="list">
+                    <?php if(empty($getArticles)) : ?>
                         <?php foreach ($getArticles as $article) : ?>
                             <?php
                             $percentage = 0;
-                            if ($article->total_stock>0) {
+                            if ($article->total_stock > 0) {
                                 $percentage = number_format((($article->total_stock / $article->ideal_stock) * 100), 0);
                             }
-                            
+
                             ?>
                             <tr id="trProduct<?= $article->id_prducts ?>">
                                 <td class="name fw-bold" id="tdproduct_short_nameId<?= $article->id_prducts ?>">
@@ -119,26 +100,6 @@ $getPositions = $articles_model->getPositions(); */
                                 </td>
                                 <td class="price text-end" id="tdpurchase_priceId<?= $article->id_prducts ?>">
                                     $<?= number_format($article->purchase_price, 2, '.') ?>
-                                </td>
-                                <td class="price text-end" id="tdpriceId<?= $article->id_prducts ?>">
-                                    $<?= number_format($article->price, 2, '.') ?>
-                                </td>
-                                <!--  <td class="quantity text-end">
-                                    <?= $article->stock ?>
-                                </td> -->
-                                <td class="barcode fw-bold text-center">
-                                    <button type="button" data-barcode="<?= $article->product_barcode ?>" id="btnBarcode<?= $article->id_prducts ?>" class="btn btn-secondary btnGenerateBarcode" data-bs-toggle="modal" data-bs-target="#viewBarcode">
-                                        <i class="fa-solid fa-barcode"></i>
-                                    </button>
-                                </td>
-                                <td class="sales">
-                                    <div class="d-flex justify-content-between align-items-center text-center">
-                                        <div class="progress d-flex flex-grow-1">
-                                            <div class="progress-bar" id="ProgressProd<?= $article->id_prducts ?>" role="progressbar" style="width: <?= $percentage ?>%" aria-valuenow="<?= $article->total_stock ?>" aria-valuemin="0" aria-valuemax="<?= $article->ideal_stock ?>"></div>
-                                        </div>
-                                        <span id="txtPercentage<?= $article->id_prducts ?>" class="ms-3 text-muted"><?= $percentage ?>%</span>
-                                    </div>
-                                    <button title="Ver stock en sucursales" data-bs-toggle="modal" data-bs-target="#subsidiaryStocks" data-product-name="<?= $article->product_short_name ?> / <?= $article->product_code ?> | <?= $article->product_name ?>" data-id-product="<?= $article->id_prducts ?>" type="button" class="btn btn-info btn-sm btnSeeStockSubsidiary"><i class="fa-solid fa-cubes"></i></button>
                                 </td>
                                 <td class="fw-bold text-center">
                                     <div class="dropdown">
@@ -166,6 +127,7 @@ $getPositions = $articles_model->getPositions(); */
                                 </td>
                             </tr>
                         <?php endforeach; ?>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
