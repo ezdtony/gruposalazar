@@ -1,8 +1,6 @@
 <?php
-$getArticles = $articles_model->getAllArticles();
-$getAllBrands = $articles_model->getAllBrands();
-$getAllMU = $articles_model->getAllMU();
-/* $getSates = $articles_model->getAllStates();
+$getSuppliers = $suppliers_model->getAllSuppliers();
+/* $getSates = $supplierss_model->getAllStates();
 $getSubsidiary = $articles_model->getSubsidiary();
 $getPositions = $articles_model->getPositions(); */
 ?>
@@ -27,7 +25,7 @@ $getPositions = $articles_model->getPositions(); */
                 </h2>
 
                 <!-- Link -->
-                <a class="small fw-bold" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalNewArticle">
+                <a class="small fw-bold" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#modalNewSupplier">
                     Registrar proveedor
                 </a>
             </div>
@@ -71,62 +69,50 @@ $getPositions = $articles_model->getPositions(); */
                     </thead>
 
                     <tbody class="list">
-                    <?php if(empty($getArticles)) : ?>
-                        <?php foreach ($getArticles as $article) : ?>
-                            <?php
-                            $percentage = 0;
-                            if ($article->total_stock > 0) {
-                                $percentage = number_format((($article->total_stock / $article->ideal_stock) * 100), 0);
-                            }
-
-                            ?>
-                            <tr id="trProduct<?= $article->id_prducts ?>">
-                                <td class="name fw-bold" id="tdproduct_short_nameId<?= $article->id_prducts ?>">
-                                    <?= $article->product_short_name ?> <!-- / <?= $article->prodDuct_code ?> -->
-                                </td>
-                                <td class="name fw-bold" id="tdproduct_barcodeId<?= $article->id_prducts ?>">
-                                    <?= $article->product_barcode ?>
-                                </td>
-                                <td class="name fw-bold" id="tdthumbnailId<?= $article->id_prducts ?>">
-
-                                    <div class="avatar avatar-sm" style="margin-right:10px">
-                                        <div class="images">
-                                            <img src="<?= $article->thumbnail ?>" alt="" width="50px">
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="name fw-bold" id="tdproduct_nameId<?= $article->id_prducts ?>">
-                                    <?= $article->product_name ?>
-                                </td>
-                                <td class="price text-end" id="tdpurchase_priceId<?= $article->id_prducts ?>">
-                                    $<?= number_format($article->purchase_price, 2, '.') ?>
-                                </td>
-                                <td class="fw-bold text-center">
-                                    <div class="dropdown">
-                                        <a href="javascript: void(0);" class="dropdown-toggle no-arrow text-secondary" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="14" width="14">
-                                                <g>
-                                                    <circle cx="12" cy="3.25" r="3.25" style="fill: currentColor"></circle>
-                                                    <circle cx="12" cy="12" r="3.25" style="fill: currentColor"></circle>
-                                                    <circle cx="12" cy="20.75" r="3.25" style="fill: currentColor"></circle>
-                                                </g>
-                                            </svg>
-                                        </a>
-                                        <div class="dropdown-menu">
-                                            <a href="javascript: void(0);" data-id-product="<?= $article->id_prducts ?>" class="dropdown-item editProduct" data-bs-toggle="modal" data-bs-target="#modalEditArticle">
-                                                Editar
+                        <?php if (!empty($getSuppliers)) : ?>
+                            <?php foreach ($getSuppliers as $suppliers) : ?>
+                                <tr id="trSupplier<?= $suppliers->id_suppliers ?>">
+                                    <td class="name fw-bold" id="td_supplier_<?= $suppliers->supplier ?>">
+                                        <?= $suppliers->supplier ?>
+                                    </td>
+                                    <td class="name fw-bold" id="td_contact_name_<?= $suppliers->id_suppliers ?>">
+                                        <?= $suppliers->contact_name ?>
+                                    </td>
+                                    <td class="name fw-bold" id="td_email_contact_<?= $suppliers->id_suppliers ?>">
+                                        <?= $suppliers->email_contact ?>
+                                    </td>
+                                    <td class="name fw-bold" id="td_cellphone_contact<?= $suppliers->id_suppliers ?>">
+                                        <?= $suppliers->cellphone_contact ?>
+                                    </td>
+                                    <td class="name fw-bold" id="td_address_supplier_<?= $suppliers->id_suppliers ?>">
+                                        <?= $suppliers->address_supplier ?>
+                                    </td>
+                                    <td class="fw-bold text-center">
+                                        <div class="dropdown pull-right" style="float: right !important;">
+                                            <a href="javascript: void(0);" class="dropdown-toggle no-arrow text-secondary" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="14" width="14">
+                                                    <g>
+                                                        <circle cx="12" cy="3.25" r="3.25" style="fill: currentColor"></circle>
+                                                        <circle cx="12" cy="12" r="3.25" style="fill: currentColor"></circle>
+                                                        <circle cx="12" cy="20.75" r="3.25" style="fill: currentColor"></circle>
+                                                    </g>
+                                                </svg>
                                             </a>
-                                            <!--  <a href="javascript: void(0);" class="dropdown-item">
+                                            <div class="dropdown-menu">
+                                                <a href="javascript: void(0);" data-id-product="<?= $suppliers->id_prducts ?>" class="dropdown-item editProduct" data-bs-toggle="modal" data-bs-target="#modalEditArticle">
+                                                    Editar
+                                                </a>
+                                                <!--  <a href="javascript: void(0);" class="dropdown-item">
                                                 Editar stock en sucursales
                                             </a> -->
-                                            <a href="javascript: void(0);" class="dropdown-item deleteProduct" data-id-product="<?= $article->id_prducts ?>" style="color:red !important;">
-                                                Borrar
-                                            </a>
+                                                <a href="javascript: void(0);" class="dropdown-item deleteProduct" data-id-product="<?= $suppliers->id_prducts ?>" style="color:red !important;">
+                                                    Borrar
+                                                </a>
+                                            </div>
                                         </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
                         <?php endif; ?>
                     </tbody>
                 </table>

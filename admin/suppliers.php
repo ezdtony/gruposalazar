@@ -6,7 +6,7 @@ include("php/models/suppliers/suppliers_model.php");
 
 $active_module = "articles";
 
-$articles_model = new Suppliers();
+$suppliers_model = new Suppliers();
 ?>
 
 <div class="container-fluid">
