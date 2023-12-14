@@ -2,9 +2,6 @@
 $getArticles = $articles_model->getAllArticles();
 $getAllBrands = $articles_model->getAllBrands();
 $getAllMU = $articles_model->getAllMU();
-/* $getSates = $articles_model->getAllStates();
-$getSubsidiary = $articles_model->getSubsidiary();
-$getPositions = $articles_model->getPositions(); */
 ?>
 <link rel="stylesheet" href="assets/css/imgViewer.css">
 <script src="assets/js/JsBarcode.all.min.js"></script>

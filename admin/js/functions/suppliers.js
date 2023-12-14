@@ -1,79 +1,116 @@
 $(document).ready(function () {
-  $(document).on("click", "#saveNewProduct", function () {
-    var prod_code = $("#prod_code").val().trim();
-    var prod_name = $("#prod_name").val().trim();
-    var prod_brand = $("#prod_brand option:selected").val();
-    var prod_sku = $("#prod_sku").val();
-    var prod_barcode = $("#prod_barcode").val();
-    var prod_meassure = $("#prod_meassure option:selected").val();
-    var prod_purchase_price = $("#prod_purchase_price").val();
-    var prod_price = $("#prod_price").val();
-    var prod_bulk = 0;
-    if ($("#prod_bulk").is(":checked")) {
-      prod_bulk = 1;
-    }
-    /* var prod_stock = $("#prod_stock").val(); */
-    var prod_min_stock = $("#prod_min_stock").val();
-    var prod_max_stock = $("#prod_max_stock").val();
-    var prod_description = $("#prod_description").val();
-    const prod_image = document.querySelector("#prod_image");
+  $(document).on("change", "#selectState", function () {
+    var id_estado = this.value;
+    $.ajax({
+      url: "php/controllers/colabs/colab_controller.php",
+      method: "POST",
+      data: {
+        mod: "getMunicipios",
+        id_estado: id_estado,
+      },
+    })
+      .done(function (data) {
+        var data = JSON.parse(data);
+        console.log(data);
+        $("#selectCity").prop("disabled", false);
+        if (data.response == true) {
+          $("#selectCity").empty();
+          $("#selectCity").append(
+            '<option value="">Seleccione un municipio</option>'
+          );
+          for (var i = 0; i < data.data.length; i++) {
+            $("#selectCity").append(
+              '<option value="' +
+                data.data[i].id +
+                '">' +
+                data.data[i].municipio +
+                "</option>"
+            );
+          }
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Verifique los datos ingresados",
+          });
+        }
 
-    /*  console.log("prod_code: " + prod_code);
-      console.log("prod_name: " + prod_name);
-      console.log("prod_brand: " + prod_brand);
-      console.log("prod_sku: " + prod_sku);
-      console.log("prod_barcode: " + prod_barcode);
-      console.log("prod_meassure: " + prod_meassure);
-      console.log("prod_purchase_price: " + prod_purchase_price);
-      console.log("prod_price: " + prod_price);
-      console.log("prod_bulk: " + prod_bulk);
-      console.log("prod_stock: " + prod_stock);
-      console.log("prod_min_stock: " + prod_min_stock);
-      console.log("prod_max_stock: " + prod_max_stock);
-      console.log("prod_description: " + prod_description);
-      console.log("prod_image: " + prod_image.files[0]); */
-    if (
-      prod_code != null &&
-      prod_code != "" &&
-      prod_code != undefined &&
-      prod_name != null &&
-      prod_name != "" &&
-      prod_name != undefined &&
-      prod_brand != null &&
-      prod_brand != "" &&
-      prod_brand != undefined &&
-      prod_sku != null &&
-      prod_sku != "" &&
-      prod_sku != undefined &&
-      prod_barcode != null &&
-      prod_barcode != "" &&
-      prod_barcode != undefined &&
-      prod_meassure != null &&
-      prod_meassure != "" &&
-      prod_meassure != undefined &&
-      prod_purchase_price != null &&
-      prod_purchase_price != "" &&
-      prod_purchase_price != undefined &&
-      prod_price != null &&
-      prod_price != "" &&
-      prod_price != undefined &&
-      prod_min_stock != null &&
-      prod_min_stock != "" &&
-      prod_min_stock != undefined &&
-      prod_max_stock != null &&
-      prod_max_stock != "" &&
-      prod_max_stock != undefined &&
-      prod_description != null &&
-      prod_description != "" &&
-      prod_description != undefined &&
-      prod_image.files.length > 0
-    ) {
-      saveNewProd();
-    } else {
-      Swal.fire({
-        title: "No puede dejar campos obligatorios vacíos!!!",
-        icon: "error",
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        VanillaToasts.create({
+          title: "Error",
+          text: "Ocurrió un error, intentelo nuevamente",
+          type: "error",
+          timeout: 1200,
+          positionClass: "topRight",
+        });
       });
+  });
+
+  $(document).on("click", "#saveNewSupplier", function () {
+    loading();
+    var company = $("#company").val().trim();
+    var contact_name = $("#contact_name").val().trim();
+    var contact_mail = $("#contact_mail").val();
+    var contact_phone = $("#contact_phone").val();
+    var contact_street = $("#contact_street").val();
+    var contact_ext_num = $("#contact_ext_num").val();
+    var contact_int_num = $("#contact_int_num").val();
+    var contact_colony = $("#contact_colony").val();
+    var contact_zipcode = $("#contact_zipcode").val();
+    var state = $("#selectState option:selected").text();
+    var city = $("#selectCity option:selected").text();
+
+    if (company != null && company != "") {
+      $.ajax({
+        url: "php/controllers/colabs/suppliers_controller.php",
+        method: "POST",
+        data: {
+          mod: "saveSuppliers",
+          company: company,
+          contact_name: contact_name,
+          contact_mail: contact_mail,
+          contact_phone: contact_phone,
+          contact_street: contact_street,
+          contact_ext_num: contact_ext_num,
+          contact_int_num: contact_int_num,
+          contact_colony: contact_colony,
+          contact_zipcode: contact_zipcode,
+          state: state,
+          city: city,
+        },
+      })
+        .done(function (data) {
+          var data = JSON.parse(data);
+          console.log(data);
+          if (data.response == true) {
+            Swal.fire({
+              title: data.message,
+              icon: "success",
+            });
+            /* $("#newColabModal").find("input,textarea,select").val("");
+            $("#newColabModal input[type='checkbox']")
+              .prop("checked", false)
+              .change();
+            $("#closeModalNewUser").trigger("click");
+            $("#selectState").select2("val", "");
+            $("#selectCity").select2("val", "");
+            $("#selectCity").attr("disabled", true);
+            $("#tbodyColabs").append(data.html); */
+          } else {
+            Swal.fire({
+              title: data.message,
+              icon: "error",
+            });
+          }
+        })
+        .fail(function (message) {
+          Swal.fire({
+            title: "No se pudoo completar el proceso!",
+            icon: "error",
+          });
+        });
     }
   });
 
@@ -468,276 +505,6 @@ $(document).ready(function () {
     //--- --- ---//
   });
 
-  $(document).on("focusout", ".updateProduct", function (event) {
-    loading();
-    var id_product = $(".closeModalEditProd").attr("data-id-product");
-    var column_name = $(this).attr("data-column-name");
-    var new_val = $(this).val().trim();
-
-    $.ajax({
-      url: "php/controllers/articles/articles_controller.php",
-      method: "POST",
-      data: {
-        mod: "updateProduct",
-        id_product: id_product,
-        column_name: column_name,
-        new_val: new_val,
-      },
-    })
-      .done(function (data) {
-        Swal.close();
-        var data = JSON.parse(data);
-        console.log(data);
-        if (data.response == true) {
-          $("#td" + column_name + "Id" + id_product).text(new_val);
-          doneToast(data.message);
-        } else {
-          errorToast(data.message);
-        }
-
-        //--- --- ---//
-        //--- --- ---//
-      })
-      .fail(function (message) {
-        Swal.close();
-        var myToast = Toastify({
-          text: data.message,
-          duration: 3000,
-        });
-        myToast.showToast();
-      });
-
-    //--- --- ---//
-  });
-  $(document).on("focusout", ".updateProductPrice", function (event) {
-    loading();
-    var id_product = $(".closeModalEditProd").attr("data-id-product");
-    var column_name = $(this).attr("data-column-name");
-    var new_val = $(this).val().trim();
-
-    let USDollar = new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
-
-    $.ajax({
-      url: "php/controllers/articles/articles_controller.php",
-      method: "POST",
-      data: {
-        mod: "updateProduct",
-        id_product: id_product,
-        column_name: column_name,
-        new_val: new_val,
-      },
-    })
-      .done(function (data) {
-        Swal.close();
-        var data = JSON.parse(data);
-        console.log(data);
-        if (data.response == true) {
-          $("#td" + column_name + "Id" + id_product).text(
-            USDollar.format(new_val)
-          );
-          doneToast(data.message);
-        } else {
-          errorToast(data.message);
-        }
-
-        //--- --- ---//
-        //--- --- ---//
-      })
-      .fail(function (message) {
-        Swal.close();
-        var myToast = Toastify({
-          text: data.message,
-          duration: 3000,
-        });
-        myToast.showToast();
-      });
-
-    //--- --- ---//
-  });
-
-  $(document).on("focusout", ".updateProductBarcode", function (event) {
-    loading();
-    var id_product = $(".closeModalEditProd").attr("data-id-product");
-    var column_name = $(this).attr("data-column-name");
-    var new_val = $(this).val().trim();
-
-    $.ajax({
-      url: "php/controllers/articles/articles_controller.php",
-      method: "POST",
-      data: {
-        mod: "updateProduct",
-        id_product: id_product,
-        column_name: column_name,
-        new_val: new_val,
-      },
-    })
-      .done(function (data) {
-        Swal.close();
-        var data = JSON.parse(data);
-        console.log(data);
-        if (data.response == true) {
-          $("#td" + column_name + "Id" + id_product).text(new_val);
-          $("#btnBarcode" + id_product).attr("data-barcode", new_val);
-          doneToast(data.message);
-        } else {
-          errorToast(data.message);
-        }
-
-        //--- --- ---//
-        //--- --- ---//
-      })
-      .fail(function (message) {
-        Swal.close();
-        var myToast = Toastify({
-          text: data.message,
-          duration: 3000,
-        });
-        myToast.showToast();
-      });
-
-    //--- --- ---//
-  });
-
-  $(document).on("change", ".slctUpdateProduct", function (event) {
-    loading();
-    var id_product = $(".closeModalEditProd").attr("data-id-product");
-    var column_name = $(this).attr("data-column-name");
-    allow_update = $(this).attr("allow-update");
-    var new_val = $(this).val().trim();
-    if (allow_update == 1) {
-      $.ajax({
-        url: "php/controllers/articles/articles_controller.php",
-        method: "POST",
-        data: {
-          mod: "updateProduct",
-          id_product: id_product,
-          column_name: column_name,
-          new_val: new_val,
-        },
-      })
-        .done(function (data) {
-          Swal.close();
-          var data = JSON.parse(data);
-          console.log(data);
-          if (data.response == true) {
-            /* $("#td" + column_name + "Id" + id_product).text(new_val); */
-            doneToast(data.message);
-          } else {
-            errorToast(data.message);
-          }
-
-          //--- --- ---//
-          //--- --- ---//
-        })
-        .fail(function (message) {
-          Swal.close();
-          var myToast = Toastify({
-            text: data.message,
-            duration: 3000,
-          });
-          myToast.showToast();
-        });
-
-      //--- --- ---//
-    } else {
-      $(this).attr("allow-update", 1);
-      Swal.close();
-    }
-  });
-  $(document).on("focusout", ".updateProductStockMin", function (event) {
-    loading();
-    var id_product = $(".closeModalEditProd").attr("data-id-product");
-    var column_name = $(this).attr("data-column-name");
-    var new_val = $(this).val().trim();
-
-    $.ajax({
-      url: "php/controllers/articles/articles_controller.php",
-      method: "POST",
-      data: {
-        mod: "updateProduct",
-        id_product: id_product,
-        column_name: column_name,
-        new_val: new_val,
-      },
-    })
-      .done(function (data) {
-        Swal.close();
-        var data = JSON.parse(data);
-        console.log(data);
-        if (data.response == true) {
-          //$("#ProgressProd" + id_product).attr("aria-valuemin",new_val);
-
-          doneToast(data.message);
-        } else {
-          errorToast(data.message);
-        }
-
-        //--- --- ---//
-        //--- --- ---//
-      })
-      .fail(function (message) {
-        Swal.close();
-        var myToast = Toastify({
-          text: data.message,
-          duration: 3000,
-        });
-        myToast.showToast();
-      });
-
-    //--- --- ---//
-  });
-  $(document).on("focusout", ".updateProductStockMax", function (event) {
-    loading();
-    var id_product = $(".closeModalEditProd").attr("data-id-product");
-    var column_name = $(this).attr("data-column-name");
-    var new_val = $(this).val().trim();
-
-    $.ajax({
-      url: "php/controllers/articles/articles_controller.php",
-      method: "POST",
-      data: {
-        mod: "updateProduct",
-        id_product: id_product,
-        column_name: column_name,
-        new_val: new_val,
-      },
-    })
-      .done(function (data) {
-        Swal.close();
-        var data = JSON.parse(data);
-        console.log(data);
-        if (data.response == true) {
-          /* $("#ProgressProd" + id_product).attr("aria-valuemin",new_val); */
-          var now_stock = $("#ProgressProd" + id_product).attr("aria-valuenow");
-          var max_stock = new_val;
-          var new_percentage = Math.round((now_stock / max_stock) * 100);
-          var wid = "width:" + new_percentage + "%";
-          $("#ProgressProd" + id_product).attr("style", wid);
-          $("#ProgressProd" + id_product).attr("aria-valuemax", max_stock);
-          $("#txtPercentage" + id_product).text(new_percentage + "%");
-
-          doneToast(data.message);
-        } else {
-          errorToast(data.message);
-        }
-
-        //--- --- ---//
-        //--- --- ---//
-      })
-      .fail(function (message) {
-        Swal.close();
-        var myToast = Toastify({
-          text: data.message,
-          duration: 3000,
-        });
-        myToast.showToast();
-      });
-
-    //--- --- ---//
-  });
   $("#modalEditArticle").on("hidden.bs.modal", function () {
     $(".slctUpdateProduct").attr("allow-update", 0);
   });
@@ -794,100 +561,6 @@ $(document).ready(function () {
 
     //--- --- ---//
   });
-
-  function saveNewProd() {
-    loading();
-    var prod_code = $("#prod_code").val().trim();
-    var prod_name = $("#prod_name").val().trim();
-    var prod_brand = $("#prod_brand option:selected").val();
-    var prod_sku = $("#prod_sku").val();
-    var prod_barcode = $("#prod_barcode").val();
-    var prod_meassure = $("#prod_meassure option:selected").val();
-    var prod_purchase_price = $("#prod_purchase_price").val();
-    var prod_price = $("#prod_price").val();
-    var prod_bulk = 0;
-    if ($("#prod_bulk").is(":checked")) {
-      prod_bulk = 1;
-    }
-    /* var prod_stock = $("#prod_stock").val(); */
-    var prod_min_stock = $("#prod_min_stock").val();
-    var prod_max_stock = $("#prod_max_stock").val();
-    var prod_description = $("#prod_description").val();
-    const prod_image = document.querySelector("#prod_image");
-
-    if (
-      prod_code != null &&
-      prod_code != "" &&
-      prod_code != undefined &&
-      prod_name != null &&
-      prod_name != "" &&
-      prod_name != undefined &&
-      prod_brand != null &&
-      prod_brand != "" &&
-      prod_brand != undefined &&
-      prod_sku != null &&
-      prod_sku != "" &&
-      prod_sku != undefined &&
-      prod_barcode != null &&
-      prod_barcode != "" &&
-      prod_barcode != undefined &&
-      prod_meassure != null &&
-      prod_meassure != "" &&
-      prod_meassure != undefined &&
-      prod_purchase_price != null &&
-      prod_purchase_price != "" &&
-      prod_purchase_price != undefined &&
-      prod_price != null &&
-      prod_price != "" &&
-      prod_price != undefined &&
-      prod_min_stock != null &&
-      prod_min_stock != "" &&
-      prod_min_stock != undefined &&
-      prod_max_stock != null &&
-      prod_max_stock != "" &&
-      prod_max_stock != undefined &&
-      prod_description != null &&
-      prod_description != "" &&
-      prod_description != undefined &&
-      prod_image.files.length > 0
-    ) {
-      let formData = new FormData();
-      formData.append("mod", "saveNewProd");
-      formData.append("prod_image", prod_image.files[0]);
-      formData.append("prod_code", prod_code);
-      formData.append("prod_name", prod_name);
-      formData.append("prod_brand", prod_brand);
-      formData.append("prod_sku", prod_sku);
-      formData.append("prod_barcode", prod_barcode);
-      formData.append("prod_meassure", prod_meassure);
-      formData.append("prod_price", prod_price);
-      formData.append("prod_purchase_price", prod_purchase_price);
-      formData.append("prod_bulk", prod_bulk);
-      /* formData.append("prod_stock", prod_stock); */
-      formData.append("prod_min_stock", prod_min_stock);
-      formData.append("prod_max_stock", prod_max_stock);
-      formData.append("prod_description", prod_description);
-      formData.append("prod_image", prod_image);
-
-      fetch("php/controllers/articles/articles_controller.php", {
-        method: "POST",
-        body: formData,
-      })
-        .then((respuesta) => respuesta.json())
-        .then((decodificado) => {
-          loading();
-          Swal.fire({
-            icon: "success",
-            title: "Éxito",
-            text: "Registro guardado exitosamente",
-            timer: 3000,
-          }).then((result) => {
-            loading();
-            location.reload();
-          });
-        });
-    }
-  }
 
   function printBarcode() {
     // printJS('printable', 'html')
@@ -993,17 +666,10 @@ $(document).ready(function () {
 
   $(".js-example-basic-single").select2();
 
-  $("#prod_brand").select2({
-    dropdownParent: $("#modalNewArticle"),
+  $("#selectState").select2({
+    dropdownParent: $("#modalNewSupplier"),
   });
-  $("#prod_meassure").select2({
-    dropdownParent: $("#modalNewArticle"),
-  });
-
-  $("#edit_prod_brand").select2({
-    dropdownParent: $("#modalEditArticle"),
-  });
-  $("#edit_prod_meassure").select2({
-    dropdownParent: $("#modalEditArticle"),
+  $("#selectCity").select2({
+    dropdownParent: $("#modalNewSupplier"),
   });
 });

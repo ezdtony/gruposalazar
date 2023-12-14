@@ -1,8 +1,6 @@
 <?php
 $getSuppliers = $suppliers_model->getAllSuppliers();
-/* $getSates = $supplierss_model->getAllStates();
-$getSubsidiary = $articles_model->getSubsidiary();
-$getPositions = $articles_model->getPositions(); */
+$getSates = $suppliers_model->getAllStates();
 ?>
 <link rel="stylesheet" href="assets/css/imgViewer.css">
 <script src="assets/js/JsBarcode.all.min.js"></script>
@@ -121,12 +119,8 @@ $getPositions = $articles_model->getPositions(); */
         </div>
     </div>
 </div>
-<script src="js/functions/articles.js"></script>
+<script src="js/functions/suppliers.js"></script>
 <?php
-include 'modals/modalNewArticle.php';
-include 'modals/editModalNewArticle.php';
-include 'modals/modalViewBarcode.php';
-include 'modals/subsidiaryStocks.php';
-include 'modals/imageViewer.php';
+include 'modals/modalNewSupplier.php';
 
 ?>
