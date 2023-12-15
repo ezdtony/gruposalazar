@@ -14,6 +14,18 @@ class Suppliers
 
         return ($getSuppliers);
     }
+    public function getAllBrands()
+    {
+        include_once('php/models/petitions.php');
+        $queries = new Queries;
+        $sql_colabs = "SELECT *
+        FROM u803991314_main.brands AS br
+        ";
+
+        $getSuppliers = $queries->getData($sql_colabs);
+
+        return ($getSuppliers);
+    }
 
     public function getAllStates()
     {

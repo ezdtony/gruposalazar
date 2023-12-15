@@ -64,7 +64,7 @@ $(document).ready(function () {
 
     if (company != null && company != "") {
       $.ajax({
-        url: "php/controllers/colabs/suppliers_controller.php",
+        url: "php/controllers/suppliers/suppliers_controller.php",
         method: "POST",
         data: {
           mod: "saveSuppliers",
@@ -89,6 +89,7 @@ $(document).ready(function () {
               title: data.message,
               icon: "success",
             });
+            $("#tableSuppliers").append(data.html);
             /* $("#newColabModal").find("input,textarea,select").val("");
             $("#newColabModal input[type='checkbox']")
               .prop("checked", false)
@@ -451,16 +452,16 @@ $(document).ready(function () {
     }
   });
 
-  $(document).on("click", ".editProduct", function (event) {
+  $(document).on("click", ".editSuppliers", function (event) {
     loading();
-    var id_product = $(this).attr("data-id-product");
+    var id_supplier = $(this).attr("data-id-product");
 
     $.ajax({
-      url: "php/controllers/articles/articles_controller.php",
+      url: "php/controllers/suppliers/suppliers_controller.php",
       method: "POST",
       data: {
         mod: "getProductInfo",
-        id_product: id_product,
+        id_supplier: id_supplier,
       },
     })
       .done(function (data) {
@@ -468,7 +469,7 @@ $(document).ready(function () {
         var data = JSON.parse(data);
         console.log(data);
         if (data.response == true) {
-          $(".closeModalEditProd").attr("data-id-product", id_product);
+          $(".closeModalEditProd").attr("data-id-product", id_supplier);
           $("#edit_prod_code").val(data.prod_info[0].product_short_name);
           $("#edit_prod_name").val(data.prod_info[0].product_name);
           $("#edit_prod_brand").val(data.prod_info[0].id_brands); // Select the option with a value of '1'
