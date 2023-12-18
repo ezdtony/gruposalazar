@@ -23,7 +23,7 @@ $getSates = $suppliers_model->getAllStates();
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingSuppliers">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSuppliers" aria-expanded="true" aria-controls="collapseSuppliers">
-                Proveedores
+                Proveedoress
             </button>
         </h2>
         <div id="collapseSuppliers" class="accordion-collapse collapse show" aria-labelledby="headingSuppliers" data-bs-parent="#accordionSuppliersAndBrands">

@@ -119,6 +119,7 @@ function saveSuppliers()
 function getSupplierInfo()
 {
 
+    
 
     $id_product = $_POST['id_product'];
 
