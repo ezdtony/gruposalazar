@@ -3,19 +3,6 @@ $getSuppliers = $suppliers_model->getAllSuppliers();
 $getAllBrands = $suppliers_model->getAllBrands();
 $getSates = $suppliers_model->getAllStates();
 ?>
-<link rel="stylesheet" href="assets/css/imgViewer.css">
-<script src="assets/js/JsBarcode.all.min.js"></script>
-<script src="js/functions/imageViewer.js"></script>
-<script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
-<link rel="stylesheet" href="https://printjs-4de6.kxcdn.com/print.min.css">
-
-<style>
-    .tdAddress {
-        table-layout: fixed;
-        width: 150px;
-        word-wrap: break-word
-    }
-</style>
 
 <h1 class="h2">Marcas y Proveedores</h1>
 
@@ -23,7 +10,7 @@ $getSates = $suppliers_model->getAllStates();
     <div class="accordion-item">
         <h2 class="accordion-header" id="headingSuppliers">
             <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSuppliers" aria-expanded="true" aria-controls="collapseSuppliers">
-                Proveedoress
+                Proveedores
             </button>
         </h2>
         <div id="collapseSuppliers" class="accordion-collapse collapse show" aria-labelledby="headingSuppliers" data-bs-parent="#accordionSuppliersAndBrands">
@@ -43,7 +30,6 @@ $getSates = $suppliers_model->getAllStates();
                                     Registrar proveedor
                                 </a>
                             </div>
-
                             <!-- Table -->
                             <div class="table-responsive">
                                 <table class="table align-middle table-edge" id="tableSuppliers">
@@ -81,7 +67,6 @@ $getSates = $suppliers_model->getAllStates();
                                             </th>
                                         </tr>
                                     </thead>
-
                                     <tbody class="list">
                                         <?php if (!empty($getSuppliers)) : ?>
                                             <?php foreach ($getSuppliers as $suppliers) : ?>
@@ -224,9 +209,11 @@ $getSates = $suppliers_model->getAllStates();
 </div>
 
 
-<script src="js/functions/suppliers.js"></script>
+
 <?php
 include 'modals/modalNewSupplier.php';
 include 'modals/editSuppliers.php';
 
 ?>
+
+<script src="js/functions/suppliers.js"></script>

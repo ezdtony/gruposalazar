@@ -48,6 +48,15 @@ $(document).ready(function () {
       });
   });
 
+  $("#showAdress").change(function () {
+    if (this.checked) {
+      $("#divAddress").show();
+    }else{
+      $("#divAddress").hide();
+    }
+    $("#textbox1").val(this.checked);
+  });
+
   $(document).on("click", "#saveNewSupplier", function () {
     loading();
     var company = $("#company").val().trim();
@@ -62,7 +71,16 @@ $(document).ready(function () {
     var state = $("#selectState option:selected").text();
     var city = $("#selectCity option:selected").text();
 
-    if (company != null && company != "") {
+    if (
+      company != null &&
+      company != "" &&
+      contact_name != null &&
+      contact_name != "" &&
+      contact_mail != null &&
+      contact_mail != "" &&
+      contact_phone != null &&
+      contact_phone != ""
+    ) {
       $.ajax({
         url: "php/controllers/suppliers/suppliers_controller.php",
         method: "POST",
@@ -112,6 +130,11 @@ $(document).ready(function () {
             icon: "error",
           });
         });
+    } else {
+      Swal.fire({
+        title: "Por favor ingrese todos los datos obligatorios!",
+        icon: "error",
+      });
     }
   });
 
