@@ -51,7 +51,7 @@ $(document).ready(function () {
   $("#showAdress").change(function () {
     if (this.checked) {
       $("#divAddress").show();
-    }else{
+    } else {
       $("#divAddress").hide();
     }
     $("#textbox1").val(this.checked);
@@ -70,6 +70,13 @@ $(document).ready(function () {
     var contact_zipcode = $("#contact_zipcode").val();
     var state = $("#selectState option:selected").text();
     var city = $("#selectCity option:selected").text();
+
+    var active_address = 0;
+    if ($("#showAdress").is(":checked")) {
+      active_address = 1;
+
+      console.log(active_address);
+    }
 
     if (
       company != null &&
@@ -97,6 +104,7 @@ $(document).ready(function () {
           contact_zipcode: contact_zipcode,
           state: state,
           city: city,
+          active_address: active_address,
         },
       })
         .done(function (data) {
@@ -108,15 +116,15 @@ $(document).ready(function () {
               icon: "success",
             });
             $("#tableSuppliers").append(data.html);
-            /* $("#newColabModal").find("input,textarea,select").val("");
-            $("#newColabModal input[type='checkbox']")
+
+            $("#modalNewSupplier").find("input,textarea,select").val("");
+            $("#modalNewSupplier input[type='checkbox']")
               .prop("checked", false)
               .change();
-            $("#closeModalNewUser").trigger("click");
+            $(".closeModalNewSupplier").trigger("click");
             $("#selectState").select2("val", "");
             $("#selectCity").select2("val", "");
             $("#selectCity").attr("disabled", true);
-            $("#tbodyColabs").append(data.html); */
           } else {
             Swal.fire({
               title: data.message,
@@ -135,343 +143,6 @@ $(document).ready(function () {
         title: "Por favor ingrese todos los datos obligatorios!",
         icon: "error",
       });
-    }
-  });
-
-  $(document).on("click", ".btnSeeStockSubsidiary", function () {
-    loading();
-    var id_product = $(this).attr("data-id-product");
-    var product_name = $(this).attr("data-product-name");
-
-    $.ajax({
-      url: "php/controllers/articles/articles_controller.php",
-      method: "POST",
-      data: {
-        mod: "getProductStocks",
-        id_product: id_product,
-        product_name: product_name,
-      },
-    })
-      .done(function (data) {
-        var data = JSON.parse(data);
-        //console.log(data);
-        if (data.response == true) {
-          Swal.close();
-          $("#divStocksSubsidiarys").html(data.html);
-        } else {
-          Swal.close();
-          $("#divStocksSubsidiarys").html(data.html);
-        }
-      })
-      .fail(function (message) {
-        Swal.fire({
-          title: "No se pudoo completar el proceso!",
-          icon: "error",
-        });
-      });
-  });
-
-  $(document).on("click", ".btnGenerateBarcode", function () {
-    var product_barcode = $(this).attr("data-barcode");
-    JsBarcode("#barcodeImg", product_barcode, { format: "CODE128" });
-
-    /* printBarcode(); */
-  });
-  $("#printBarcode").click(function () {
-    /* window.print($("#barcodeImg")); */
-    /* printJS('barcodeImg', ''); */
-    printJS({
-      printable: "barcodeImg",
-      type: "html",
-      header: "",
-      maxWidth: "1201234567891233",
-    });
-  });
-  $(document).on("dblclick", ".tdStock", function () {
-    var stock = $(this).attr("data-stock");
-    var id_subsidiary = $(this).attr("data-id-subsidiary");
-    var id_product = $(this).attr("data-id-prod");
-
-    //console.log(ammount);
-    var html = "";
-    html +=
-      '<input class="editSubsStock" data-id-subsidiary="' +
-      id_subsidiary +
-      '" id="editStockSubs' +
-      id_subsidiary +
-      '" data-id-prod="' +
-      id_product +
-      '" type="text" data-og-stock="' +
-      stock +
-      '" value="' +
-      stock +
-      '">';
-    $(this).closest("td").removeClass("tdStock");
-    /* $(this).closest("td").removeClass("text-center"); */
-    $(this).closest("td").html(html);
-
-    var strLength = $("#editStockSubs" + id_subsidiary).val().length * 2;
-
-    $("#editStockSubs" + id_subsidiary).focus();
-    $("#editStockSubs" + id_subsidiary)[0].setSelectionRange(
-      strLength,
-      strLength
-    );
-
-    $("#editStockSubs" + id_subsidiary).focus();
-  });
-
-  /* $(document).on("focusout", ".editSubsStock", function () {
-      loading();
-      let USDollar = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      });
-      //--- --- ---//
-      var stock = $(this).val();
-      var id_subsidiary = $(this).attr("data-id-subsidiary");
-      var id_product = $(this).attr("data-id-prod");
-      var og_stock = $(this).attr("data-og-stock");
-  
-      var html = "";
-      //    html += USDollar.format(stock);
-      html += stock;
-  
-      $.ajax({
-        url: "php/controllers/articles/articles_controller.php",
-        method: "POST",
-        data: {
-          mod: "updateStocksSubsidiary",
-          stock: stock,
-          id_subsidiary: id_subsidiary,
-          id_product: id_product,
-        },
-      })
-        .done(function (data) {
-          Swal.close();
-  
-          var data = JSON.parse(data);
-          console.log(data);
-          if (data.response == true) {
-            doneToast(data.message);
-            $("#tdStockSubs" + id_subsidiary)
-              .empty()
-              .html(html);
-            $("#tdStockSubs" + id_subsidiary).addClass("tdStock");
-            $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
-            $(this).closest("td").addClass("text-center");
-            var total_stock = $("#tdTotalStock").attr("data-total-stock");
-            total_stock = parseFloat(total_stock);
-            if (og_stock != "") {
-              og_stock = parseFloat(og_stock);
-            } else {
-              og_stock = 0;
-            }
-            if (stock != "") {
-              stock = parseFloat(stock);
-            } else {
-              stock = 0;
-            }
-  
-            var new_total_stock = total_stock - og_stock;
-            new_total_stock = new_total_stock + stock;
-            console.log(og_stock);
-            $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
-            $("#tdTotalStock").text(new_total_stock);
-            $("#tdTotalStock").attr("data-total-stock", new_total_stock);
-  
-            $("#tdTotalStock").fadeOut(1000, function () {
-              $("#tdTotalStock").text(new_total_stock).fadeIn(500);
-            });
-          } else {
-            errorToast(data.message);
-          }
-  
-          //--- --- ---//
-          //--- --- ---//
-        })
-        .fail(function (message) {
-          Swal.close();
-          var myToast = Toastify({
-            text: data.message,
-            duration: 3000,
-          });
-          myToast.showToast();
-        });
-  
-      //--- --- ---//
-    }); */
-
-  $(document).on("keypress", ".editSubsStock", function (event) {
-    var keycode = event.keyCode || event.which;
-    if (keycode == 13) {
-      loading();
-      var stock = $(this).val();
-      var id_subsidiary = $(this).attr("data-id-subsidiary");
-      var id_product = $(this).attr("data-id-prod");
-      var og_stock = $(this).attr("data-og-stock");
-
-      var html = "";
-      //    html += USDollar.format(stock);
-      html += stock;
-
-      $.ajax({
-        url: "php/controllers/articles/articles_controller.php",
-        method: "POST",
-        data: {
-          mod: "updateStocksSubsidiary",
-          stock: stock,
-          id_subsidiary: id_subsidiary,
-          id_product: id_product,
-        },
-      })
-        .done(function (data) {
-          Swal.close();
-
-          var data = JSON.parse(data);
-          /* console.log(data); */
-          if (data.response == true) {
-            doneToast(data.message);
-            $("#tdStockSubs" + id_subsidiary)
-              .empty()
-              .html(html);
-            $("#tdStockSubs" + id_subsidiary).addClass("tdStock");
-            $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
-            $(this).closest("td").addClass("text-center");
-            var total_stock = $("#tdTotalStock").attr("data-total-stock");
-            total_stock = parseFloat(total_stock);
-            if (og_stock != "") {
-              og_stock = parseFloat(og_stock);
-            } else {
-              og_stock = 0;
-            }
-            if (stock != "") {
-              stock = parseFloat(stock);
-            } else {
-              stock = 0;
-            }
-
-            var new_total_stock = total_stock - og_stock;
-            new_total_stock = new_total_stock + stock;
-            /* console.log(og_stock); */
-            $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
-            $("#tdTotalStock").text(new_total_stock);
-            $("#tdTotalStock").attr("data-total-stock", new_total_stock);
-
-            $("#tdTotalStock").fadeOut(1000, function () {
-              $("#tdTotalStock").text(new_total_stock).fadeIn(500);
-
-              var max_stock = $("#ProgressProd" + id_product).attr(
-                "aria-valuemax"
-              );
-              var now_stock = new_total_stock;
-              var new_percentage = Math.round((now_stock / max_stock) * 100);
-              var wid = "width:" + new_percentage + "%";
-              if (new_percentage > 100) {
-                wid = "width:100%";
-                new_percentage = "+" + 100;
-              }
-
-              $("#ProgressProd" + id_product).attr("style", wid);
-              $("#ProgressProd" + id_product).attr("aria-valuenow", now_stock);
-
-              $("#txtPercentage" + id_product).text(new_percentage + "%");
-            });
-          } else {
-            errorToast(data.message);
-          }
-
-          //--- --- ---//
-          //--- --- ---//
-        })
-        .fail(function (message) {
-          Swal.close();
-          var myToast = Toastify({
-            text: data.message,
-            duration: 3000,
-          });
-          myToast.showToast();
-        });
-
-      //--- --- ---//
-    }
-  });
-  $(document).on("keypress", ".editProduct", function (event) {
-    var keycode = event.keyCode || event.which;
-    if (keycode == 13) {
-      loading();
-      var stock = $(this).val();
-      var id_subsidiary = $(this).attr("data-id-subsidiary");
-      var id_product = $(this).attr("data-id-prod");
-      var og_stock = $(this).attr("data-og-stock");
-
-      var html = "";
-      //    html += USDollar.format(stock);
-      html += stock;
-
-      $.ajax({
-        url: "php/controllers/articles/articles_controller.php",
-        method: "POST",
-        data: {
-          mod: "updateStocksSubsidiary",
-          stock: stock,
-          id_subsidiary: id_subsidiary,
-          id_product: id_product,
-        },
-      })
-        .done(function (data) {
-          Swal.close();
-
-          var data = JSON.parse(data);
-          /* console.log(data); */
-          if (data.response == true) {
-            doneToast(data.message);
-            $("#tdStockSubs" + id_subsidiary)
-              .empty()
-              .html(html);
-            $("#tdStockSubs" + id_subsidiary).addClass("tdStock");
-            $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
-            $(this).closest("td").addClass("text-center");
-            var total_stock = $("#tdTotalStock").attr("data-total-stock");
-            total_stock = parseFloat(total_stock);
-            if (og_stock != "") {
-              og_stock = parseFloat(og_stock);
-            } else {
-              og_stock = 0;
-            }
-            if (stock != "") {
-              stock = parseFloat(stock);
-            } else {
-              stock = 0;
-            }
-
-            var new_total_stock = total_stock - og_stock;
-            new_total_stock = new_total_stock + stock;
-            /* console.log(og_stock); */
-            $("#tdStockSubs" + id_subsidiary).attr("data-stock", stock);
-            $("#tdTotalStock").text(new_total_stock);
-            $("#tdTotalStock").attr("data-total-stock", new_total_stock);
-
-            $("#tdTotalStock").fadeOut(1000, function () {
-              $("#tdTotalStock").text(new_total_stock).fadeIn(500);
-            });
-          } else {
-            errorToast(data.message);
-          }
-
-          //--- --- ---//
-          //--- --- ---//
-        })
-        .fail(function (message) {
-          Swal.close();
-          var myToast = Toastify({
-            text: data.message,
-            duration: 3000,
-          });
-          myToast.showToast();
-        });
-
-      //--- --- ---//
     }
   });
 
@@ -533,13 +204,13 @@ $(document).ready(function () {
     $(".slctUpdateProduct").attr("allow-update", 0);
   });
 
-  $(document).on("focusout", ".deleteProduct", function (event) {
+  $(document).on("click", ".deleteSuppliers", function (event) {
     loading();
-    var id_product = $(this).attr("data-id-product");
+    var id_supplier = $(this).attr("data-id-supplier");
 
     Swal.fire({
       title: "Está seguro?",
-      text: "Se eliminará el producto, esta acción no se podrá revertir, ¿desea continuar?",
+      text: "Se eliminará el proveedor, esta acción no se podrá revertir, ¿desea continuar?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -548,11 +219,11 @@ $(document).ready(function () {
     }).then((result) => {
       if (result.isConfirmed) {
         $.ajax({
-          url: "php/controllers/articles/articles_controller.php",
+          url: "php/controllers/suppliers/suppliers_controller.php",
           method: "POST",
           data: {
-            mod: "deleteProduct",
-            id_product: id_product,
+            mod: "deleteSupplier",
+            id_supplier: id_supplier,
           },
         })
           .done(function (data) {
@@ -560,7 +231,7 @@ $(document).ready(function () {
             var data = JSON.parse(data);
             console.log(data);
             if (data.response == true) {
-              $("#trProduct" + id_product).fadeTo("slow", 0.7, function () {
+              $("#trSupplier" + id_supplier).fadeTo("slow", 0.7, function () {
                 $(this).remove();
               });
 

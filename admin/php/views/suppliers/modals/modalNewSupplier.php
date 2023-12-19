@@ -89,7 +89,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-light closeModalNewSupplier" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-primary" id="saveNewSupplier">Guardar</button>
             </div>
         </div>

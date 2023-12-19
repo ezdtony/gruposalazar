@@ -26,12 +26,16 @@ function saveSuppliers()
     $contact_zipcode = $_POST['contact_zipcode'];
     $state = $_POST['state'];
     $city = $_POST['city'];
+    $active_address = $_POST['active_address'];
 
-    $contact_int_num_txt = '';
-    if ($contact_int_num != '') {
-        $contact_int_num_txt = " Int. " . $contact_int_num;
+    $address = 'N/A';
+    if ($active_address) {
+        $contact_int_num_txt = '';
+        if ($contact_int_num != '') {
+            $contact_int_num_txt = " Int. " . $contact_int_num;
+        }
+        $address =  $contact_street . " " . $contact_ext_num . $contact_int_num_txt . " " . $contact_colony . " C.P. " . $contact_zipcode . " " . $city . " " . $state;
     }
-    $address =  $contact_street . " " . $contact_ext_num . $contact_int_num_txt . " " . $contact_colony . " C.P. " . $contact_zipcode . " " . $city . " " . $state;
 
     $sql = "INSERT INTO u803991314_main.suppliers
     (
@@ -64,19 +68,19 @@ function saveSuppliers()
         <td class="name fw-bold" id="td_supplier_' . $company . '">
         ' . $company . '
         </td>
-        <td class="name fw-bold" id="td_contact_name_' . $last_id . '">
+        <td class="name " id="td_contact_name_' . $last_id . '">
             ' . $contact_name . '
         </td>
-        <td class="name fw-bold" id="td_email_contact_' . $last_id . '">
+        <td class="name " id="td_email_contact_' . $last_id . '">
         ' . $contact_mail . '
         </td>
-        <td class="name fw-bold" id="td_cellphone_contact' . $last_id . '">
+        <td class="name " id="td_cellphone_contact' . $last_id . '">
         ' . $contact_phone . '
         </td>
-        <td class="name fw-bold" id="td_address_supplier_' . $last_id . '">
+        <td class="name " id="td_address_supplier_' . $last_id . '">
         ' . $address . '
         </td>
-        <td class="fw-bold text-center">
+        <td class=" text-center">
             <div class="dropdown pull-right" style="float: right !important;">
                 <a href="javascript: void(0);" class="dropdown-toggle no-arrow text-secondary" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="14" width="14">
@@ -119,7 +123,7 @@ function saveSuppliers()
 function getSupplierInfo()
 {
 
-    
+
 
     $id_product = $_POST['id_product'];
 
@@ -145,6 +149,37 @@ function getSupplierInfo()
 
     echo json_encode($data);
 }
+
+function deleteSupplier()
+{
+
+
+
+    $id_suppliers = $_POST['id_supplier'];
+
+    $queries = new Queries;
+    $prod_info = array();
+
+    $sqlCI = "UPDATE u803991314_main.suppliers SET active_supplier = 0 WHERE id_suppliers = $id_suppliers";
+    $prod_info = $queries->InsertData($sqlCI);
+    if (empty($prod_info)) {
+        $data = array(
+            'response' => true,
+            'message' => 'Se eliminó correctamente',
+            'prod_info' => $prod_info
+        );
+    } else {
+        $data = array(
+            'response' => true,
+            'message' => 'Error al eliminar al proveedor',
+            'prod_info' => $prod_info
+        );
+    }
+
+    echo json_encode($data);
+}
+
+
 
 
 function generateRandomString($length)
