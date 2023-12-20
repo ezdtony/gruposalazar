@@ -148,13 +148,14 @@ $(document).ready(function () {
 
   $(document).on("click", ".editSuppliers", function (event) {
     loading();
-    var id_supplier = $(this).attr("data-id-product");
+    var id_supplier = $(this).attr("data-id-supplier");
+    console.log(id_supplier);
 
     $.ajax({
       url: "php/controllers/suppliers/suppliers_controller.php",
       method: "POST",
       data: {
-        mod: "getProductInfo",
+        mod: "getSupplierInfo",
         id_supplier: id_supplier,
       },
     })
@@ -163,24 +164,14 @@ $(document).ready(function () {
         var data = JSON.parse(data);
         console.log(data);
         if (data.response == true) {
-          $(".closeModalEditProd").attr("data-id-product", id_supplier);
-          $("#edit_prod_code").val(data.prod_info[0].product_short_name);
-          $("#edit_prod_name").val(data.prod_info[0].product_name);
-          $("#edit_prod_brand").val(data.prod_info[0].id_brands); // Select the option with a value of '1'
-          $("#edit_prod_brand").trigger("change"); // Notify any JS components that the value changed
-          $("#edit_prod_sku").val(data.prod_info[0].product_code);
-          $("#edit_prod_barcode").val(data.prod_info[0].product_barcode);
-          $("#edit_prod_meassure").val(data.prod_info[0].id_measurement_units); // Select the option with a value of '1'
-          $("#edit_prod_meassure").trigger("change"); // Notify any JS components that the value changed
-          $("#edit_prod_purchase_price").val(data.prod_info[0].purchase_price);
-          $("#edit_prod_price").val(data.prod_info[0].price);
-          if (data.prod_info[0].bulk_sell) {
-            $("#edit_prod_bulk").prop("checked", true);
-          }
-          $("#edit_prod_stock").val(data.prod_info[0].stock);
-          $("#edit_prod_min_stock").val(data.prod_info[0].min_stock);
-          $("#edit_prod_max_stock").val(data.prod_info[0].ideal_stock);
-          $("#edit_prod_description").val(data.prod_info[0].description);
+          $(".closeModalEditSupplier").attr("data-id-supplier", id_supplier);
+          $("#edit_company").val(data.supplier_info[0].supplier);
+          $("#edit_contact_name").val(data.supplier_info[0].contact_name);
+          $("#edit_contact_mail").val(data.supplier_info[0].email_contact);
+          $("#edit_contact_phone").val(data.supplier_info[0].cellphone_contact);
+          $("#edit_contact_address").val(
+            data.supplier_info[0].address_supplier
+          );
         } else {
           errorToast(data.message);
         }

@@ -125,19 +125,21 @@ function getSupplierInfo()
 
 
 
-    $id_product = $_POST['id_product'];
+    $id_supplier = $_POST['id_supplier'];
 
     $queries = new Queries;
     $prod_info = array();
 
-    $sqlCI = "SELECT * FROM u803991314_main.products
-    WHERE id_prducts = $id_product";
+    $sqlCI = "SELECT * FROM u803991314_main.suppliers
+    WHERE id_suppliers = $id_supplier";
+    //echo $sqlCI;
     $prod_info = $queries->getData($sqlCI);
-    if (empty($prod_info)) {
+
+    if (!empty($prod_info)) {
         $data = array(
             'response' => true,
             'message' => '',
-            'prod_info' => $prod_info
+            'supplier_info' => $prod_info
         );
     } else {
         $data = array(

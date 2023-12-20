@@ -10,33 +10,36 @@
                     <div class="col-12">
                         <div class="mb-4">
                             <label class="form-label">Compañía: <span class="legend-circle bg-danger"></span></label>
-                            <input id="edit_company" type="text" class="form-control obligatory" placeholder="Compañía">
+                            <input id="edit_company" type="text" class="form-control obligatory inputSupplierInfo" culumn-name="supplier" placeholder="Compañía">
                         </div>
                     </div>
                     <div class="col-12">
                         <div class="mb-4">
                             <label class="form-label">Nombre del contácto: <span class="legend-circle bg-danger"></span></label>
-                            <input id="edit_contact_name" type="text" class="form-control obligatory" placeholder="Nombre del contácto">
+                            <input id="edit_contact_name" type="text" class="form-control obligatory inputSupplierInfo" culumn-name="supplier" placeholder="Nombre del contácto">
                         </div>
                     </div>
                     <div class="col-12">
                         <div class="mb-4">
                             <label class="form-label">Correo del contácto: <span class="legend-circle bg-danger"></span></label>
-                            <input id="edit_contact_mail" type="text" class="form-control obligatory" placeholder="Nombre del contácto">
+                            <input id="edit_contact_mail" type="text" class="form-control obligatory inputSupplierInfo" culumn-name="supplier" placeholder="Nombre del contácto">
                         </div>
                     </div>
                     <div class="col-12">
                         <div class="mb-4">
                             <label class="form-label">Teléfono del contácto: <span class="legend-circle bg-danger"></span></label>
-                            <input id="edit_contact_phone" type="text" class="form-control obligatory" placeholder="Nombre del contácto">
+                            <input id="edit_contact_phone" type="text" class="form-control obligatory inputSupplierInfo" culumn-name="supplier" placeholder="Nombre del contácto">
                         </div>
                     </div>
                     <div class="col-12">
                         <div class="mb-4">
-                            <label class="form-label">Dirección: <span class="legend-circle bg-danger"></span></label>
-                            <input id="edit_contact_address" type="text" class="form-control obligatory" placeholder="Nombre del contácto">
+                            <div>
+                                <label class="form-label" for="exampleFormControlTextarea1">Dirección de proveedor</label>
+                                <textarea id="edit_contact_address" class="form-control" placeholder="Dirección de proveedor inputSupplierInfo" culumn-name="supplier" rows="4"></textarea>
+                            </div>
                         </div>
                     </div>
+
                 </form>
             </div>
             <div class="modal-footer">
