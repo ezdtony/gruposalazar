@@ -151,7 +151,37 @@ function getSupplierInfo()
 
     echo json_encode($data);
 }
+function updateSupplier()
+{
 
+    $id_supplier = $_POST['id_supplier'];
+    $column_name = $_POST['column_name'];
+    $new_val = $_POST['new_val'];
+
+    $queries = new Queries;
+
+    $sqlUpdateProd = "UPDATE u803991314_main.suppliers SET
+                 $column_name = '$new_val'
+             WHERE id_suppliers = $id_supplier";
+
+    $insert = $queries->InsertData($sqlUpdateProd);
+
+    if (!empty($insert)) {
+        $last_id = $insert['last_id'];
+        $data = array(
+            'response' => true,
+            'message' => 'Proveedor actualizado',
+            'last_id' => $last_id
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'Eror al actualizar Producto'
+        );
+    }
+
+    echo json_encode($data);
+}
 function deleteSupplier()
 {
 

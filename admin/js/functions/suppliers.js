@@ -191,6 +191,48 @@ $(document).ready(function () {
     //--- --- ---//
   });
 
+  $(document).on("focusout", ".inputSupplierInfo", function (event) {
+    let column_name = $(this).attr("column-name");
+    let new_val = $(this).val();
+    let id_supplier = $(".closeModalEditSupplier").attr("data-id-supplier");
+
+    console.log(column_name);
+    console.log(id_supplier);
+    loading();
+    $.ajax({
+      url: "php/controllers/suppliers/suppliers_controller.php",
+      method: "POST",
+      data: {
+        mod: "updateSupplier",
+        id_supplier: id_supplier,
+        column_name: column_name,
+        new_val: new_val,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response == true) {
+          $("#td_" + column_name + "_" + id_supplier).text(new_val);
+          doneToast(data.message);
+        } else {
+          errorToast(data.message);
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+  });
+
   $("#modalEditArticle").on("hidden.bs.modal", function () {
     $(".slctUpdateProduct").attr("allow-update", 0);
   });

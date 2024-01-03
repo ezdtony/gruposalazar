@@ -80,7 +80,7 @@ $getSates = $suppliers_model->getAllStates();
                                                     <td class="name " id="td_email_contact_<?= $suppliers->id_suppliers ?>">
                                                         <?= $suppliers->email_contact ?>
                                                     </td>
-                                                    <td class="name " id="td_cellphone_contact<?= $suppliers->id_suppliers ?>">
+                                                    <td class="name " id="td_cellphone_contact_<?= $suppliers->id_suppliers ?>">
                                                         <?= $suppliers->cellphone_contact ?>
                                                     </td>
                                                     <td class=" tdAddress" id="td_address_supplier_<?= $suppliers->id_suppliers ?>">
