@@ -1,5 +1,5 @@
 <?php
-$getArticles = $articles_model->getAllArticles();
+/* $getArticles = $articles_model->getAllArticles(); */
 $getAllBrands = $articles_model->getAllBrands();
 $getAllMU = $articles_model->getAllMU();
 ?>
@@ -29,148 +29,117 @@ $getAllMU = $articles_model->getAllMU();
                 </a>
             </div>
 
-            <!-- Table -->
-            <div class="table-responsive">
-                <table class="table align-middle table-edge table-nowrap mb-0 table-nowrap" id="tableProducts">
-                    <thead class="thead-light">
-                        <tr>
-                            <th>
-                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
-                                    Código
-                                </a>
-                            </th>
-                            <th>
-                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
-                                    Código de Barras
-                                </a>
-                            </th>
-                            <th>
-                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
-                                    Imagen
-                                </a>
-                            </th>
-                            <th>
-                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
-                                    Producto
-                                </a>
-                            </th>
-                            <th class="text-end">
-                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="price">
-                                    Precio de compra
-                                </a>
-                            </th>
-                            <th class="text-end">
-                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="price">
-                                    Precio unitario
-                                </a>
-                            </th>
-                            <!-- <th class="text-end">
+            <div class="container">
+                <div class="row g-4">
+                    <div class="col-auto">
+                        <label for="numProducts" class="col-form-label"> Mostrar: </label>
+                    </div>
+                    <div class="col-auto">
+                        <select name="numProducts" id="numProducts" class="form-select">
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="100">100</option>
+                            <option value="250">250</option>
+                            <option value="500">500</option>
+                            <option value="1000">1000</option>
+                            <option value="0">Todos</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <label for="numProducts" class="col-form-label"> registros. </label>
+                    </div>
+                    <div class="col-6">
+                    </div>
+                    <div class="col-auto">
+                        <label for="searchProd" class="col-form-label"> Buscar: </label>
+                    </div>
+                    <div class="col-auto">
+                        <input type="text" id="searchProd" name="searchProd" class="form-control" placeholder="...">
+                    </div>
+                </div>
+                <br>
+
+                <!-- Table -->
+                <div class="table-responsive">
+
+                    <table class="table align-middle table-edge table-nowrap mb-0 table-nowrap" id="tableProducts">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                        Código
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                        Código de Barras
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                        Imagen
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                        Producto
+                                    </a>
+                                </th>
+                                <th class="text-end">
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="price">
+                                        Precio de compra
+                                    </a>
+                                </th>
+                                <th class="text-end">
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="price">
+                                        Precio unitario
+                                    </a>
+                                </th>
+                                <!-- <th class="text-end">
                                 <a href="javascript: void(0);" class="text-muted list-sort" data-sort="quantity">
                                     Stock
                                 </a>
                             </th> -->
-                            <th class="text-end">
-                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="barcode">
-                                    Código de Barras
-                                </a>
-                            </th>
-                            <th class="text-end pe-7 min-w-200px">
-                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="sales">
-                                    Ventas
-                                </a>
-                            </th>
-                            <th class="text-end pe-7 min-w-200px">
-                                <a href="javascript: void(0);" class="text-muted list-sort" data-sort="sales">
-                                    Acciones
-                                </a>
-                            </th>
-                        </tr>
-                    </thead>
-
-                    <tbody class="list">
-                        <?php foreach ($getArticles as $article) : ?>
-                            <?php
-                            $percentage = 0;
-                            if ($article->total_stock>0) {
-                                $percentage = number_format((($article->total_stock / $article->ideal_stock) * 100), 0);
-                            }
-                            
-                            ?>
-                            <tr id="trProduct<?= $article->id_prducts ?>">
-                                <td class="name fw-bold" id="tdproduct_short_nameId<?= $article->id_prducts ?>">
-                                    <?= $article->product_short_name ?> <!-- / <?= $article->prodDuct_code ?> -->
-                                </td>
-                                <td class="name fw-bold" id="tdproduct_barcodeId<?= $article->id_prducts ?>">
-                                    <?= $article->product_barcode ?>
-                                </td>
-                                <td class="name fw-bold" id="tdthumbnailId<?= $article->id_prducts ?>">
-
-                                    <div class="avatar avatar-sm" style="margin-right:10px">
-                                        <div class="images">
-                                            <img src="<?= $article->thumbnail ?>" alt="" width="50px">
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="name fw-bold" id="tdproduct_nameId<?= $article->id_prducts ?>">
-                                    <?= $article->product_name ?>
-                                </td>
-                                <td class="price text-end" id="tdpurchase_priceId<?= $article->id_prducts ?>">
-                                    $<?= number_format($article->purchase_price, 2, '.') ?>
-                                </td>
-                                <td class="price text-end" id="tdpriceId<?= $article->id_prducts ?>">
-                                    $<?= number_format($article->price, 2, '.') ?>
-                                </td>
-                                <!--  <td class="quantity text-end">
-                                    <?= $article->stock ?>
-                                </td> -->
-                                <td class="barcode fw-bold text-center">
-                                    <button type="button" data-barcode="<?= $article->product_barcode ?>" id="btnBarcode<?= $article->id_prducts ?>" class="btn btn-secondary btnGenerateBarcode" data-bs-toggle="modal" data-bs-target="#viewBarcode">
-                                        <i class="fa-solid fa-barcode"></i>
-                                    </button>
-                                </td>
-                                <td class="sales">
-                                    <div class="d-flex justify-content-between align-items-center text-center">
-                                        <div class="progress d-flex flex-grow-1">
-                                            <div class="progress-bar" id="ProgressProd<?= $article->id_prducts ?>" role="progressbar" style="width: <?= $percentage ?>%" aria-valuenow="<?= $article->total_stock ?>" aria-valuemin="0" aria-valuemax="<?= $article->ideal_stock ?>"></div>
-                                        </div>
-                                        <span id="txtPercentage<?= $article->id_prducts ?>" class="ms-3 text-muted"><?= $percentage ?>%</span>
-                                    </div>
-                                    <button title="Ver stock en sucursales" data-bs-toggle="modal" data-bs-target="#subsidiaryStocks" data-product-name="<?= $article->product_short_name ?> / <?= $article->product_code ?> | <?= $article->product_name ?>" data-id-product="<?= $article->id_prducts ?>" type="button" class="btn btn-info btn-sm btnSeeStockSubsidiary"><i class="fa-solid fa-cubes"></i></button>
-                                </td>
-                                <td class="fw-bold text-center">
-                                    <div class="dropdown">
-                                        <a href="javascript: void(0);" class="dropdown-toggle no-arrow text-secondary" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="14" width="14">
-                                                <g>
-                                                    <circle cx="12" cy="3.25" r="3.25" style="fill: currentColor"></circle>
-                                                    <circle cx="12" cy="12" r="3.25" style="fill: currentColor"></circle>
-                                                    <circle cx="12" cy="20.75" r="3.25" style="fill: currentColor"></circle>
-                                                </g>
-                                            </svg>
-                                        </a>
-                                        <div class="dropdown-menu">
-                                            <a href="javascript: void(0);" data-id-product="<?= $article->id_prducts ?>" class="dropdown-item editProduct" data-bs-toggle="modal" data-bs-target="#modalEditArticle">
-                                                Editar
-                                            </a>
-                                            <!--  <a href="javascript: void(0);" class="dropdown-item">
-                                                Editar stock en sucursales
-                                            </a> -->
-                                            <a href="javascript: void(0);" class="dropdown-item deleteProduct" data-id-product="<?= $article->id_prducts ?>" style="color:red !important;">
-                                                Borrar
-                                            </a>
-                                        </div>
-                                    </div>
-                                </td>
+                                <th class="text-end">
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="barcode">
+                                        Código de Barras
+                                    </a>
+                                </th>
+                                <th class="text-end pe-7 min-w-200px">
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="sales">
+                                        Ventas
+                                    </a>
+                                </th>
+                                <th class="text-end pe-7 min-w-200px">
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="sales">
+                                        Acciones
+                                    </a>
+                                </th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                        </thead>
+
+                        <tbody class="list">
+                        </tbody>
+                    </table>
+                </div>
+                <!-- / .table-responsive -->
+                <br>
+                <div class="row">
+                    <div class="col-6">
+                    <dt class="col-auto" id="lblTotal"></dt>
+                    </div>
+
+                    <div class="col-6" id="navPagination">
+                    
+                    </div>
+                </div>
+                <br>
             </div>
-            <!-- / .table-responsive -->
         </div>
     </div>
 </div>
 <script src="js/functions/articles.js"></script>
+<script src="js/functions/loadArticles.js"></script>
 <?php
 include 'modals/modalNewArticle.php';
 include 'modals/editModalNewArticle.php';

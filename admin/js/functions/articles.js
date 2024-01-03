@@ -964,7 +964,7 @@ $(document).ready(function () {
     }).showToast();
   }
 
-  let table = new DataTable("#tableProducts", {
+  /* let table = new DataTable("#tableProducts", {
     searching: true,
     ordering: false,
     language: {
@@ -987,10 +987,9 @@ $(document).ready(function () {
         previous: "Anterior",
       },
     },
-  });
+  }); */
 
-  1;
-  new DataTable("#tableProducts");
+  /* new DataTable("#tableProducts"); */
 
   $(".js-example-basic-single").select2();
 
