@@ -124,10 +124,10 @@ function getProductsTable()
                  ' . $product->product_name . '
             </td>
             <td class="price text-end" id="tdpurchase_priceId' . $product->id_prducts . '">
-                ' . number_format($product->purchase_price, 2, ' . ') . '
+                $ ' . number_format($product->purchase_price, 2, ' . ') . '
             </td>
             <td class="price text-end" id="tdpriceId ' . $product->id_prducts . '">
-                ' . number_format($product->price, 2, ' . ') . '
+                $ ' . number_format($product->price, 2, ' . ') . '
             </td>
             <!--  <td class="quantity text-end">
                  ' . $product->stock . '
