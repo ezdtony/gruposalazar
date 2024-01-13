@@ -157,11 +157,11 @@ $getSates = $suppliers_model->getAllStates();
                                                     Marca
                                                 </a>
                                             </th>
-                                            <th class="text-end pe-7 min-w-200px">
+                                           <!--  <th class="text-end pe-7 min-w-200px">
                                                 <a href="javascript: void(0);" class="text-muted list-sort" data-sort="sales">
                                                     Acciones
                                                 </a>
-                                            </th>
+                                            </th> -->
                                         </tr>
                                     </thead>
 
@@ -172,7 +172,7 @@ $getSates = $suppliers_model->getAllStates();
                                                     <td class="name fw-bold" id="td_brand_<?= $brands->id_brands ?>">
                                                         <?= $brands->brand ?>
                                                     </td>
-                                                    <td class="fw-bold text-center">
+                                                   <!--  <td class="fw-bold text-center">
                                                         <div class="dropdown pull-right" style="float: right !important;">
                                                             <a href="javascript: void(0);" class="dropdown-toggle no-arrow text-secondary" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="14" width="14">
@@ -187,12 +187,9 @@ $getSates = $suppliers_model->getAllStates();
                                                                 <a href="javascript: void(0);" data-id-supplier="<?= $suppliers->id_brands ?>" class="dropdown-item editSupplier" data-bs-toggle="modal" data-bs-target="#modalEditSuppliers">
                                                                     Editar
                                                                 </a>
-                                                                <!-- <a href="javascript: void(0);" class="dropdown-item deleteSupplier" data-id-supplier="<?= $suppliers->id_brands ?>" style="color:red !important;">
-                                                                    Eliminar
-                                                                </a> -->
                                                             </div>
                                                         </div>
-                                                    </td>
+                                                    </td> -->
                                                 </tr>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
