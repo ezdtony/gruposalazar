@@ -2,6 +2,7 @@
 $getAllSubsidiary = $income_prods_model->getAllSubsidiary();
 ?>
 <link rel="stylesheet" href="assets/css/imgViewer.css">
+<link rel="stylesheet" href="assets/css/quantityStyle.css">
 <script src="assets/js/JsBarcode.all.min.js"></script>
 <script src="js/functions/imageViewer.js"></script>
 <script src="https://printjs-4de6.kxcdn.com/print.min.js"></script>
