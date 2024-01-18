@@ -92,22 +92,55 @@ $(document).ready(function () {
     var product_price_sell = $(this).attr("data-product-price-sell");
     var max_stock = $(this).attr("data-max-stock");
     var quantity = 1;
+    var valid_add = 1;
 
-    var html = "";
-    html += '<tr id="trProduct' + id_product + '" data-id-product="' + id_product + '" data-quantity="1">';
-    html += "<td>" + product_code + "</td>";
-    html += "<td>" + product_name + "</td>";
-    html += "<td>" + brand + "</td>";
-    html += "<td>" + product_price_buy + "</td>";
-    html += "<td>" + product_price_sell + "</td>";
-    html += '<td><input type="number" class="form-control setProdQuantity" data-id-product="' + id_product + '" step="1" id="quantityProd' + id_product + '" name="tentacles" min="1" max="' + max_stock + '" value="'+quantity+'" /></td>';
-    html +=
-      '<td><button type="button"  class="btn btn-outline-danger btn-sm btnRemoveProdList" data-id-prod="' +
-      id_product +
-      '">x</button></td>';
+    $("#tableProductsIncome > tbody  > tr").each(function (index, tr) {
+      //console.log(index);
+      //console.log(tr);
+      var id_product_table = $(tr).attr("data-id-product");
+      if (id_product == id_product_table) {
+        valid_add = 0;
+      }
+    });
+    if (valid_add) {
+      var html = "";
+      html +=
+        '<tr id="trProduct' +
+        id_product +
+        '" data-id-product="' +
+        id_product +
+        '" data-quantity="1">';
+      html += "<td>" + product_code + "</td>";
+      html += "<td>" + product_name + "</td>";
+      html += "<td>" + brand + "</td>";
+      html += "<td>" + product_price_buy + "</td>";
+      html += "<td>" + product_price_sell + "</td>";
+      html +=
+        '<td><input type="number" class="form-control setProdQuantity" data-id-product="' +
+        id_product +
+        '" step="1" id="quantityProd' +
+        id_product +
+        '" name="tentacles" min="1" max="' +
+        max_stock +
+        '" value="' +
+        quantity +
+        '" /></td>';
+      html +=
+        '<td><button type="button"  class="btn btn-outline-danger btn-sm btnRemoveProdList" data-id-prod="' +
+        id_product +
+        '">x</button></td>';
 
-    $("#tableProductsIncome").prepend(html);
-    Swal.close();
+      $("#tableProductsIncome").prepend(html);
+      $("#saveNewIncome").prop("disabled", false);
+      Swal.close();
+    }else{
+      Swal.fire({
+        title: "Este producto ya ha sido agregado a la lista!!",
+        icon: "info",
+      });
+    }
+
+    
     //--- --- ---//
   });
   $(document).on("focusout", ".setProdQuantity", function (event) {
@@ -115,7 +148,7 @@ $(document).ready(function () {
     var id_product = $(this).attr("data-id-product");
     var prod_quantity = $(this).val();
     console.log(prod_quantity);
-    $("#trProduct"+id_product).attr("data-quantity", prod_quantity);
+    $("#trProduct" + id_product).attr("data-quantity", prod_quantity);
     Swal.close();
     //--- --- ---//
   });
@@ -124,63 +157,80 @@ $(document).ready(function () {
     var id_subsidiary = $("#selectSubsidiary").val();
     console.log(id_subsidiary);
     products_income = Array();
-    $("#tableProductsIncome > tbody  > tr").each(function(index, tr) { 
-      //console.log(index);
-      //console.log(tr);
-      var id_product = $(tr).attr("data-id-product");
-      var quantity = $(tr).attr("data-quantity");
-      //console.log("id_product:"+id_product);
-      //console.log("quantity:"+quantity);
-      products_income.push([id_product,quantity]);
-
-   });
-   console.log(products_income);
-   $.ajax({
-    url: "php/controllers/articles/articles_controller.php",
-    method: "POST",
-    data: {
-      mod: "insertIncomeOrder",
-      id_subsidiary: id_subsidiary,
-      products_income: products_income,
-    },
-  })
-    .done(function (data) {
-      Swal.close();
-      var data = JSON.parse(data);
-      //console.log(data);
-      if (data.response == true) {
-        $("#tableProducts > tbody").html(data.html);
-        $("#lblTotal").html(
-          "Mostrando " +
-            data.totalFiltered +
-            " de un total de  " +
-            data.totalProds +
-            " registros"
-        );
-        $("#navPagination").html(data.paginationNav);
-
-        /* doneToast(data.message); */
-      } else {
-        errorToast("Ocurrió un error");
-      }
-
-      //--- --- ---//
-      //--- --- ---//
-    })
-    .fail(function (message) {
-      Swal.close();
-      var myToast = Toastify({
-        text: data.message,
-        duration: 3000,
+    if (
+      id_subsidiary == "" ||
+      id_subsidiary == null ||
+      id_subsidiary == undefined
+    ) {
+      Swal.fire({
+        title: "Por favor seleccione una sucursal",
+        icon: "info",
       });
-      myToast.showToast();
-    });
-    Swal.close();
-    //--- --- ---//
+    } else {
+      $("#tableProductsIncome > tbody  > tr").each(function (index, tr) {
+        //console.log(index);
+        //console.log(tr);
+        var id_product = $(tr).attr("data-id-product");
+        var quantity = $(tr).attr("data-quantity");
+        //console.log("id_product:"+id_product);
+        //console.log("quantity:"+quantity);
+        products_income.push([id_product, quantity]);
+      });
+      console.log(products_income);
+      $.ajax({
+        url: "php/controllers/income_prods/income_prods_controller.php",
+        method: "POST",
+        data: {
+          mod: "insertIncomeOrder",
+          id_subsidiary: id_subsidiary,
+          products_income: products_income,
+        },
+      })
+        .done(function (data) {
+          Swal.close();
+          var data = JSON.parse(data);
+          //console.log(data);
+          if (data.response == true) {
+            $("#showResultsProds").hide();
+            $("#selectSubsidiary").val(""); // Select the option with a value of '1'
+            $("#selectSubsidiary").trigger("change"); // Notify any JS components that the value changed
+            $("#product").prop("disabled", true);
+            $("#saveNewIncome").prop("disabled", true);
+            $("#tableProductsIncome > tbody").empty();
+            $("#modalNewIncome").modal("toggle");
+            Swal.fire({
+              title: data.message,
+              icon: "success",
+            });
+            /* doneToast(data.message); */
+          } else {
+            Swal.fire({
+              title: data.message,
+              icon: "info",
+            });
+          }
+
+          //--- --- ---//
+          //--- --- ---//
+        })
+        .fail(function (message) {
+          Swal.close();
+          var myToast = Toastify({
+            text: data.message,
+            duration: 3000,
+          });
+          myToast.showToast();
+        });
+      //--- --- ---//
+    }
   });
- 
-  
-  
+  $(document).on("click", ".btnRemoveProdList", function (event) {
+    loading();
+    var id_product = $(this).attr("data-id-prod");
+    $("#trProduct" + id_product).remove();
+    Swal.close();
+  });
+
   function loadProducts(limitProducts, searchInput, actualPage) {
     if (actualPage != null) {
       actualPage = actualPage;

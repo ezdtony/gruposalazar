@@ -63,7 +63,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-light closeModalNewIncome" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" id="saveNewIncome">Guardar</button>
+                <button type="button" disabled class="btn btn-primary" id="saveNewIncome">Guardar</button>
             </div>
         </div>
     </div>
