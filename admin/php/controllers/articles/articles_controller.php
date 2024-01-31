@@ -123,6 +123,9 @@ function getProductsTable()
             <td class="name fw-bold" id="tdproduct_nameId' . $product->id_prducts . '">
                  ' . $product->product_name . '
             </td>
+            <td class="name fw-bold" id="tdbrandId' . $product->id_prducts . '">
+                 ' . $product->brand . '
+            </td>
             <td class="price text-end" id="tdpurchase_priceId' . $product->id_prducts . '">
                 $ ' . number_format($product->purchase_price, 2, ' . ') . '
             </td>

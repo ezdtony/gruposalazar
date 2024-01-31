@@ -85,6 +85,11 @@ $getAllMU = $articles_model->getAllMU();
                                         Producto
                                     </a>
                                 </th>
+                                <th>
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                        Marca
+                                    </a>
+                                </th>
                                 <th class="text-end">
                                     <a href="javascript: void(0);" class="text-muted list-sort" data-sort="price">
                                         Precio de compra

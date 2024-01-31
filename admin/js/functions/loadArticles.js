@@ -18,19 +18,23 @@ $(document).ready(function () {
     loadProducts(limitProducts, searchInput, actualPage);
     //--- --- ---//
   });
-  
 
-  $(document).on("keyup", "#searchProd", function (event) {
-    /* loading(); */
-    searchInput = $(this).val();
+  $(document).on("keyup", "#searchProd", function (e) {
+    
+    console.log(e.which);
+    if (e.which == 13) {
+      loading();
+      searchInput = $(this).val();
 
-    loadProducts(limitProducts, searchInput, actualPage);
+      loadProducts(limitProducts, searchInput, actualPage);
+      return false; 
+    }
     //--- --- ---//
   });
 
   function loadProducts(limitProducts, searchInput, actualPage) {
     if (actualPage != null) {
-        actualPage = actualPage;
+      actualPage = actualPage;
     }
     //console.log(actualPage);
 

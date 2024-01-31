@@ -3,28 +3,28 @@ $(document).ready(function () {
   let searchInput = "";
   let actualPage = 1;
 
-  loadProducts(limitProducts, searchInput, actualPage);
+  loadIncomes(limitProducts, searchInput, actualPage);
 
   $(document).on("change", "#numProducts", function (event) {
     loading();
     limitProducts = $(this).val();
 
-    loadProducts(limitProducts, searchInput, actualPage);
+    loadIncomes(limitProducts, searchInput, actualPage);
     //--- --- ---//
   });
   $(document).on("click", ".changePage", function (event) {
     loading();
     actualPage = $(this).text();
 
-    loadProducts(limitProducts, searchInput, actualPage);
+    loadIncomes(limitProducts, searchInput, actualPage);
     //--- --- ---//
   });
 
-  $(document).on("keyup", "#searchProd", function (event) {
+  $(document).on("keyup", "#searchOrder", function (event) {
     /* loading(); */
     searchInput = $(this).val();
 
-    loadProducts(limitProducts, searchInput, actualPage);
+    loadIncomes(limitProducts, searchInput, actualPage);
     //--- --- ---//
   });
 
@@ -35,7 +35,7 @@ $(document).ready(function () {
     $("#product").removeAttr("disabled");
     Swal.close();
 
-    /* loadProducts(limitProducts, searchInput, actualPage); */
+    /* loadIncomes(limitProducts, searchInput, actualPage); */
     //--- --- ---//
   });
 
@@ -133,14 +133,13 @@ $(document).ready(function () {
       $("#tableProductsIncome").prepend(html);
       $("#saveNewIncome").prop("disabled", false);
       Swal.close();
-    }else{
+    } else {
       Swal.fire({
         title: "Este producto ya ha sido agregado a la lista!!",
         icon: "info",
       });
     }
 
-    
     //--- --- ---//
   });
   $(document).on("focusout", ".setProdQuantity", function (event) {
@@ -201,6 +200,11 @@ $(document).ready(function () {
             Swal.fire({
               title: data.message,
               icon: "success",
+            }).then((result) => {
+              /* Read more about isConfirmed, isDenied below */
+              if (result.isConfirmed) {
+                Location.reload();
+              }
             });
             /* doneToast(data.message); */
           } else {
@@ -230,18 +234,66 @@ $(document).ready(function () {
     $("#trProduct" + id_product).remove();
     Swal.close();
   });
+  $(document).on("click", ".deleteOrder", function (event) {
+    loading();
+    var id_income_order = $(this).attr("data-id-income-order");
+    $.ajax({
+      url: "php/controllers/income_prods/income_prods_controller.php",
+      method: "POST",
+      data: {
+        mod: "insertIncomeOrder",
+        id_subsidiary: id_subsidiary,
+        products_income: products_income,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        //console.log(data);
+        if (data.response == true) {
+          
+          $("#trIncomeOrder" + id_income_order).remove();
+        } else {
+          Swal.fire({
+            title: data.message,
+            icon: "info",
+          });
+        }
 
-  function loadProducts(limitProducts, searchInput, actualPage) {
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+    Swal.close();
+  });
+
+  $(document).on("click", ".btnRemoveProdList", function (event) {
+    loading();
+    var id_product = $(this).attr("data-id-prod");
+    $("#trProduct" + id_product).remove();
+    Swal.close();
+  });
+
+  showBreakdownOrder;
+
+  function loadIncomes(limitProducts, searchInput, actualPage) {
     if (actualPage != null) {
       actualPage = actualPage;
     }
     //console.log(actualPage);
 
     $.ajax({
-      url: "php/controllers/articles/articles_controller.php",
+      url: "php/controllers/income_prods/income_prods_controller.php",
       method: "POST",
       data: {
-        mod: "getProductsTable",
+        mod: "getIncomeTable",
         limit: limitProducts,
         searchInput: searchInput,
         actualPage: actualPage,

@@ -69,12 +69,12 @@ $getAllSubsidiary = $income_prods_model->getAllSubsidiary();
                                 </th>
                                 <th>
                                     <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
-                                    Fecha de registro
+                                        Fecha de registro
                                     </a>
                                 </th>
                                 <th>
                                     <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
-                                    Fecha de ingreso
+                                        Usuario que registró
                                     </a>
                                 </th>
                                 <th>
@@ -82,17 +82,6 @@ $getAllSubsidiary = $income_prods_model->getAllSubsidiary();
                                         Status
                                     </a>
                                 </th>
-                                <th class="text-end">
-                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="price">
-                                        Importe de compra
-                                    </a>
-                                </th>
-                                <th class="text-end">
-                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="price">
-                                        Usuario registro
-                                    </a>
-                                </th>
-                                
                                 <th class="text-end pe-7 min-w-200px">
                                     <a href="javascript: void(0);" class="text-muted list-sort" data-sort="sales">
                                         Acciones
@@ -109,11 +98,11 @@ $getAllSubsidiary = $income_prods_model->getAllSubsidiary();
                 <br>
                 <div class="row">
                     <div class="col-6">
-                    <dt class="col-auto" id="lblTotal"></dt>
+                        <dt class="col-auto" id="lblTotal"></dt>
                     </div>
 
                     <div class="col-6" id="navPagination">
-                    
+
                     </div>
                 </div>
                 <br>
@@ -122,7 +111,8 @@ $getAllSubsidiary = $income_prods_model->getAllSubsidiary();
     </div>
 </div>
 <?php
- include 'modals/modalNewIncome.php';
+include 'modals/modalNewIncome.php';
+include 'modals/modalViewBreakdown.php';
 ?>
 
 <script src="js/functions/incomeProducts.js"></script>
