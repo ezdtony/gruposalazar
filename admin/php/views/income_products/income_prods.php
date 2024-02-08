@@ -59,9 +59,14 @@ $getAllSubsidiary = $income_prods_model->getAllSubsidiary();
                 <!-- Table -->
                 <div class="table-responsive">
 
-                    <table class="table align-middle table-edge table-nowrap mb-0 table-nowrap" id="tableProducts">
+                    <table class="table align-middle table-edge table-nowrap mb-0 table-nowrap" id="tableOrdersIncome">
                         <thead class="thead-light">
                             <tr>
+                            <th>
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                        Código de orden
+                                    </a>
+                                </th>
                                 <th>
                                     <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
                                         Sucursal
@@ -80,6 +85,11 @@ $getAllSubsidiary = $income_prods_model->getAllSubsidiary();
                                 <th>
                                     <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
                                         Status
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                        Desglose
                                     </a>
                                 </th>
                                 <th class="text-end pe-7 min-w-200px">
@@ -112,7 +122,8 @@ $getAllSubsidiary = $income_prods_model->getAllSubsidiary();
 </div>
 <?php
 include 'modals/modalNewIncome.php';
-include 'modals/modalViewBreakdown.php';
+include 'modals/modalIncomeDetails.php';
 ?>
 
 <script src="js/functions/incomeProducts.js"></script>
+<script src="js/functions/loadIncomeOrders.js"></script>

@@ -23,7 +23,7 @@ $(document).ready(function () {
   $(document).on("keyup", "#searchOrder", function (event) {
     /* loading(); */
     searchInput = $(this).val();
-
+    console.log("here");
     loadIncomes(limitProducts, searchInput, actualPage);
     //--- --- ---//
   });
@@ -103,6 +103,12 @@ $(document).ready(function () {
       }
     });
     if (valid_add) {
+      var totalIncomeOrder = parseFloat(
+        $("#lblTotalIncome").attr("data-total-income")
+      );
+      totalIncomeOrder = totalIncomeOrder + parseFloat(product_price_buy);
+      $("#lblTotalIncome").attr("data-total-income", totalIncomeOrder);
+      $("#lblTotalIncome").text("$" + totalIncomeOrder);
       var html = "";
       html +=
         '<tr id="trProduct' +
@@ -116,7 +122,9 @@ $(document).ready(function () {
       html += "<td>" + product_price_buy + "</td>";
       html += "<td>" + product_price_sell + "</td>";
       html +=
-        '<td><input type="number" class="form-control setProdQuantity" data-id-product="' +
+        '<td><input type="number" data-quantity="'+quantity+'" class="form-control setProdQuantity" data-price-buy="' +
+        product_price_buy +
+        '" data-id-product="' +
         id_product +
         '" step="1" id="quantityProd' +
         id_product +
@@ -145,8 +153,24 @@ $(document).ready(function () {
   $(document).on("focusout", ".setProdQuantity", function (event) {
     loading();
     var id_product = $(this).attr("data-id-product");
-    var prod_quantity = $(this).val();
-    console.log(prod_quantity);
+    var price_buy = parseFloat($(this).attr("data-price-buy"));
+    var totalIncomeOrder = parseFloat(
+      $("#lblTotalIncome").attr("data-total-income")
+    );
+
+    var prod_quantity = parseFloat($(this).val());
+    var og_quantity = parseFloat($(this).attr("data-quantity"));
+    
+
+    var rest_total = og_quantity * price_buy;
+    var sum_total = prod_quantity * price_buy;
+
+    totalIncomeOrder = totalIncomeOrder - rest_total;
+    totalIncomeOrder = totalIncomeOrder + sum_total;
+
+    $("#lblTotalIncome").attr("data-total-income", totalIncomeOrder.toFixed(2));
+    $("#lblTotalIncome").text("$" + totalIncomeOrder.toFixed(2));
+    $(this).attr("data-quantity", prod_quantity);
     $("#trProduct" + id_product).attr("data-quantity", prod_quantity);
     Swal.close();
     //--- --- ---//
@@ -203,7 +227,8 @@ $(document).ready(function () {
             }).then((result) => {
               /* Read more about isConfirmed, isDenied below */
               if (result.isConfirmed) {
-                Location.reload();
+                loading();
+                location.reload();
               }
             });
             /* doneToast(data.message); */
@@ -251,7 +276,6 @@ $(document).ready(function () {
         var data = JSON.parse(data);
         //console.log(data);
         if (data.response == true) {
-          
           $("#trIncomeOrder" + id_income_order).remove();
         } else {
           Swal.fire({
@@ -281,8 +305,6 @@ $(document).ready(function () {
     Swal.close();
   });
 
-  showBreakdownOrder;
-
   function loadIncomes(limitProducts, searchInput, actualPage) {
     if (actualPage != null) {
       actualPage = actualPage;
@@ -293,7 +315,7 @@ $(document).ready(function () {
       url: "php/controllers/income_prods/income_prods_controller.php",
       method: "POST",
       data: {
-        mod: "getIncomeTable",
+        mod: "getOrders",
         limit: limitProducts,
         searchInput: searchInput,
         actualPage: actualPage,
@@ -304,7 +326,7 @@ $(document).ready(function () {
         var data = JSON.parse(data);
         //console.log(data);
         if (data.response == true) {
-          $("#tableProducts > tbody").html(data.html);
+          $("#tableOrdersIncome > tbody").html(data.html);
           $("#lblTotal").html(
             "Mostrando " +
               data.totalFiltered +
