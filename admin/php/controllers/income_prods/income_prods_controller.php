@@ -410,7 +410,7 @@ function getOrders()
         'date_register',
         'name',
         'lastname',
-        'order_code',
+        "CONCAT(subs.subsidiary_prefix, '-00',incor.id_income_orders)",
         'status_description'
     ];
     $limit =  isset($_POST['limit']) ? $_POST['limit'] : 10;

@@ -26,10 +26,10 @@ $navbarItems = $navbar_model->getAllNavbarItems();
         <!-- Brand -->
         <a class="navbar-brand" href="./index.html">
             <img src="images/navbar_logo.png" class="navbar-brand-img logo-dark logo-small" alt="..." width="19" height="25" />
-            <img src="images/navbar_logo_lg.png" class="navbar-brand-img logo-dark logo-large" alt="..." width="135" height="35" />
+            <img src="images/navbar_logo_lg.png" class="navbar-brand-img logo-dark logo-large" alt="..." width="220" height="" />
 
             <img src="images/navbar_logo.png" class="navbar-brand-img logo-light logo-small" alt="..." width="19" height="25" />
-            <img src="images/navbar_logo_lg.png" class="navbar-brand-img logo-light logo-large" alt="..." width="135" height="35" />
+            <img src="images/navbar_logo_lg.png" class="navbar-brand-img logo-light logo-large" alt="..." width="220" height="" />
         </a>
 
         <!-- Navbar toggler -->

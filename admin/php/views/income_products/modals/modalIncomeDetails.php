@@ -60,7 +60,7 @@
                 <h4 id="lblTotalIncomeDetail" data-total-income="0">$0</h4>
             </div>
             <div class="modal-footer">
-
+            <button type="button" class="btn btn-danger" id="saveIncomeOrder"><i class="fa-solid fa-file-pdf"></i> Descargar</button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
