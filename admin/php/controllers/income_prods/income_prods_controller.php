@@ -160,6 +160,58 @@ function insertIncomeOrder()
 
     echo json_encode($data);
 }
+function getOrderDetails()
+{
+
+    $queries = new Queries;
+
+    $id_order = $_POST['id_order'];
+    $sqlInsertProductsIncome = "SELECT prod.*, br.brand, icd.*
+    FROM u803991314_main.income_orders AS ico
+    INNER JOIN u803991314_main.income_details AS icd ON ico.id_income_orders = icd.id_income_orders
+    INNER JOIN u803991314_main.products AS prod ON icd.id_prducts = prod.id_prducts
+    LEFT JOIN u803991314_main.brands AS br ON br.id_brands = prod.id_brands
+    WHERE ico.id_income_orders = $id_order
+    ";
+
+    $getData = $queries->getData($sqlInsertProductsIncome);
+    $total_order = 0;
+    $total_items = 0;
+    $html = '';
+    if (!empty($getData)) {
+
+        foreach ($getData as $detail) {
+            $total_order= $total_order+$detail->purchase_price;
+            $total_items++;
+            $html .= '<tr>';
+            $html .= '<td>' . $detail->quantity . '</td>';
+            $html .= '<td>' . $detail->product_code . '</td>';
+            $html .= '<td>' . $detail->product_name . '</td>';
+            $html .= '<td>' . $detail->brand . '</td>';
+            $html .= '<td>' . $detail->purchase_price . '</td>';
+            $html .= '<td>' . $detail->price . '</td>';
+
+
+            $html .= '</tr>';
+        }
+        $total_order = round($total_order, 2);
+        $data = array(
+            'response' => true,
+            'html' => $html,
+            'total_order' => $total_order,
+            'total_items' => $total_items
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'Ocurrió un error al obtener detalles la orden'
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
 function getIncomeTable()
 {
 
@@ -409,7 +461,7 @@ function getOrders()
     $limit
     
     ";
-   
+
 
     $getOrder = $queries->getData($sql);
 
@@ -437,7 +489,7 @@ function getOrders()
 
         foreach ($getOrder as $order) {
 
-            
+
 
             $html .= '
             <tr id="trOrder' . $order->id_income_orders . '">
@@ -489,8 +541,8 @@ function getOrders()
         }
 
         $pagNum = 1;
-        if (($actualPage-4) > 1) {
-            $pagNum = $actualPage-4;
+        if (($actualPage - 4) > 1) {
+            $pagNum = $actualPage - 4;
         }
         $totalPages = ceil($totalProds / $_POST['limit']);
 

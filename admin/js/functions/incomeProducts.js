@@ -106,7 +106,7 @@ $(document).ready(function () {
       var totalIncomeOrder = parseFloat(
         $("#lblTotalIncome").attr("data-total-income")
       );
-      totalIncomeOrder = totalIncomeOrder + parseFloat(product_price_buy);
+      totalIncomeOrder = totalIncomeOrder + parseFloat(product_price_buy).toFixed(2);
       $("#lblTotalIncome").attr("data-total-income", totalIncomeOrder);
       $("#lblTotalIncome").text("$" + totalIncomeOrder);
       var html = "";
@@ -122,7 +122,9 @@ $(document).ready(function () {
       html += "<td>" + product_price_buy + "</td>";
       html += "<td>" + product_price_sell + "</td>";
       html +=
-        '<td><input type="number" data-quantity="'+quantity+'" class="form-control setProdQuantity" data-price-buy="' +
+        '<td><input type="number" data-quantity="' +
+        quantity +
+        '" class="form-control setProdQuantity" data-price-buy="' +
         product_price_buy +
         '" data-id-product="' +
         id_product +
@@ -160,7 +162,6 @@ $(document).ready(function () {
 
     var prod_quantity = parseFloat($(this).val());
     var og_quantity = parseFloat($(this).attr("data-quantity"));
-    
 
     var rest_total = og_quantity * price_buy;
     var sum_total = prod_quantity * price_buy;
@@ -303,6 +304,48 @@ $(document).ready(function () {
     var id_product = $(this).attr("data-id-prod");
     $("#trProduct" + id_product).remove();
     Swal.close();
+  });
+
+  $(document).on("click", ".orderDetails", function (event) {
+    loading();
+    var id_order = $(this).attr("data-id-order-income");
+    $.ajax({
+      url: "php/controllers/income_prods/income_prods_controller.php",
+      method: "POST",
+      data: {
+        mod: "getOrderDetails",
+        id_order: id_order,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        //console.log(data);
+        if (data.response) {
+          $("#lblTotalItems").text("Total de articulos: " + data.total_items);
+          $("#lblTotalIncomeDetail").text("$" + data.total_order);
+
+          $("#tableOrderDetail > tbody").empty().html(data.html);
+
+         
+        } else {
+          Swal.fire({
+            title: data.message,
+            icon: "info",
+          });
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
   });
 
   function loadIncomes(limitProducts, searchInput, actualPage) {
