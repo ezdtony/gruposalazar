@@ -166,6 +166,21 @@ function getOrderDetails()
     $queries = new Queries;
 
     $id_order = $_POST['id_order'];
+
+    $sqlGetOrerInfo = "SELECT
+     subs.subsidiary_name,
+    CONCAT(subs.subsidiary_prefix, '-00',inco.id_income_orders) AS order_code,
+    CONCAT(name, ' ',lastname) AS username,
+    bootstrap_class,
+    status_description,
+     inco.*
+     FROM u803991314_main.income_orders AS inco
+     INNER JOIN u803991314_main.colaborators AS colab ON colab.id_colaborator = inco.id_colaborator
+     INNER JOIN u803991314_main.income_status AS stat ON stat.id_income_status = inco.id_income_status
+     INNER JOIN u803991314_main.subsidiary AS subs ON subs.id_subsidiary = inco.id_subsidiary
+     WHERE inco.id_income_orders = $id_order
+     ";
+    $getOrerInfo = $queries->getData($sqlGetOrerInfo);
     $sqlInsertProductsIncome = "SELECT prod.*, br.brand, icd.*
     FROM u803991314_main.income_orders AS ico
     INNER JOIN u803991314_main.income_details AS icd ON ico.id_income_orders = icd.id_income_orders
@@ -177,19 +192,26 @@ function getOrderDetails()
     $getData = $queries->getData($sqlInsertProductsIncome);
     $total_order = 0;
     $total_items = 0;
+    $infoOrder = "";
     $html = '';
     if (!empty($getData)) {
+        $infoOrder .= '<h3 class="modal-title h4" id="orderIncomeDetailModalLabel">Detalles de la orden</h3>'. "<p>Código de órden: " . $getOrerInfo[0]->order_code."<br>";
+        $infoOrder .= "Sucursal: " . $getOrerInfo[0]->subsidiary_name."<br>";
+        $infoOrder .= "Fecha de registro: " . $getOrerInfo[0]->date_register."<br>";
+        $infoOrder .= "Usuario que registró: " . $getOrerInfo[0]->username."<br>";
+        $infoOrder .= '<span class="legend-circle bg-' . $getOrerInfo[0]->bootstrap_class . '"></span> ' . $getOrerInfo[0]->status_description . '';
+        
 
         foreach ($getData as $detail) {
-            $total_order= $total_order+$detail->purchase_price;
+            $total_order = $total_order + $detail->purchase_price;
             $total_items++;
             $html .= '<tr>';
-            $html .= '<td>' . $detail->quantity . '</td>';
-            $html .= '<td>' . $detail->product_code . '</td>';
-            $html .= '<td>' . $detail->product_name . '</td>';
-            $html .= '<td>' . $detail->brand . '</td>';
-            $html .= '<td>' . $detail->purchase_price . '</td>';
-            $html .= '<td>' . $detail->price . '</td>';
+            $html .= '<td  style="white-space:normal !important" width="5%">' . $detail->quantity . '</td>';
+            $html .= '<td  style="white-space:normal !important" width="15%">' . $detail->product_code . '</td>';
+            $html .= '<td  style="white-space:normal !important" width="20%">' . $detail->product_name . '</td>';
+            $html .= '<td  style="white-space:normal !important" width="20%">' . $detail->brand . '</td>';
+            $html .= '<td  style="white-space:normal !important" width="20%">' . $detail->purchase_price . '</td>';
+            $html .= '<td  style="white-space:normal !important" width="20%">' . $detail->price . '</td>';
 
 
             $html .= '</tr>';
@@ -199,7 +221,71 @@ function getOrderDetails()
             'response' => true,
             'html' => $html,
             'total_order' => $total_order,
-            'total_items' => $total_items
+            'total_items' => $total_items,
+            'info_order' => $infoOrder,
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'Ocurrió un error al obtener detalles la orden'
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+function getOrderDetailsPDF()
+{
+
+    $queries = new Queries;
+
+    $id_order = $_POST['id_order'];
+
+    $sqlGetOrerInfo = "SELECT
+     subs.subsidiary_name,
+    CONCAT(subs.subsidiary_prefix, '-00',inco.id_income_orders) AS order_code,
+    CONCAT(name, ' ',lastname) AS username,
+    bootstrap_class,
+    status_description,
+     inco.*
+     FROM u803991314_main.income_orders AS inco
+     INNER JOIN u803991314_main.colaborators AS colab ON colab.id_colaborator = inco.id_colaborator
+     INNER JOIN u803991314_main.income_status AS stat ON stat.id_income_status = inco.id_income_status
+     INNER JOIN u803991314_main.subsidiary AS subs ON subs.id_subsidiary = inco.id_subsidiary
+     WHERE inco.id_income_orders = $id_order
+     ";
+    $getOrerInfo = $queries->getData($sqlGetOrerInfo);
+    $sqlInsertProductsIncome = "SELECT prod.*, br.brand, icd.*
+    FROM u803991314_main.income_orders AS ico
+    INNER JOIN u803991314_main.income_details AS icd ON ico.id_income_orders = icd.id_income_orders
+    INNER JOIN u803991314_main.products AS prod ON icd.id_prducts = prod.id_prducts
+    LEFT JOIN u803991314_main.brands AS br ON br.id_brands = prod.id_brands
+    WHERE ico.id_income_orders = $id_order
+    ";
+
+    $getData = $queries->getData($sqlInsertProductsIncome);
+    $total_order = 0;
+    $total_items = 0;
+    $infoOrder = "";
+    $html = '';
+    if (!empty($getData) && !empty($getOrerInfo)) {
+       /*  $infoOrder .= '<h3 class="modal-title h4" id="orderIncomeDetailModalLabel">Detalles de la orden</h3>'. "<p>Código de órden: " . $getOrerInfo[0]->order_code."<br>";
+        $infoOrder .= "Sucursal: " . $getOrerInfo[0]->subsidiary_name."<br>";
+        $infoOrder .= "Fecha de registro: " . $getOrerInfo[0]->date_register."<br>";
+        $infoOrder .= "Usuario que registró: " . $getOrerInfo[0]->username."<br>";
+        $infoOrder .= '<span class="legend-circle bg-' . $getOrerInfo[0]->bootstrap_class . '"></span> ' . $getOrerInfo[0]->status_description . ''; */
+        foreach ($getData as $detail) {
+            $total_order = $total_order + $detail->purchase_price;
+            $total_items++;
+        }
+        $total_order = round($total_order, 2);
+        $data = array(
+            'response' => true,
+            'order_breakdown' => $getData,
+            'total_order' => $total_order,
+            'total_items' => $total_items,
+            'info_order' => $getOrerInfo,
         );
     } else {
         $data = array(
@@ -512,34 +598,35 @@ function getOrders()
             <td class="name fw-bold">
             <button type="button" data-bs-toggle="modal" data-bs-target="#orderIncomeDetailModal" data-id-order-income="' . $order->id_income_orders . '" class="btn btn-primary orderDetails"><i class="fa-solid fa-list-ol"></i></button>
             </td>
-            
-            <td class="fw-bold text-center">
-                <div class="dropdown">
-                    <a href="javascript: void(0);" class="dropdown-toggle no-arrow text-secondary" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="14" width="14">
-                            <g>
-                                <circle cx="12" cy="3.25" r="3.25" style="fill: currentColor"></circle>
-                                <circle cx="12" cy="12" r="3.25" style="fill: currentColor"></circle>
-                                <circle cx="12" cy="20.75" r="3.25" style="fill: currentColor"></circle>
-                            </g>
-                        </svg>
-                    </a>
-                    <div class="dropdown-menu">
-                        <a href="javascript: void(0);" data-id-income-orders="' . $order->id_income_orders . '" class="dropdown-item editProduct" data-bs-toggle="modal" data-bs-target="#modalEditArticle">
-                            Editar
-                        </a>
-                        <!--  <a href="javascript: void(0);" class="dropdown-item">
-                            Editar stock en sucursales
-                        </a> -->
-                        <a href="javascript: void(0);" class="dropdown-item deleteProduct" data-id-income-orders="' . $order->id_income_orders . '" style="color:red !important;">
-                            Eliminar
-                        </a>
-                    </div>
-                </div>
-            </td>
         </tr>';
         }
 
+        
+            
+       /*  <td class="fw-bold text-center">
+        <div class="dropdown">
+            <a href="javascript: void(0);" class="dropdown-toggle no-arrow text-secondary" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="14" width="14">
+                    <g>
+                        <circle cx="12" cy="3.25" r="3.25" style="fill: currentColor"></circle>
+                        <circle cx="12" cy="12" r="3.25" style="fill: currentColor"></circle>
+                        <circle cx="12" cy="20.75" r="3.25" style="fill: currentColor"></circle>
+                    </g>
+                </svg>
+            </a>
+            <div class="dropdown-menu">
+                <a href="javascript: void(0);" data-id-income-orders="' . $order->id_income_orders . '" class="dropdown-item editProduct" data-bs-toggle="modal" data-bs-target="#modalEditArticle">
+                    Editar
+                </a>
+                <!--  <a href="javascript: void(0);" class="dropdown-item">
+                    Editar stock en sucursales
+                </a> -->
+                <a href="javascript: void(0);" class="dropdown-item deleteProduct" data-id-income-orders="' . $order->id_income_orders . '" style="color:red !important;">
+                    Eliminar
+                </a>
+            </div>
+        </div>
+    </td> */
         $pagNum = 1;
         if (($actualPage - 4) > 1) {
             $pagNum = $actualPage - 4;

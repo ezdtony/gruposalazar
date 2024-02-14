@@ -92,11 +92,11 @@ $getAllSubsidiary = $income_prods_model->getAllSubsidiary();
                                         Desglose
                                     </a>
                                 </th>
-                                <th class="text-end pe-7 min-w-200px">
+                                <!-- <th class="text-end pe-7 min-w-200px">
                                     <a href="javascript: void(0);" class="text-muted list-sort" data-sort="sales">
                                         Acciones
                                     </a>
-                                </th>
+                                </th> -->
                             </tr>
                         </thead>
 

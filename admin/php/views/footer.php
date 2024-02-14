@@ -27,6 +27,11 @@
 <!-- JAVASCRIPT-->
 <!-- Theme JS -->
 <script src="./assets/js/theme.bundle.js"></script>
+<script src="assets/jspdf/jspdf.umd.min.js"></script>
+<script src="assets/jspdf/jspdf.plugin.autotable.js"></script>
+<script src="js/functions/getLogos.js"></script>
+<script src="js/functions/generatePDF/generatePDF.js"></script>
+
 <div class="jvm-tooltip"></div>
 </body>
 

@@ -106,7 +106,8 @@ $(document).ready(function () {
       var totalIncomeOrder = parseFloat(
         $("#lblTotalIncome").attr("data-total-income")
       );
-      totalIncomeOrder = totalIncomeOrder + parseFloat(product_price_buy).toFixed(2);
+      totalIncomeOrder =
+        totalIncomeOrder + parseFloat(product_price_buy).toFixed(2);
       $("#lblTotalIncome").attr("data-total-income", totalIncomeOrder);
       $("#lblTotalIncome").text("$" + totalIncomeOrder);
       var html = "";
@@ -309,6 +310,7 @@ $(document).ready(function () {
   $(document).on("click", ".orderDetails", function (event) {
     loading();
     var id_order = $(this).attr("data-id-order-income");
+    $("#generateIncomeOrderPDF").attr("data-id-order-income", id_order);
     $.ajax({
       url: "php/controllers/income_prods/income_prods_controller.php",
       method: "POST",
@@ -322,12 +324,11 @@ $(document).ready(function () {
         var data = JSON.parse(data);
         //console.log(data);
         if (data.response) {
+          $("#info_order_detail").html(data.info_order);
           $("#lblTotalItems").text("Total de articulos: " + data.total_items);
           $("#lblTotalIncomeDetail").text("$" + data.total_order);
 
           $("#tableOrderDetail > tbody").empty().html(data.html);
-
-         
         } else {
           Swal.fire({
             title: data.message,
@@ -396,7 +397,40 @@ $(document).ready(function () {
         myToast.showToast();
       });
   }
-
+  $(document).on("click", "#generateIncomeOrderPDF", function (event) {
+    loading();
+    var id_order = $(this).attr("data-id-order-income");
+    $.ajax({
+      url: "php/controllers/income_prods/income_prods_controller.php",
+      method: "POST",
+      data: {
+        mod: "getOrderDetailsPDF",
+        id_order: id_order,
+      },
+    })
+      .done(function (data) {
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response) {
+          var response_data = data;
+          //--- --- ---//
+          generateOrderIncomePDF(response_data);
+          Swal.close();
+          //--- --- ---//
+        } else {
+          //--- --- ---//
+          //--- --- ---//
+        }
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: "Ocurrió un error al general el PDF",
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+  });
   function loading() {
     Swal.fire({
       title: "Cargando...",
@@ -408,6 +442,7 @@ $(document).ready(function () {
       showConfirmButton: false,
     });
   }
+
   function doneToast(text) {
     Toastify({
       text: text,

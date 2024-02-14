@@ -7,38 +7,41 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <div id="info_order_detail">
+
+                </div>
                 <div class="table-responsive">
 
-                    <table class="table align-middle table-edge table-nowrap mb-0 table-nowrap" id="tableOrderDetail">
+                    <table class="table align-middle table-edge mb-0" id="tableOrderDetail" width="100%">
                         <thead class="thead-light">
                             <tr>
                                 <th>
-                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
-                                        CANTIDAD
+                                    <a href="javascript: void(0);" class="text-muted list-sort">
+                                        CAN.
                                     </a>
                                 </th>
                                 <th>
-                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                    <a href="javascript: void(0);" class="text-muted list-sort">
                                         CÓDIGO PROD.
                                     </a>
                                 </th>
                                 <th>
-                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                    <a href="javascript: void(0);" class="text-muted list-sort">
                                         PRODUCTO
                                     </a>
                                 </th>
                                 <th>
-                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                    <a href="javascript: void(0);" class="text-muted list-sort">
                                         MARCA
                                     </a>
                                 </th>
                                 <th>
-                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                    <a href="javascript: void(0);" class="text-muted list-sort">
                                         PRECIO COMPRA
                                     </a>
                                 </th>
                                 <th>
-                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                    <a href="javascript: void(0);" class="text-muted list-sort">
                                         PRECIO VENTA
                                     </a>
                                 </th>
@@ -60,7 +63,7 @@
                 <h4 id="lblTotalIncomeDetail" data-total-income="0">$0</h4>
             </div>
             <div class="modal-footer">
-            <button type="button" class="btn btn-danger" id="saveIncomeOrder"><i class="fa-solid fa-file-pdf"></i> Descargar</button>
+                <button type="button" class="btn btn-danger" id="generateIncomeOrderPDF"><i class="fa-solid fa-file-pdf"></i> Descargar</button>
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
