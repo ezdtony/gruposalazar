@@ -40,25 +40,6 @@ async function generateOrderIncomePDF(data) {
 
     products.push(data_product);
   }
-  /* body: [
-    [
-      {
-        content:
-          "Código de órden: " +
-          order_code +
-          "\n Sucursal: " +
-          subsidiary_name +
-          "\n Fecha de registro: " +
-          date_register +
-          "\n Usuario que registró: " +
-          username +
-          "\n Status: " +
-          status_description,
-        styles: { halign: "left" },
-      },
-    ],
-  ], */
-  /* Isntancia JsPDF */
 
   lastPositions = 25;
 
