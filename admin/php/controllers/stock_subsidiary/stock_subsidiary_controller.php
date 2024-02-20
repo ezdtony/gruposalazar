@@ -85,405 +85,64 @@ function searchProductStock()
 
     echo json_encode($data);
 }
-function insertIncomeOrder()
+function saveNewStock()
 {
 
     $queries = new Queries;
 
+    $id_product = $_POST['id_product'];
     $id_subsidiary = $_POST['id_subsidiary'];
-    $products_income = $_POST['products_income'];
-    $colsSearch = [
-        'brand',
-        'product_name',
-        'product_short_name',
-        'product_code',
-        'product_barcode',
-        'sku'
-    ];
-    $limit =  5;
-    $sqlInsertProductsIncome = "INSERT INTO u803991314_main.income_orders (
-        id_subsidiary,
-        id_income_status,
-        id_colaborator,
-        date_income,
-        date_register,
-        datelog
-    )
-    VALUES (
-        $id_subsidiary,
-        1,
-        $_SESSION[id_user],
-        NOW(),
-        NOW(),
-        NOW()
-    )
-    ";
+    $stock = $_POST['stock'];
 
-    $insert = $queries->insertData($sqlInsertProductsIncome);
+    $sqlGetStock = "SELECT * FROM u803991314_main.subsidiary_stocks AS stk
+    WHERE id_subsidiary = $id_subsidiary AND prducts_id_prducts = $id_product";
 
+    $existStock = $queries->getData($sqlGetStock);
 
-    if (!empty($insert)) {
-        $id_income_orders = $insert['last_id'];
+    if (!empty($existStock)) {
 
-        for ($i = 0; $i < count($products_income); $i++) {
-            $id_product = $products_income[$i][0];
-            $quantity = $products_income[$i][1];
+        $sqlUpdateStock = "UPDATE u803991314_main.subsidiary_stocks SET stock = '$stock' WHERE id_subsidiary = $id_subsidiary AND prducts_id_prducts = $id_product";
+        $queries->insertData($sqlUpdateStock);
 
-            $sqlInsertProductsIncomeDetail = "INSERT INTO u803991314_main.income_details (
-                id_income_orders,
-                id_prducts,
-                id_income_status,
-                quantity
-            )
-            VALUES(
-                $id_income_orders,
-                $id_product,
-                1,
-                $quantity
-
-            )";
-            $insertDetail = $queries->insertData($sqlInsertProductsIncomeDetail);
+        if ($queries->insertData($sqlUpdateStock)) {
+            $data = array(
+                'response' => true,
+                'message' => 'El stock actualizó el correctamente!!'
+            );
+        } else {
+            $data = array(
+                'response' => false,
+                'message' => 'Ocurrió un error al actualizar el stock!!'
+            );
         }
-
-        $data = array(
-            'response' => true,
-            'message' => 'Se ha registrado la orden de entrada!!'
-        );
     } else {
-        $data = array(
-            'response' => false,
-            'message' => 'Ocurrió un error al registrar la orden'
-        );
+        $sqlInsertStock = "INSERT INTO u803991314_main.subsidiary_stocks
+        (
+            id_subsidiary,
+            prducts_id_prducts,
+            stock
+        ) VALUES(
+            $id_subsidiary,
+            $id_product,
+            '$stock'
+        )";
+        if ($queries->insertData($sqlInsertStock)) {
+            $data = array(
+                'response' => true,
+                'message' => 'El stock se agregó correctamente!!'
+            );
+        } else {
+            $data = array(
+                'response' => false,
+                'message' => 'Ocurrió un error al agregar el stock!!'
+            );
+        }
     }
 
 
 
     echo json_encode($data);
 }
-function getOrderDetails()
-{
-
-    $queries = new Queries;
-
-    $id_order = $_POST['id_order'];
-
-    $sqlGetOrerInfo = "SELECT
-     subs.subsidiary_name,
-    CONCAT(subs.subsidiary_prefix, '-00',inco.id_income_orders) AS order_code,
-    CONCAT(name, ' ',lastname) AS username,
-    bootstrap_class,
-    status_description,
-     inco.*
-     FROM u803991314_main.income_orders AS inco
-     INNER JOIN u803991314_main.colaborators AS colab ON colab.id_colaborator = inco.id_colaborator
-     INNER JOIN u803991314_main.income_status AS stat ON stat.id_income_status = inco.id_income_status
-     INNER JOIN u803991314_main.subsidiary AS subs ON subs.id_subsidiary = inco.id_subsidiary
-     WHERE inco.id_income_orders = $id_order
-     ";
-    $getOrerInfo = $queries->getData($sqlGetOrerInfo);
-    $sqlInsertProductsIncome = "SELECT prod.*, br.brand, icd.*
-    FROM u803991314_main.income_orders AS ico
-    INNER JOIN u803991314_main.income_details AS icd ON ico.id_income_orders = icd.id_income_orders
-    INNER JOIN u803991314_main.products AS prod ON icd.id_prducts = prod.id_prducts
-    LEFT JOIN u803991314_main.brands AS br ON br.id_brands = prod.id_brands
-    WHERE ico.id_income_orders = $id_order
-    ";
-
-    $getData = $queries->getData($sqlInsertProductsIncome);
-    $total_order = 0;
-    $total_items = 0;
-    $infoOrder = "";
-    $html = '';
-    if (!empty($getData)) {
-        $infoOrder .= '<h3 class="modal-title h4" id="orderIncomeDetailModalLabel">Detalles de la orden</h3>' . "<p>Código de órden: " . $getOrerInfo[0]->order_code . "<br>";
-        $infoOrder .= "Sucursal: " . $getOrerInfo[0]->subsidiary_name . "<br>";
-        $infoOrder .= "Fecha de registro: " . $getOrerInfo[0]->date_register . "<br>";
-        $infoOrder .= "Usuario que registró: " . $getOrerInfo[0]->username . "<br>";
-        $infoOrder .= '<span class="legend-circle bg-' . $getOrerInfo[0]->bootstrap_class . '"></span> ' . $getOrerInfo[0]->status_description . '';
-
-
-        foreach ($getData as $detail) {
-            $total_order = $total_order + $detail->purchase_price;
-            $total_items++;
-            $html .= '<tr>';
-            $html .= '<td  style="white-space:normal !important" width="5%">' . $detail->quantity . '</td>';
-            $html .= '<td  style="white-space:normal !important" width="15%">' . $detail->product_code . '</td>';
-            $html .= '<td  style="white-space:normal !important" width="20%">' . $detail->product_name . '</td>';
-            $html .= '<td  style="white-space:normal !important" width="20%">' . $detail->brand . '</td>';
-            $html .= '<td  style="white-space:normal !important" width="20%">' . $detail->purchase_price . '</td>';
-            $html .= '<td  style="white-space:normal !important" width="20%">' . $detail->price . '</td>';
-
-
-            $html .= '</tr>';
-        }
-        $total_order = round($total_order, 2);
-        $data = array(
-            'response' => true,
-            'html' => $html,
-            'total_order' => $total_order,
-            'total_items' => $total_items,
-            'info_order' => $infoOrder,
-        );
-    } else {
-        $data = array(
-            'response' => false,
-            'message' => 'Ocurrió un error al obtener detalles la orden'
-        );
-    }
-
-
-
-    echo json_encode($data);
-}
-function getOrderDetailsPDF()
-{
-
-    $queries = new Queries;
-
-    $id_order = $_POST['id_order'];
-
-    $sqlGetOrerInfo = "SELECT
-     subs.subsidiary_name,
-    CONCAT(subs.subsidiary_prefix, '-00',inco.id_income_orders) AS order_code,
-    CONCAT(name, ' ',lastname) AS username,
-    bootstrap_class,
-    status_description,
-     inco.*
-     FROM u803991314_main.income_orders AS inco
-     INNER JOIN u803991314_main.colaborators AS colab ON colab.id_colaborator = inco.id_colaborator
-     INNER JOIN u803991314_main.income_status AS stat ON stat.id_income_status = inco.id_income_status
-     INNER JOIN u803991314_main.subsidiary AS subs ON subs.id_subsidiary = inco.id_subsidiary
-     WHERE inco.id_income_orders = $id_order
-     ";
-    $getOrerInfo = $queries->getData($sqlGetOrerInfo);
-    $sqlInsertProductsIncome = "SELECT prod.*, br.brand, icd.*
-    FROM u803991314_main.income_orders AS ico
-    INNER JOIN u803991314_main.income_details AS icd ON ico.id_income_orders = icd.id_income_orders
-    INNER JOIN u803991314_main.products AS prod ON icd.id_prducts = prod.id_prducts
-    LEFT JOIN u803991314_main.brands AS br ON br.id_brands = prod.id_brands
-    WHERE ico.id_income_orders = $id_order
-    ";
-
-    $getData = $queries->getData($sqlInsertProductsIncome);
-    $total_order = 0;
-    $total_items = 0;
-    $infoOrder = "";
-    $html = '';
-    if (!empty($getData) && !empty($getOrerInfo)) {
-        /*  $infoOrder .= '<h3 class="modal-title h4" id="orderIncomeDetailModalLabel">Detalles de la orden</h3>'. "<p>Código de órden: " . $getOrerInfo[0]->order_code."<br>";
-        $infoOrder .= "Sucursal: " . $getOrerInfo[0]->subsidiary_name."<br>";
-        $infoOrder .= "Fecha de registro: " . $getOrerInfo[0]->date_register."<br>";
-        $infoOrder .= "Usuario que registró: " . $getOrerInfo[0]->username."<br>";
-        $infoOrder .= '<span class="legend-circle bg-' . $getOrerInfo[0]->bootstrap_class . '"></span> ' . $getOrerInfo[0]->status_description . ''; */
-        foreach ($getData as $detail) {
-            $total_order = $total_order + $detail->purchase_price;
-            $total_items++;
-        }
-        $total_order = round($total_order, 2);
-        $data = array(
-            'response' => true,
-            'order_breakdown' => $getData,
-            'total_order' => $total_order,
-            'total_items' => $total_items,
-            'info_order' => $getOrerInfo,
-        );
-    } else {
-        $data = array(
-            'response' => false,
-            'message' => 'Ocurrió un error al obtener detalles la orden'
-        );
-    }
-
-
-
-    echo json_encode($data);
-}
-function getIncomeTable()
-{
-
-    $queries = new Queries;
-
-    //$id_product = $_POST['id_product'];
-    //$product_name = $_POST['product_name'];
-    $colsSearch = [
-        'date_income',
-        "CONCAT(colab.name, ' ', colab.lastname)",
-        'subsidiary_name',
-        'stat.status_description'
-    ];
-    $limit =  isset($_POST['limit']) ? $_POST['limit'] : 10;
-    $actualPage =  isset($_POST['actualPage']) ? $_POST['actualPage'] : 0;
-
-    if (!$actualPage) {
-        $begin = 0;
-        $actualPage = 1;
-    } else {
-        $begin = ($actualPage - 1) * $limit;
-    }
-    $where = "";
-    if (isset($_POST['searchInput']) && ($_POST['searchInput'] != '')) {
-        $searchInput = $_POST['searchInput'];
-        $where .= " WHERE (";
-        for ($i = 0; $i < count($colsSearch); $i++) {
-            $where .= $colsSearch[$i] . " LIKE '%" . addslashes($searchInput) . "%' OR ";
-        }
-        $where = substr($where, 0, -3);
-        $where .= ")";
-    }
-
-
-    if ($limit > 0) {
-        $limit = " LIMIT $begin,  $limit";
-    } else {
-        $limit = "";
-    }
-    //echo $limit;
-    $html = "";
-
-
-
-
-
-    $sql = "SELECT SQL_CALC_FOUND_ROWS
-   CONCAT(colab.name, ' ', colab.lastname) AS colaborator_name, status_description, subsidiary_name,
-   bootstrap_class,
-    inco.*
-    FROM u803991314_main.income_orders AS inco
-    INNER JOIN u803991314_main.colaborators AS colab ON colab.id_colaborator = inco.id_colaborator
-    INNER JOIN u803991314_main.income_status AS stat ON stat.id_income_status = inco.id_income_status
-    INNER JOIN u803991314_main.subsidiary AS subs ON subs.id_subsidiary = inco.id_subsidiary
-    $where 
-    
-    $limit
-    ";
-    //echo $sql;
-    //GROUP BY inco.id_income_orders
-    $getProducts = $queries->getData($sql);
-
-    $total_stock = 0;
-
-    if (!empty($getProducts)) {
-        $totalResults = count($getProducts);
-
-        $sqlAllProdsFiltered = "SELECT FOUND_ROWS() AS founded";
-        $getTotalProductsFiltered = $queries->getData($sqlAllProdsFiltered);
-        if (!empty($getTotalProductsFiltered)) {
-            $totalFiltered = ($getTotalProductsFiltered[0]->founded);
-        }
-
-        $sqlAllProds = "SELECT COUNT(id_income_orders) AS founded
-    FROM u803991314_main.income_orders AS inco
-    INNER JOIN u803991314_main.colaborators AS colab ON colab.id_colaborator = inco.id_colaborator
-    INNER JOIN u803991314_main.income_status AS stat ON stat.id_income_status = inco.id_income_status
-    INNER JOIN u803991314_main.subsidiary AS subs ON subs.id_subsidiary = inco.id_subsidiary";
-        $getTotalProducts = $queries->getData($sqlAllProds);
-        if (!empty($getTotalProducts)) {
-            $totalProds = ($getTotalProducts[0]->founded);
-        }
-
-        foreach ($getProducts as $product) {
-
-
-            $html .= '
-            <tr id="trIncomeOrder' . $product->id_income_orders . '">
-            <td class="name fw-bold" id="tdsubsidiary_name' . $product->id_income_orders . '">
-                 ' . $product->subsidiary_name . '
-            </td>
-            <td class="name fw-bold" id="tddate_income' . $product->id_income_orders . '">
-                 ' . $product->date_income . '
-            </td>
-            <td class="name fw-bold" id="tdcolaborator_name' . $product->id_income_orders . '">
-                 ' . $product->colaborator_name . '
-            </td>
-            <td class="name fw-bold" id="tdstatus_description' . $product->id_income_orders . '">
-            <ul class="list-inline"><li class="list-inline-item d-inline-flex align-items-center">
-            <span class="legend-circle bg-' . $product->status_description . '"></span>  ' . $product->status_description . '
-        </li>
-        </ul>
-            </td>
-            <td class="fw-bold text-center">
-                <div class="dropdown">
-                    <a href="javascript: void(0);" class="dropdown-toggle no-arrow text-secondary" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="14" width="14">
-                            <g>
-                                <circle cx="12" cy="3.25" r="3.25" style="fill: currentColor"></circle>
-                                <circle cx="12" cy="12" r="3.25" style="fill: currentColor"></circle>
-                                <circle cx="12" cy="20.75" r="3.25" style="fill: currentColor"></circle>
-                            </g>
-                        </svg>
-                    </a>
-                    <div class="dropdown-menu">
-                    <a href="javascript: void(0);" data-id-income-order="' . $product->id_income_orders . '" class="dropdown-item showBreakdownOrder" data-bs-toggle="modal" data-bs-target="#modalshowBreakdownOrder">
-                            Ver productos
-                        </a>
-                    <a href="javascript: void(0);" data-id-income-order="' . $product->id_income_orders . '" class="dropdown-item showBreakdownOrder" data-bs-toggle="modal" data-bs-target="#modalshowBreakdownOrder">
-                            Editar
-                        </a>
-                        <a href="javascript: void(0);" class="dropdown-item deleteOrder" data-id-income-order="' . $product->id_income_orders . '" style="color:red !important;">
-                            Eliminar
-                        </a>
-                    </div>
-                </div>
-            </td>
-        </tr>';
-        }
-
-        $pagNum = 1;
-        if (($actualPage - 4) > 1) {
-            $pagNum = $actualPage - 4;
-        }
-        $totalPages = ceil($totalProds / $_POST['limit']);
-
-        $pagination = '';
-
-        $stopNav = $pagNum + 9;
-        if ($stopNav > $totalPages) {
-            $stopNav = $totalPages;
-        }
-        $pagination .= '<nav>';
-        $pagination .= '<ul class="nav nav-pills">';
-
-        for ($i = $pagNum; $i <= $stopNav; $i++) {
-            $active = $i == $actualPage ? "active" : "";
-            $pagination .= '<li class="nav-item">';
-            $pagination .= '<a class="nav-link changePage ' . $active . '" aria-current="page" href="#">' . $i . '</a>';
-            $pagination .= '</li>';
-        }
-
-
-
-
-
-
-
-        $pagination .= '</ul>';
-        $pagination .= '</nav>';
-
-        $data = array(
-            'response' => true,
-            'html' => $html,
-            'totalProds' => $totalProds,
-            'totalResults' => $totalResults,
-            'totalFiltered' => $totalFiltered,
-            'totalPages' => $totalPages,
-            'paginationNav' => $pagination
-        );
-    } else {
-
-        $html .= '
-                    </tbody>
-                </table>';
-        $data = array(
-            'response' => false,
-            'html' => $html
-        );
-    }
-
-
-
-    echo json_encode($data);
-}
-
 function getStocks()
 {
 
@@ -593,7 +252,7 @@ function getStocks()
             <td class="name fw-bold" id="td_product_name_' . $order->id_prducts . '">
             ' . $order->brand . '
             </td>
-            <td class="name fw-bold td edit-stock" data-id-product="' . $order->id_prducts . '" data-id-subsidiary="' . $order->id_subsidiary . '" data-stock="' . $order->subs_stock . '"  id="td_product_name_' . $order->id_prducts . '">
+            <td class="name fw-bold td edit-stock" id="tdEditStock' . $order->id_prducts . '" data-id-product="' . $order->id_prducts . '" data-id-subsidiary="' . $order->id_subsidiary . '" data-stock="' . $order->subs_stock . '"  id="td_product_name_' . $order->id_prducts . '">
             ' . $order->subs_stock . '
             </td>
         </tr>';

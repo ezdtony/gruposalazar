@@ -73,7 +73,7 @@ async function generateOrderIncomePDF(data) {
       [
         {
           content: "DETALLES DE ÓRDEN DE ENTRADA DE MATERIAL",
-          styles: { halign: "center" },
+          styles: { borders : "b" },
         },
       ],
     ],

@@ -36,7 +36,6 @@ $(document).ready(function () {
     $("#divTable").show();
     Swal.close();
 
-    
     //--- --- ---//
   });
 
@@ -51,308 +50,72 @@ $(document).ready(function () {
     }
     //--- --- ---//
   });
-  $(document).on("click", ".itemProductSearch", function (event) {
+  $(document).on("dblclick", ".edit-stock", function (event) {
     loading();
-    var product_name = $(this).attr("data-product-name");
-    var product_code = $(this).attr("data-product-code");
     var id_product = $(this).attr("data-id-product");
-    var brand = $(this).attr("data-product-brand");
-    var product_price_buy = $(this).attr("data-product-price-buy");
-    var product_price_sell = $(this).attr("data-product-price-sell");
-    var max_stock = $(this).attr("data-max-stock");
-    var quantity = 1;
-    var valid_add = 1;
-
-    $("#tableProductsIncome > tbody  > tr").each(function (index, tr) {
-      //console.log(index);
-      //console.log(tr);
-      var id_product_table = $(tr).attr("data-id-product");
-      if (id_product == id_product_table) {
-        valid_add = 0;
-      }
-    });
-    if (valid_add) {
-      var totalIncomeOrder = parseFloat(
-        $("#lblTotalIncome").attr("data-total-income")
-      );
-      totalIncomeOrder =
-        totalIncomeOrder + parseFloat(product_price_buy).toFixed(2);
-      $("#lblTotalIncome").attr("data-total-income", totalIncomeOrder);
-      $("#lblTotalIncome").text("$" + totalIncomeOrder);
-      var html = "";
-      html +=
-        '<tr id="trProduct' +
-        id_product +
-        '" data-id-product="' +
-        id_product +
-        '" data-quantity="1">';
-      html += "<td>" + product_code + "</td>";
-      html += "<td>" + product_name + "</td>";
-      html += "<td>" + brand + "</td>";
-      html += "<td>" + product_price_buy + "</td>";
-      html += "<td>" + product_price_sell + "</td>";
-      html +=
-        '<td><input type="number" data-quantity="' +
-        quantity +
-        '" class="form-control setProdQuantity" data-price-buy="' +
-        product_price_buy +
-        '" data-id-product="' +
-        id_product +
-        '" step="1" id="quantityProd' +
-        id_product +
-        '" name="tentacles" min="1" max="' +
-        max_stock +
-        '" value="' +
-        quantity +
-        '" /></td>';
-      html +=
-        '<td><button type="button"  class="btn btn-outline-danger btn-sm btnRemoveProdList" data-id-prod="' +
-        id_product +
-        '">x</button></td>';
-
-      $("#tableProductsIncome").prepend(html);
-      $("#saveNewIncome").prop("disabled", false);
-      Swal.close();
+    var id_subsidiary = $(this).attr("data-id-subsidiary");
+    var stock = $(this).attr("data-stock");
+    if (stock === "-") {
+      stock = "";
     } else {
-      Swal.fire({
-        title: "Este producto ya ha sido agregado a la lista!!",
-        icon: "info",
-      });
+      stock = parseFloat(stock);
     }
 
-    //--- --- ---//
-  });
-  $(document).on("focusout", ".setProdQuantity", function (event) {
-    loading();
-    var id_product = $(this).attr("data-id-product");
-    var price_buy = parseFloat($(this).attr("data-price-buy"));
-    var totalIncomeOrder = parseFloat(
-      $("#lblTotalIncome").attr("data-total-income")
-    );
-
-    var prod_quantity = parseFloat($(this).val());
-    var og_quantity = parseFloat($(this).attr("data-quantity"));
-
-    var rest_total = og_quantity * price_buy;
-    var sum_total = prod_quantity * price_buy;
-
-    totalIncomeOrder = totalIncomeOrder - rest_total;
-    totalIncomeOrder = totalIncomeOrder + sum_total;
-
-    $("#lblTotalIncome").attr("data-total-income", totalIncomeOrder.toFixed(2));
-    $("#lblTotalIncome").text("$" + totalIncomeOrder.toFixed(2));
-    $(this).attr("data-quantity", prod_quantity);
-    $("#trProduct" + id_product).attr("data-quantity", prod_quantity);
+    var html = "";
+    html +=
+      '<input class="form-control input-stock-subs" data-id-subsidiary="' +
+      id_subsidiary +
+      '" data-id-product="' +
+      id_product +
+      '" type="number" step="1" placeholder="Ingrese una cantidad" value="' +
+      stock +
+      '">';
+    $(this).html(html);
     Swal.close();
-    //--- --- ---//
   });
-  $(document).on("click", "#saveNewIncome", function (event) {
-    loading();
-    var id_subsidiary = $("#selectSubsidiary").val();
-    console.log(id_subsidiary);
-    products_income = Array();
-    if (
-      id_subsidiary == "" ||
-      id_subsidiary == null ||
-      id_subsidiary == undefined
-    ) {
-      Swal.fire({
-        title: "Por favor seleccione una sucursal",
-        icon: "info",
-      });
-    } else {
-      $("#tableProductsIncome > tbody  > tr").each(function (index, tr) {
-        //console.log(index);
-        //console.log(tr);
-        var id_product = $(tr).attr("data-id-product");
-        var quantity = $(tr).attr("data-quantity");
-        //console.log("id_product:"+id_product);
-        //console.log("quantity:"+quantity);
-        products_income.push([id_product, quantity]);
-      });
-      console.log(products_income);
+
+  $(document).on("keyup", ".input-stock-subs", function (e) {
+    if (e.which == 13) {
+      stock = $(this).val();
+      var id_product = $(this).attr("data-id-product");
+      var id_subsidiary = $(this).attr("data-id-subsidiary");
+
+      loading();
       $.ajax({
         url: "php/controllers/stock_subsidiary/stock_subsidiary_controller.php",
         method: "POST",
         data: {
-          mod: "insertIncomeOrder",
+          mod: "saveNewStock",
+          id_product: id_product,
           id_subsidiary: id_subsidiary,
-          products_income: products_income,
+          stock: stock
         },
       })
         .done(function (data) {
-          Swal.close();
+          console.log(data);
           var data = JSON.parse(data);
           //console.log(data);
           if (data.response == true) {
-            $("#showResultsProds").hide();
-            $("#selectSubsidiary").val(""); // Select the option with a value of '1'
-            $("#selectSubsidiary").trigger("change"); // Notify any JS components that the value changed
-            $("#product").prop("disabled", true);
-            $("#saveNewIncome").prop("disabled", true);
-            $("#tableProductsIncome > tbody").empty();
-            $("#modalNewIncome").modal("toggle");
-            Swal.fire({
-              title: data.message,
-              icon: "success",
-            }).then((result) => {
-              /* Read more about isConfirmed, isDenied below */
-              if (result.isConfirmed) {
-                loading();
-                location.reload();
-              }
-            });
-            /* doneToast(data.message); */
+            if (stock == "") {
+              stock = "-";
+            }
+            $("#tdEditStock"+id_product).attr("data-stock",stock);
+            $("#tdEditStock"+id_product).html(stock);
+            Swal.close();
           } else {
-            Swal.fire({
-              title: data.message,
-              icon: "info",
-            });
+            Swal.close();
+            errorToast("Ocurió un error al actualizar el stock!!");
           }
-
-          //--- --- ---//
-          //--- --- ---//
         })
         .fail(function (message) {
-          Swal.close();
-          var myToast = Toastify({
-            text: data.message,
-            duration: 3000,
+          Swal.fire({
+            title: "No se pudoo completar el proceso!",
+            icon: "error",
           });
-          myToast.showToast();
         });
-      //--- --- ---//
     }
+    //--- --- ---//
   });
-  $(document).on("click", ".btnRemoveProdList", function (event) {
-    loading();
-    var id_product = $(this).attr("data-id-prod");
-    $("#trProduct" + id_product).remove();
-    Swal.close();
-  });
-  $(document).on("click", ".deleteOrder", function (event) {
-    loading();
-    var id_income_order = $(this).attr("data-id-income-order");
-    $.ajax({
-      url: "php/controllers/stock_subsidiary/stock_subsidiary_controller.php",
-      method: "POST",
-      data: {
-        mod: "insertIncomeOrder",
-        id_subsidiary: id_subsidiary,
-        products_income: products_income,
-      },
-    })
-      .done(function (data) {
-        Swal.close();
-        var data = JSON.parse(data);
-        //console.log(data);
-        if (data.response == true) {
-          $("#trIncomeOrder" + id_income_order).remove();
-        } else {
-          Swal.fire({
-            title: data.message,
-            icon: "info",
-          });
-        }
-
-        //--- --- ---//
-        //--- --- ---//
-      })
-      .fail(function (message) {
-        Swal.close();
-        var myToast = Toastify({
-          text: data.message,
-          duration: 3000,
-        });
-        myToast.showToast();
-      });
-    Swal.close();
-  });
-
-  $(document).on("click", ".btnRemoveProdList", function (event) {
-    loading();
-    var id_product = $(this).attr("data-id-prod");
-    $("#trProduct" + id_product).remove();
-    Swal.close();
-  });
-
-  $(document).on("click", ".orderDetails", function (event) {
-    loading();
-    var id_order = $(this).attr("data-id-order-income");
-    $("#generateIncomeOrderPDF").attr("data-id-order-income", id_order);
-    $.ajax({
-      url: "php/controllers/stock_subsidiary/stock_subsidiary_controller.php",
-      method: "POST",
-      data: {
-        mod: "getOrderDetails",
-        id_order: id_order,
-      },
-    })
-      .done(function (data) {
-        Swal.close();
-        var data = JSON.parse(data);
-        //console.log(data);
-        if (data.response) {
-          $("#info_order_detail").html(data.info_order);
-          $("#lblTotalItems").text("Total de articulos: " + data.total_items);
-          $("#lblTotalIncomeDetail").text("$" + data.total_order);
-
-          $("#tableOrderDetail > tbody").empty().html(data.html);
-        } else {
-          Swal.fire({
-            title: data.message,
-            icon: "info",
-          });
-        }
-
-        //--- --- ---//
-        //--- --- ---//
-      })
-      .fail(function (message) {
-        Swal.close();
-        var myToast = Toastify({
-          text: data.message,
-          duration: 3000,
-        });
-        myToast.showToast();
-      });
-  });
-
-  $(document).on("click", "#generateIncomeOrderPDF", function (event) {
-    loading();
-    var id_order = $(this).attr("data-id-order-income");
-    $.ajax({
-      url: "php/controllers/stock_subsidiary/stock_subsidiary_controller.php",
-      method: "POST",
-      data: {
-        mod: "getOrderDetailsPDF",
-        id_order: id_order,
-      },
-    })
-      .done(function (data) {
-        var data = JSON.parse(data);
-        console.log(data);
-        if (data.response) {
-          var response_data = data;
-          //--- --- ---//
-          generateOrderIncomePDF(response_data);
-          Swal.close();
-          //--- --- ---//
-        } else {
-          //--- --- ---//
-          //--- --- ---//
-        }
-      })
-      .fail(function (message) {
-        Swal.close();
-        var myToast = Toastify({
-          text: "Ocurrió un error al general el PDF",
-          duration: 3000,
-        });
-        myToast.showToast();
-      });
-  });
-
   function loadStocks(limitOrders, searchInput, actualPage, id_subsidiary) {
     if (actualPage != null) {
       actualPage = actualPage;
@@ -367,15 +130,15 @@ $(document).ready(function () {
         limit: limitOrders,
         searchInput: searchInput,
         actualPage: actualPage,
-        id_subsidiary:id_subsidiary
+        id_subsidiary: id_subsidiary,
       },
     })
       .done(function (data) {
         Swal.close();
         var data = JSON.parse(data);
-        
+
         if (data.response == true) {
-            console.log(data);
+          console.log(data);
           $("#tableStocks > tbody").empty().html(data.html);
           $("#lblTotal").html(
             "Mostrando " +
