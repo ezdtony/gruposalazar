@@ -306,3 +306,81 @@ function getTransfers()
 
     echo json_encode($data);
 }
+function insertTransfer()
+{
+
+    $queries = new Queries;
+
+    $id_subsidiary_og = $_POST['subsidiary_og'];
+    $id_subsidiary_dest = $_POST['subsidiary_des'];
+    $products_income = $_POST['products_income'];
+
+    $sqlGetSOGDet = "SELECT * FROM u803991314_main.subsidiary WHERE id_subsidiary = $id_subsidiary_og";
+    $getSOGDet = $queries->getData($sqlGetSOGDet);
+    $subsidiary_og_prefix = substr($getSOGDet[0]->subsidiary_prefix,4, 2);
+    
+
+    $sqlGetSDestDet = "SELECT * FROM u803991314_main.subsidiary WHERE id_subsidiary = $id_subsidiary_dest";
+    $getSDestDet = $queries->getData($sqlGetSDestDet);
+    $subsidiary_des_prefix = substr($getSDestDet[0]->subsidiary_prefix,4, 2);
+
+   
+    $sqlInsertProductsIncome = "INSERT INTO u803991314_main.prods_transfer (
+        id_subs_or,
+        id_subs_des,
+        id_prods_transfer_status,
+        id_colaborator,
+        datelog
+    )
+    VALUES (
+        $id_subsidiary_og,
+        $id_subsidiary_dest,
+        1,
+        $_SESSION[id_user],
+        NOW()
+    )
+    ";
+
+    $insert = $queries->insertData($sqlInsertProductsIncome);
+
+
+    if (!empty($insert)) {
+        $id_prods_transfer = $insert['last_id'];
+        $transfer_code = "TRF-".$subsidiary_og_prefix . "-" . $subsidiary_des_prefix . "-0" . $id_prods_transfer;
+        $queries->insertData("UPDATE u803991314_main.prods_transfer SET transfer_code = '$transfer_code' WHERE id_prods_transfer = $id_prods_transfer ");
+
+        for ($i = 0; $i < count($products_income); $i++) {
+            $id_product = $products_income[$i][0];
+            $quantity = $products_income[$i][1];
+
+            $sqlInsertProductsIncomeDetail = "INSERT INTO u803991314_main.prods_transfer_detail (
+                id_prods_transfer,
+                id_products,
+                completed,
+                quantity
+            )
+            VALUES(
+                $id_prods_transfer,
+                $id_product,
+                0,
+                $quantity
+
+            )";
+            $queries->insertData($sqlInsertProductsIncomeDetail);
+        }
+
+        $data = array(
+            'response' => true,
+            'message' => 'Se ha registrado el traspaso de productos!!'
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'Ocurrió un error al registrar el traspaso'
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
