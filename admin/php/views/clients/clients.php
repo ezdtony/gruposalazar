@@ -1,8 +1,5 @@
 <?php
-$getCollaborators = $colabs_model->getAllColabs();
-$getSates = $colabs_model->getAllStates();
-$getSubsidiary = $colabs_model->getSubsidiary();
-$getPositions = $colabs_model->getPositions();
+$getCollaborators = $colabs_model->getAllClients();
 ?>
 <h1 class="h2">Clientes</h1>
 
@@ -27,10 +24,10 @@ $getPositions = $colabs_model->getPositions();
                 <table class="table table-sm table-borderless align-middle mb-0" id="tableColabs">
                     <thead class="thead-light">
                         <tr>
-                            <th>Código</th>
                             <th>Nombre</th>
+                            <th>Teléfono</th>
                             <th>Correo</th>
-                            <th class="text-end">Contraseña acceso</th>
+                            <th class="text-end">Contraseña</th>
                         </tr>
                     </thead>
 
@@ -49,11 +46,11 @@ $getPositions = $colabs_model->getPositions();
                                     </div>
                                 </div>
                             </td> -->
-                                <td><?= $colab->colaborator_code ?></td>
                                 <td><?= $colab->name ?> <?= $colab->lastname ?></td>
-                                <td><?= $colab->business_mail ?></td>
+                                <td><?= $colab->cellphone ?></td>
+                                <td><?= $colab->email ?></td>
                                 <td class="text-end">
-                                    <div class="fw-bold"><?= $colab->password_access ?></div>
+                                    <div class="fw-bold"><?= $colab->password ?></div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

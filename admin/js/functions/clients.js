@@ -52,46 +52,23 @@ $(document).ready(function () {
       $("#password").val(autoCreate(6));
     });
   
-    $(document).on("click", "#btnSaveNewUser", function () {
+    $(document).on("click", "#btnSaveNewClient", function () {
       loading();
   
-      var name = $("#name_new_colab").val();
-      var lastname = $("#lastname_new_colab").val();
-      var email = $("#personal_mail").val();
+      var name = $("#name_new_client").val();
+      var lastname = $("#lastname_new_client").val();
+      var email = $("#mail").val();
       var phonenumber = $("#phone_number").val();
-      var curp = $("#curp").val();
-      var rfc = $("#rfc").val();
-      var nss = $("#nss").val();
   
-      var street = $("#street").val();
+    /*   var street = $("#street").val();
       var int_num = $("#int_num").val();
       var ext_num = $("#ext_num").val();
       var colony = $("#colony").val();
       var zipcode = $("#zipcode").val();
       var state = $("#selectState option:selected").text();
-      var city = $("#selectCity option:selected").text();
-      var subsidiary = $("#selectSubsidiary").val();
-      var position = $("#selectPosition").val();
-      var assigned_mail = $("#assigned_mail").val();
+      var city = $("#selectCity option:selected").text(); */
       var password = $("#password").val();
   
-      console.log("name: " + name);
-      console.log("lastname: " + lastname);
-      console.log("email: " + email);
-      console.log("phonenumber: " + phonenumber);
-      console.log("curp: " + curp);
-      console.log("rfc: " + rfc);
-      console.log("street: " + street);
-      console.log("int_num: " + int_num);
-      console.log("colony: " + colony);
-      console.log("zipcode: " + zipcode);
-      console.log("state: " + state);
-      console.log("subsidiary: " + subsidiary);
-      console.log("position: " + position);
-      console.log("assigned_mail: " + assigned_mail);
-      console.log("password: " + password);
-      console.log("city: " + city);
-      console.log("nss: " + nss);
   
       if (
         name != "" &&
@@ -102,56 +79,21 @@ $(document).ready(function () {
         email != undefined &&
         phonenumber != "" &&
         phonenumber != undefined &&
-        curp != "" &&
-        curp != undefined &&
-        nss != "" &&
-        nss != undefined &&
-        street != "" &&
-        street != undefined &&
-        ext_num != "" &&
-        ext_num != undefined &&
-        colony != "" &&
-        colony != undefined &&
-        zipcode != "" &&
-        zipcode != undefined &&
-        state != "" &&
-        state != undefined &&
-        subsidiary != "" &&
-        subsidiary != undefined &&
-        position != "" &&
-        position != undefined &&
-        assigned_mail != "" &&
-        assigned_mail != undefined &&
         password != "" &&
-        password != undefined &&
-        city != "" &&
-        city != undefined
+        password != undefined
       ) {
         console.log("save");
   
         $.ajax({
-          url: "php/controllers/colabs/colab_controller.php",
+          url: "php/controllers/clients/clients_controller.php",
           method: "POST",
           data: {
-            mod: "saveColab",
+            mod: "saveClient",
             name: name,
             lastname: lastname,
             email: email,
             phonenumber: phonenumber,
-            curp: curp,
-            rfc: rfc,
-            street: street,
-            int_num: int_num,
-            ext_num: ext_num,
-            colony: colony,
-            zipcode: zipcode,
-            state: state,
-            subsidiary: subsidiary,
-            position: position,
-            assigned_mail: assigned_mail,
             password: password,
-            city: city,
-            nss: nss,
           },
         })
           .done(function (data) {
@@ -161,16 +103,10 @@ $(document).ready(function () {
               Swal.fire({
                 title: data.message,
                 icon: "success",
+              }).then((result) => {
+                loading();
+                location.reload();
               });
-              $("#newColabModal").find("input,textarea,select").val("");
-              $("#newColabModal input[type='checkbox']")
-                .prop("checked", false)
-                .change();
-                $("#closeModalNewUser").trigger('click');
-                $("#selectState").select2("val", "");
-                $("#selectCity").select2("val", "");
-                $("#selectCity").attr("disabled", true);
-              $("#tbodyColabs").append(data.html);
             } else {
               Swal.fire({
                 title: data.message,
