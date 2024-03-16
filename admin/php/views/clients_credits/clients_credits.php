@@ -1,7 +1,8 @@
 <?php
-$getCollaborators = $colabs_model->getAllClients();
+$getCollaborators = $colabs_model->getAllClientsCredits();
+$getAllClients = $colabs_model->getAllClients();
 ?>
-<h1 class="h2">Clientes</h1>
+<h1 class="h2">Créditos</h1>
 
 <div class="row">
     <div class="col-xxl-12 d-flex">
@@ -10,12 +11,12 @@ $getCollaborators = $colabs_model->getAllClients();
             <div class="card-header border-0 border-0 card-header-space-between">
                 <!-- Title -->
                 <h2 class="card-header-title h4 text-uppercase">
-                    Clientes registrados
+                    Créditos a clientes
                 </h2>
 
                 <!-- Link -->
-                <a class="small fw-bold" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#newClientModal">
-                    Registrar cliente
+                <a class="small fw-bold" style="cursor: pointer" data-bs-toggle="modal" data-bs-target="#newClientCredit">
+                    Registrar crédito
                 </a>
             </div>
 
@@ -24,10 +25,10 @@ $getCollaborators = $colabs_model->getAllClients();
                 <table class="table table-sm table-borderless align-middle mb-0" id="tableColabs">
                     <thead class="thead-light">
                         <tr>
-                            <th>Nombre</th>
-                            <th>Teléfono</th>
-                            <th>Correo</th>
-                            <th class="text-end">Contraseña</th>
+                            <th>Cliente</th>
+                            <th>Crédito total</th>
+                            <th>Crédito disponible</th>
+                            <th class="text-end">Historial de compras</th>
                         </tr>
                     </thead>
 
@@ -46,11 +47,12 @@ $getCollaborators = $colabs_model->getAllClients();
                                     </div>
                                 </div>
                             </td> -->
-                                <td><?= $colab->name ?> <?= $colab->lastname ?></td>
-                                <td><?= $colab->cellphone ?></td>
-                                <td><?= $colab->email ?></td>
+                                <td><?= $colab->client_name ?> </td>
+                                <td>$ <?= $colab->credit_ammount ?></td>
+                                <td>$ <?= $colab->credit_line ?></td>
                                 <td class="text-end">
-                                    <div class="fw-bold"><?= $colab->password ?></div>
+                                    <div class="fw-bold"><button type="button"class="btn btn-primary"><i class="fa-solid fa-info"></i></button>
+                                    </div>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -61,7 +63,7 @@ $getCollaborators = $colabs_model->getAllClients();
         </div>
     </div>
 </div>
-<script src="js/functions/clients.js"></script>
+<script src="js/functions/credits.js"></script>
 <?php
-include 'modals/newClient.php';
+include 'modals/newClientCredit.php';
 ?>
