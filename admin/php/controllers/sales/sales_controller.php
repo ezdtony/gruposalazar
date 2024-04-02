@@ -265,9 +265,10 @@ function SaveOrderCredit()
                                     )";
                 $insertDetailCredit = $queries->InsertData($sqlInsertDetail);
 
-                $sqlUpdateCredit = "UPDATE u803991314_main.clients_credits SET credit_ammount = credit_ammount - $ammount WHERE id_clients_credits = $credit_client";
-                $queries->InsertData($sqlUpdateCredit);
             }
+            
+            $sqlUpdateCredit = "UPDATE u803991314_main.clients_credits SET credit_ammount = credit_ammount - $ammount WHERE id_clients_credits = $credit_client";
+            $queries->InsertData($sqlUpdateCredit);
         }
         $data = array(
             'response' => true,
@@ -322,7 +323,7 @@ function getCreditSalazarClient()
         $html .= '<option selected disabled value="">Seleccione una opción</option>';
 
         foreach ($creditInfo as $prod) {
-            $html .= '<option value="' . $prod->id_clients_credits . '">Crédito de $ ' . ($prod->credit_line) . ' MXN</option>';
+            $html .= '<option value="' . $prod->id_clients_credits . '"> (' . ($prod->credit_code) . ') Crédito de $ ' . ($prod->credit_line) . ' MXN</option>';
         }
 
         $html .= '</select>';

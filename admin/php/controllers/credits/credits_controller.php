@@ -33,6 +33,9 @@ function saveClientCredit()
 
     if (!empty($insertAddress)) {
         $idCredit = $insertAddress['last_id'];
+        $credit_code = "CRSLZ-".$idCredit . "-".rand(0, 20);
+        $sqlUpdateCode = "UPDATE u803991314_main.clients_credits SET credit_code = '$credit_code' WHERE id_clients_credits = $idCredit";
+        $queries->InsertData($sqlUpdateCode );
 
         $data = array(
             'response' => true,
