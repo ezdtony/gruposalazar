@@ -27,10 +27,10 @@ $sales_model = new Sales();
 </div>
 
 <script>
-    $(".clients-mod-nav-link").addClass("active");
-    $(".clients-nav-link").addClass("active");
-    $(".clients-mod-nav-link").attr("aria-expanded", true);
-    $(".coll-clients-mod-nav-link").show();
+    $(".sale-nav-link").addClass("active");
+    $(".new-sale-nav-link").addClass("active");
+    $(".sale-nav-link").attr("aria-expanded", true);
+    $(".coll-sale-nav-link").show();
 </script>
 <?php
 include("php/views/footer.php");
