@@ -384,56 +384,102 @@ $(document).ready(function () {
     if ($("#check_interests").prop("checked")) {
       var_interests = 1;
     }
+    var aviable_ammount = $("#credit_client")
+      .find(":selected")
+      .attr("data-aviable-ammount");
 
-    $.ajax({
-      url: "php/controllers/sales/sales_controller.php",
-      method: "POST",
-      data: {
-        mod: "SaveOrderCredit",
-        id_client: id_client,
-        id_offer: id_offer,
-        id_payment_method: id_payment_method,
-        id_subsidiary: id_subsidiary,
-        pikup_subsidiary: pikup_subsidiary,
-        ammount: ammount,
-        products: products,
-        credit_client:credit_client,
-        credit_deadlines:credit_deadlines,
-        var_interests:var_interests,
-        total_sale:total_sale
-      },
-    })
-      .done(function (data) {
-        Swal.close();
-        var data = JSON.parse(data);
-        console.log(data);
-        if (data.response == true) {
-          Swal.fire({
-            title: "Venta guardada",
-            text: "La venta se ha registrado",
-            icon: "success",
-            showCancelButton: false,
-            confirmButtonColor: "#32a852",
-            confirmButtonText: "Acepar",
-          }).then((result) => {
-            loading();
-            location.reload();
-          });
-        } else {
-          errorToast(data.message);
-        }
-
-        //--- --- ---//
-        //--- --- ---//
+    if (aviable_ammount >= ammount) {
+      $.ajax({
+        url: "php/controllers/sales/sales_controller.php",
+        method: "POST",
+        data: {
+          mod: "SaveOrderCredit",
+          id_client: id_client,
+          id_offer: id_offer,
+          id_payment_method: id_payment_method,
+          id_subsidiary: id_subsidiary,
+          pikup_subsidiary: pikup_subsidiary,
+          ammount: ammount,
+          products: products,
+          credit_client: credit_client,
+          credit_deadlines: credit_deadlines,
+          var_interests: var_interests,
+          total_sale: total_sale,
+        },
       })
-      .fail(function (message) {
-        Swal.close();
-        var myToast = Toastify({
-          text: data.message,
-          duration: 3000,
+        .done(function (data) {
+          Swal.close();
+          var data = JSON.parse(data);
+          console.log(data);
+          if (data.response == true) {
+            Swal.fire({
+              title: "Venta guardada",
+              text: "La venta se ha registrado",
+              icon: "success",
+              showCancelButton: false,
+              confirmButtonColor: "#32a852",
+              confirmButtonText: "Acepar",
+            }).then((result) => {
+              loading();
+              location.reload();
+            });
+          } else {
+            errorToast(data.message);
+          }
+
+          //--- --- ---//
+          //--- --- ---//
+        })
+        .fail(function (message) {
+          Swal.close();
+          var myToast = Toastify({
+            text: data.message,
+            duration: 3000,
+          });
+          myToast.showToast();
         });
-        myToast.showToast();
+    } else {
+      Swal.fire({
+        icon: "info",
+        title: "Él monto de compra excede el crédito disponible!!",
       });
+    }
+  });
+
+  $(document).on("change", "#credit_client", function (event) {
+    loading();
+    var id_client = $(this).val();
+    var aviable_ammount = $(this)
+      .find(":selected")
+      .attr("data-aviable-ammount");
+
+    var html = "";
+    html +=
+      '<h5 style="color:red !important" class="txtAviableAmmount">Disponible: $ ' +
+      aviable_ammount +
+      " MXN</h5>";
+    $(".txtAviableAmmount").remove();
+    $(this).closest("div").append(html);
+    Swal.close();
+  });
+
+  $(document).on("change", "#credit_deadlines", function (event) {
+    loading();
+    var id_credits_deadlines = $(this).val();
+    var months = parseFloat($(this).find(":selected").attr("data-months"));
+    var total_sale = parseFloat($("#lblTotalSale").attr("data-total"));
+
+    var payment = (total_sale / months).toFixed(2);
+    var html = "";
+    html +=
+      '<h5 style="color:red !impotant" class="txtPayment"> ' +
+      months +
+      " pagos de : $ " +
+      payment +
+      " MXN</h5>";
+    $(".txtPayment").remove();
+    $(this).closest("div").append(html);
+    Swal.close();
   });
 
   function processCashPayment() {

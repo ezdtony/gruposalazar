@@ -323,7 +323,7 @@ function getCreditSalazarClient()
         $html .= '<option selected disabled value="">Seleccione una opción</option>';
 
         foreach ($creditInfo as $prod) {
-            $html .= '<option value="' . $prod->id_clients_credits . '"> (' . ($prod->credit_code) . ') Crédito de $ ' . ($prod->credit_line) . ' MXN</option>';
+            $html .= '<option data-aviable-ammount="' . $prod->credit_ammount . '" value="' . $prod->id_clients_credits . '"> (' . ($prod->credit_code) . ') Crédito de $ ' . ($prod->credit_line) . ' MXN</option>';
         }
 
         $html .= '</select>';
@@ -336,7 +336,7 @@ function getCreditSalazarClient()
         $html .= '<option selected disabled value="">Seleccione una opción</option>';
 
         foreach ($creditDeadlines as $prod) {
-            $html .= '<option value="' . $prod->id_credits_deadlines . '">' . ($prod->deadline_description) . '</option>';
+            $html .= '<option value="' . $prod->id_credits_deadlines . '"  data-months="' . $prod->months_term . '">' . ($prod->deadline_description) . '</option>';
         }
 
         $html .= '</select>';
