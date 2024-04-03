@@ -107,6 +107,46 @@ $(document).ready(function () {
         });
       }
     });
+
+    $(document).on("click", ".getPurchasesCredit", function () {
+      loading();
+  
+      var id_clients_credits = $(this).attr("data-id-client-credit");
+      var credit_code = $(this).attr("data-credit-code");
+  
+     $("#modalPurchaseHistoryLabel").text(credit_code + " - Historial de compras");
+
+        $.ajax({
+          url: "php/controllers/credits/credits_controller.php",
+          method: "POST",
+          data: {
+            mod: "getPurchaseHistoryCredit",
+            id_clients_credits:id_clients_credits,
+          },
+        })
+          .done(function (data) {
+            var data = JSON.parse(data);
+            console.log(data);
+            Swal.close();
+            if (data.response == true) {
+              $(".body-detail-purchase").html(data.html);
+
+            } else {
+              Swal.fire({
+                title: data.message,
+                icon: "error",
+              });
+            }
+          })
+          .fail(function (message) {
+            Swal.fire({
+              title: "No se pudoo completar el proceso!",
+              icon: "error",
+            });
+          });
+      
+    });
+    
   
     function autoCreate(plength) {
       var chars =

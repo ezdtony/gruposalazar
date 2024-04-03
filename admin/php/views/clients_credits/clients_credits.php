@@ -26,8 +26,9 @@ $getAllClients = $colabs_model->getAllClients();
                     <thead class="thead-light">
                         <tr>
                             <th>Cliente</th>
-                            <th>Crédito total</th>
+                            <th>Código de crédito</th>
                             <th>Crédito disponible</th>
+                            <th>Crédito total</th>
                             <th class="text-end">Historial de compras</th>
                         </tr>
                     </thead>
@@ -48,10 +49,14 @@ $getAllClients = $colabs_model->getAllClients();
                                 </div>
                             </td> -->
                                 <td><?= $colab->client_name ?> </td>
+                                <td><?= $colab->credit_code?> </td>
                                 <td>$ <?= $colab->credit_ammount ?></td>
                                 <td>$ <?= $colab->credit_line ?></td>
                                 <td class="text-end">
-                                    <div class="fw-bold"><button type="button"class="btn btn-primary"><i class="fa-solid fa-info"></i></button>
+                                    <div class="fw-bold">
+                                    <button type="button"class="btn btn-primary getPurchasesCredit" data-credit-code="<?= $colab->credit_code?> " 
+                                    data-id-client-credit=" <?= $colab->id_clients_credits ?>"
+                                    data-bs-toggle="modal" data-bs-target="#modalPurchaseHistory"><i class="fa-solid fa-info"></i></button>
                                     </div>
                                 </td>
                             </tr>
@@ -66,4 +71,5 @@ $getAllClients = $colabs_model->getAllClients();
 <script src="js/functions/credits.js"></script>
 <?php
 include 'modals/newClientCredit.php';
+include 'modals/purchaseHistory.php';
 ?>
