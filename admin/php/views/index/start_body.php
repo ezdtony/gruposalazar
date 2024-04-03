@@ -1,3 +1,7 @@
+<?php
+
+?>
+
 <h1 class="h2">Panel principal</h1>
 
 <div class="row">
@@ -62,11 +66,11 @@
                     <div class="col">
                         <!-- Title -->
                         <h5 class="text-uppercase text-muted fw-semibold mb-2">
-                            Órdenes
+                            VENTAS
                         </h5>
 
                         <!-- Subtitle -->
-                        <h2 class="mb-0">15,386</h2>
+                        <h2 class="mb-0"><?php echo $index_model ->getSales() ?></h2>
                     </div>
                     <div class="col-auto">
                         <!-- Icon -->
@@ -87,20 +91,20 @@
                     <div class="col-auto">
                         <!-- Label -->
                         <p class="fs-6 text-muted text-uppercase mb-0">
-                            Today orders
+                            Ventas de Hoy
                         </p>
 
                         <!-- Comment -->
-                        <p class="fs-5 fw-bold mb-0">121</p>
+                        <p class="fs-5 fw-bold mb-0"><?php echo $index_model ->getTodaySales() ?></p>
                     </div>
                     <div class="col text-end text-truncate">
                         <!-- Label -->
                         <p class="fs-6 text-muted text-uppercase mb-0">
-                            Monthly orders
+                            Ventas del mes
                         </p>
 
                         <!-- Comment -->
-                        <p class="fs-5 fw-bold mb-0">1,944</p>
+                        <p class="fs-5 fw-bold mb-0"><?php echo $index_model ->getMonthSales() ?></p>
                     </div>
                 </div>
                 <!-- / .row -->
@@ -182,7 +186,7 @@
                 <h4 class="text-uppercase fw-semibold mb-2">Ventas totales</h4>
 
                 <!-- Subtitle -->
-                <h2 class="mb-0">$981,340</h2>
+                <h2 class="mb-0">$<?php echo $index_model ->getTotalAmmounSales() ?></h2>
 
                 <!-- Chart -->
                 <div class="chart-container h-70px">
@@ -350,7 +354,7 @@
             <div class="card-header border-0 border-0 card-header-space-between">
                 <!-- Title -->
                 <h2 class="card-header-title h4 text-uppercase">
-                    Órdenes recientes
+                    VENTAS recientes
                 </h2>
 
                 <!-- Link -->
@@ -471,7 +475,7 @@
             <div class="card-header border-0 card-header-space-between">
                 <!-- Title -->
                 <h2 class="card-header-title h4 text-uppercase">
-                    Estado de órdenes
+                    Estado de VENTAS
                 </h2>
 
                 <!-- Dropdown -->

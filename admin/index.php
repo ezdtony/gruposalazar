@@ -2,6 +2,10 @@
 include("php/views/head.php");
 include("php/views/navbar.php");
 include("php/views/header.php");
+
+include("php/models/index/index_model.php");
+
+$index_model = new IndexModel();
 ?>
 <div class="container-fluid">
 
