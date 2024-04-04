@@ -48,6 +48,17 @@
 
                                             <button type="button" class="btn btn-success" disabled id="btnSaveSaleCash">Imprimir ticket y guardar venta</button>
                                         </div>
+                                        <div class="mb-3" id="divCreditCardMethod" style="display:none">
+                                            <h3 class="card-title" id="lblTotalSalePayment" data-total="0">Total: </h3>
+                                            <h2>Credito Salazar</h2>
+                                            <div class="col-md-7">
+                                                <label class="form-label" for="prod_price">ID de ticket:</label>
+                                                <input type="text" id="ticket_id" class="form-control form-control-lg" placeholder="Ingrese el ID del ticket">
+                                            </div>
+                                            <br>
+
+                                            <button type="button" class="btn btn-success"  id="btnSaveSaleCreditCard">Guardar venta</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

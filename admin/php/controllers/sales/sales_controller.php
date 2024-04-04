@@ -135,6 +135,95 @@ function SaveOrderCash()
 
     echo json_encode($data);
 }
+
+function SaveOrderCreditCard()
+{
+
+    $queries = new Queries;
+
+    $id_client = $_POST['id_client'];
+    $id_offer = $_POST['id_offer'];
+    $id_payment_method = $_POST['id_payment_method'];
+    $id_subsidiary = $_POST['id_subsidiary'];
+    $pikup_subsidiary = $_POST['pikup_subsidiary'];
+    $ammount = $_POST['ammount'];
+    $products = $_POST['products'];
+    $ticket_id = $_POST['ticket_id'];
+
+
+
+    $sql = "INSERT INTO u803991314_main.orders(
+        id_clients,
+        id_orders_status_types,
+        id_offers,
+        id_payment_methods,
+        id_subsidiary,
+        pikup_subsidiary,
+        ammount,
+        ticket_id_tpv,
+        order_date,
+        id_user_registered
+    ) VALUES(
+            $id_client,
+            1,
+            $id_offer,
+            $id_payment_method,
+            $id_subsidiary,
+            $pikup_subsidiary,
+            '$ammount',
+            '$ticket_id',
+            NOW(),
+            $_SESSION[id_user]
+    )";
+    $insert = $queries->InsertData($sql);
+
+
+    if (!empty($insert)) {
+        $last_id = $insert['last_id'];
+
+        foreach ($products as $prod) {
+
+            $id_prod = $prod['id_product'];
+            $prod_quantity = $prod['quantity'];
+            $prod_price = $prod['price'];
+
+            $sql = "INSERT INTO u803991314_main.order_details(
+                id_orders,
+                id_prducts,
+                price,
+                quantity
+            ) VALUES(
+                    $last_id,
+                    $id_prod,
+                    '$prod_price',
+                    $prod_quantity
+            )";
+
+            if ($queries->InsertData($sql)) {
+                $sqlGetStock = "SELECT stock FROM u803991314_main.subsidiary_stocks WHERE id_subsidiary = $id_subsidiary AND prducts_id_prducts = $id_prod";
+                $getStock = $queries->getData($sqlGetStock);
+                $actualStock = $getStock[0]->stock;
+
+                $new_Stock = $actualStock - $prod_quantity;
+                $sql = "UPDATE u803991314_main.subsidiary_stocks SET stock = $new_Stock WHERE id_subsidiary = $id_subsidiary AND prducts_id_prducts = $id_prod";
+                $queries->InsertData($sql);
+            }
+        }
+
+        $data = array(
+            'response' => true,
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => "Error al guardar orden",
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
 function SaveOrderCredit()
 {
 
@@ -358,7 +447,7 @@ function getCreditSalazarClient()
     } else {
         $data = array(
             'response' => false,
-            'message' => "Error al guardar orden",
+            'message' => "Error al obtener información del crédito",
         );
     }
 

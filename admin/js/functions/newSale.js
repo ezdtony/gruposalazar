@@ -238,22 +238,30 @@ $(document).ready(function () {
       case "1":
         //EFECTIVO
         $("#divCashMethod").hide();
+        $("#divCreditCardMethod").hide();
+        $("#divCreditMethod").hide();
         processCashPayment();
         break;
 
       case "2":
         //TARJETA
         $("#divCashMethod").hide();
-        processCashPayment();
+        $("#divCreditCardMethod").hide();
+        $("#divCreditMethod").hide();
+        processCardPayment();
         break;
 
       case "3":
         //TARJETA
         $("#divCashMethod").hide();
+        $("#divCreditCardMethod").hide();
+        $("#divCreditMethod").hide();
         processCreditSalazarPayment();
         break;
       default:
         $("#divCashMethod").hide();
+        $("#divCreditCardMethod").hide();
+        $("#divCreditMethod").hide();
         break;
     }
   });
@@ -446,6 +454,86 @@ $(document).ready(function () {
     }
   });
 
+  $(document).on("click", "#btnSaveSaleCreditCard", function (event) {
+    loading();
+    var id_client = $("#id_client").val();
+    var ticket_id = $("#ticket_id").val();
+    var id_offer = 1;
+    var total_sale = parseFloat($("#lblTotalSale").attr("data-total"));
+    var id_payment_method = $(".selected-payment-method").attr(
+      "data-id-payment-method"
+    );
+    var id_subsidiary = $("#id_subsidiary").val();
+    var pikup_subsidiary = $("#id_subsidiary").val();
+    var ammount = parseFloat($("#lblTotalSale").attr("data-total"));
+    var products = [];
+
+    const tBody = $("#tableSale > tbody").find("tr");
+    for (let index = 0; index < tBody.length; index++) {
+      const tr = tBody[index];
+      var id_product = $(tr).attr("data-id-product");
+      var quantity = $(tr).attr("data-quantity");
+      var price = $(tr).attr("data-price");
+
+      products.push({ id_product, quantity, price });
+    }
+    if (ticket_id!= "" && ticket_id != undefined) {
+      $.ajax({
+        url: "php/controllers/sales/sales_controller.php",
+        method: "POST",
+        data: {
+          mod: "SaveOrderCreditCard",
+          id_client: id_client,
+          id_offer: id_offer,
+          id_payment_method: id_payment_method,
+          id_subsidiary: id_subsidiary,
+          pikup_subsidiary: pikup_subsidiary,
+          ammount: ammount,
+          products: products,
+          total_sale: total_sale,
+          ticket_id:ticket_id
+        },
+      })
+        .done(function (data) {
+          Swal.close();
+          var data = JSON.parse(data);
+          console.log(data);
+          if (data.response == true) {
+            Swal.fire({
+              title: "Venta guardada",
+              text: "La venta se ha registrado",
+              icon: "success",
+              showCancelButton: false,
+              confirmButtonColor: "#32a852",
+              confirmButtonText: "Acepar",
+            }).then((result) => {
+              loading();
+              location.reload();
+            });
+          } else {
+            errorToast(data.message);
+          }
+
+          //--- --- ---//
+          //--- --- ---//
+        })
+        .fail(function (message) {
+          Swal.close();
+          var myToast = Toastify({
+            text: data.message,
+            duration: 3000,
+          });
+          myToast.showToast();
+        });
+    } else {
+      Swal.fire({
+        icon: "info",
+        title: "Debe ingresar el ID del ticket!!!",
+      });
+    }
+  });
+  
+
   $(document).on("change", "#credit_client", function (event) {
     loading();
     var id_client = $(this).val();
@@ -489,15 +577,22 @@ $(document).ready(function () {
   }
   function processCardPayment() {
     var total_sale = parseFloat($("#lblTotalSale").attr("data-total"));
-    $("#divCashMethod").show();
+    $("#divCreditCardMethod").show();
     $("#lblTotalSalePayment").text("Total: $ " + total_sale + " MXN");
+
+    Swal.fire({
+      title: "Realize la transacción en la terminal!!",
+      icon: "info",
+      text:"Ingrese la cantidad en la terminal: $ " + total_sale + " MXN, después ingrese el ID del ticket en el cuadro de texto.",
+    });
   }
   function processCreditSalazarPayment() {
     var total_sale = parseFloat($("#lblTotalSale").attr("data-total"));
     loading();
     var id_subsidiary = $("#id_subsidiary").val();
     var id_client = $("#id_client").val();
-    if (id_client != "") {
+    console.log(id_client);
+    if (id_client != "" && id_client != 2) {
       $.ajax({
         url: "php/controllers/sales/sales_controller.php",
         method: "POST",
