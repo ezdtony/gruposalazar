@@ -120,4 +120,23 @@ class IndexModel
 
         return ($getSites);
     }
+    public function getSalesSubsidary()
+    {
+        $today = date('m');
+        include_once('php/models/petitions.php');
+        $queries = new Queries;
+        $sql_colabs = "SELECT SUM(quantity*ord_det.price) as ammount_prod, subs.subsidiary_name
+        FROM u803991314_main.order_details AS ord_det
+        INNER JOIN u803991314_main.orders AS orders ON orders.id_orders = ord_det.id_orders
+        INNER JOIN u803991314_main.subsidiary AS subs ON subs.id_subsidiary = orders.id_subsidiary
+        WHERE MONTH(orders.order_date)= $today
+        GROUP BY subs.subsidiary_name
+        ORDER BY ammount_prod DESC
+        LIMIT 5
+        ";
+
+        $getSites = $queries->getData($sql_colabs);
+
+        return ($getSites);
+    }
 }

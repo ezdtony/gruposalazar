@@ -723,7 +723,72 @@ function getSaleDetail()
 
     echo json_encode($data);
 }
+function getSalesStatus()
+{
 
+    $queries = new Queries;
+
+    $saleinfo= array();
+    $sqlOrderIndex = "SELECT 
+    admin_status_description,
+    COUNT(*) AS status_quantity
+    FROM u803991314_main.orders AS ord
+    INNER JOIN u803991314_main.orders_status_types AS stty ON ord.id_orders_status_types = stty.id_orders_status_types
+    GROUP BY admin_status_description
+    ";
+    $saleinfo = $queries->getData($sqlOrderIndex);
+
+    $html = '';
+    if (!empty($saleinfo)) {
+        $data = array(
+            'response' => true,
+            'data' => $saleinfo,
+        );
+    } else {
+
+        $data = array(
+            'response' => false,
+            'data' => $saleinfo
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+function getSalesMonth()
+{
+
+    $queries = new Queries;
+
+    $saleinfo= array();
+    $sqlOrderIndex = "SELECT SUM(quantity*ord_det.price) as ammount_prod, MONTH(orders.order_date) AS month_sale
+    FROM u803991314_main.order_details AS ord_det
+    INNER JOIN u803991314_main.orders AS orders ON orders.id_orders = ord_det.id_orders
+    GROUP BY MONTH(orders.order_date)
+    ORDER BY MONTH(orders.order_date) ASC
+    LIMIT 12
+    ";
+    $saleinfo = $queries->getData($sqlOrderIndex);
+
+    $html = '';
+    if (!empty($saleinfo)) {
+        $data = array(
+            'response' => true,
+            'data' => $saleinfo,
+        );
+    } else {
+
+        $data = array(
+            'response' => false,
+            'data' => $saleinfo
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
 function generateRandomString($length)
 {
     return substr(str_shuffle(str_repeat($x = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length / strlen($x)))), 1, $length);

@@ -369,9 +369,9 @@
             </div>
 
             <div class="card-body">
-            <canvas id="myChart"></canvas>
+                <canvas id="graficaDona"></canvas>
                 <div class="row justify-content-around">
-                    
+
                 </div>
                 <!-- / .row -->
             </div>
@@ -383,7 +383,7 @@
             <div class="card-header border-0">
                 <!-- Title -->
                 <h2 class="card-header-title h4 text-uppercase">
-                    Ventas por sucursal
+                    Ventas por sucursal (MES ACTUAL)
                 </h2>
             </div>
 
@@ -393,97 +393,27 @@
                     <table class="table table-sm table-borderless align-middle mb-0">
                         <thead class="thead-light">
                             <tr>
-                                <th>Name</th>
-                                <th class="text-end">Price</th>
+                                <th>SUCURSAL</th>
+                                <th class="text-end">VENTAS</th>
                             </tr>
                         </thead>
 
                         <tbody>
+                            <?php $getSalesSubsidary = $index_model->getSalesSubsidary(); ?>
+                            <?php foreach ($getSalesSubsidary as $sales_subsidary) : ?>
                             <tr>
                                 <td>
                                     <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-circle avatar-xs me-2">
-                                            <img src="https://d33wubrfki0l68.cloudfront.net/790b7dd581a3ac4fd0410afad0fb12c6e93c9e7a/b0657/assets/images/profiles/profile-07.jpeg" alt="..." class="avatar-img" width="30" height="30" />
-                                        </div>
-
                                         <div class="d-flex flex-column">
-                                            <span class="fw-bold d-block">Lester William</span>
-                                            <span class="fs-6 text-muted">24 minutes ago</span>
+                                            <span class="fw-bold d-block"><?=$sales_subsidary->subsidiary_name?></span>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="text-end">
-                                    <div class="fw-bold">$99</div>
+                                    <div class="fw-bold">$ <?=round($sales_subsidary->ammount_prod, 2)?></div>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-circle avatar-xs me-2">
-                                            <img src="https://d33wubrfki0l68.cloudfront.net/5e2b51ec857b6e9866574263391803f159c8081e/29577/assets/images/profiles/profile-02.jpeg" alt="..." class="avatar-img" width="30" height="30" />
-                                        </div>
-
-                                        <div class="d-flex flex-column">
-                                            <span class="fw-bold d-block">Gabriella Fletcher</span>
-                                            <span class="fs-6 text-muted">3 hours ago</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-end">
-                                    <div class="fw-bold">$59</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-circle avatar-xs me-2">
-                                            <img src="https://d33wubrfki0l68.cloudfront.net/4b8c918c73e2c72876e4bd4ba8c89401bae69d14/5923c/assets/images/profiles/profile-03.jpeg" alt="..." class="avatar-img" width="30" height="30" />
-                                        </div>
-
-                                        <div class="d-flex flex-column">
-                                            <span class="fw-bold d-block">Marcia Banks</span>
-                                            <span class="fs-6 text-muted">9 hours ago</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-end">
-                                    <div class="fw-bold">$499</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-circle avatar-xs me-2">
-                                            <img src="https://d33wubrfki0l68.cloudfront.net/eec1f115f0af81936bbe3a4f4a4d043cd3c0e7e4/34439/assets/images/profiles/profile-09.jpeg" alt="..." class="avatar-img" width="30" height="30" />
-                                        </div>
-
-                                        <div class="d-flex flex-column">
-                                            <span class="fw-bold d-block">Irina Garcia</span>
-                                            <span class="fs-6 text-muted">17 hours ago</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-end">
-                                    <div class="fw-bold">$149</div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar avatar-circle avatar-xs me-2">
-                                            <img src="https://d33wubrfki0l68.cloudfront.net/102e41d9e1988e0849ecfe402b1d46f4efd3574b/8dc2e/assets/images/profiles/profile-12.jpeg" alt="..." class="avatar-img" width="30" height="30" />
-                                        </div>
-
-                                        <div class="d-flex flex-column">
-                                            <span class="fw-bold d-block">Javier Griffin</span>
-                                            <span class="fs-6 text-muted">1 day ago</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-end">
-                                    <div class="fw-bold">$125</div>
-                                </td>
-                            </tr>
+                            <?php endforeach; ?>
                         </tbody>
                     </table>
                 </div>
@@ -503,7 +433,7 @@
                     Gráfico de ventas
                 </h2>
 
-                <ul class="nav" role="tablist">
+               <!--  <ul class="nav" role="tablist">
                     <li class="nav-item" data-toggle="chart" data-target="#salesReportChart" data-dataset="0" role="presentation">
                         <a class="nav-link active chart-legend" href="#" data-bs-toggle="tab" aria-selected="true" role="tab">
                             <span class="legend-circle-lg bg-primary"></span>
@@ -516,13 +446,20 @@
                             Expense
                         </a>
                     </li>
-                </ul>
+                </ul> -->
             </div>
 
             <div class="card-body d-flex flex-column">
                 <!-- Chart -->
-                <div class="chart-container flex-grow-1 h-275px">
+                <!-- <div class="chart-container flex-grow-1 h-275px">
                     <canvas id="salesReportChart" width="1185" height="275" style="
+                      display: block;
+                      box-sizing: border-box;
+                      height: 275px;
+                      width: 1185px;
+                    "></canvas> -->
+
+                    <canvas id="graficaLine"  width="1185" height="275" style="
                       display: block;
                       box-sizing: border-box;
                       height: 275px;
