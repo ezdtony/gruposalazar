@@ -345,6 +345,65 @@ function saveNewProd()
     echo json_encode($data);
 }
 
+function editImageProd()
+{
+
+    $id_prod = $_POST['id_prod'];
+    $prod_image = $_POST['prod_image'];
+
+    $fecha_archivo = date('Y_m_d');
+    $hora_archivo = date('H:i:s');
+    $fyh = $fecha_archivo . ' ' . $hora_archivo;
+
+
+    $nm_Archivo_img = "gpo_slzr_prodimg_" . time();
+    $extension_img = basename($_FILES["prod_image"]["type"]);
+
+    $directorio_img =  dirname(__DIR__ . '', 3) . '/uploads/prodsimg';
+
+    $archivo_img = $directorio_img . "/" .  $nm_Archivo_img . "." . $extension_img;
+
+    $ruta_sql_img = '../uploads/prodsimg/' .  $nm_Archivo_img . "." . $extension_img;
+
+    $queries = new Queries;
+
+
+    if (!file_exists($directorio_img)) {
+        mkdir($directorio_img, 0777, true);
+    }
+
+    if (move_uploaded_file($_FILES["prod_image"]["tmp_name"], $archivo_img)) {
+
+        $sql = "UPDATE u803991314_main.products
+        SET thumbnail = '$ruta_sql_img', image = '$ruta_sql_img', image_type = '$extension_img' WHERE id_prducts = $id_prod";
+
+        $queries = new Queries;
+        $insert = $queries->insertData($sql);
+
+
+        if (!empty($insert)) {
+            $last_id = $insert['last_id'];
+            $data = array(
+                'response' => true,
+                'message' => 'Se guardó el producto correctamente',
+                'last_id' => $last_id
+            );
+        } else {
+            $data = array(
+                'response' => false,
+                'message' => 'No se guardaron los archivos'
+            );
+        }
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'No se guardó el archivo'
+        );
+    }
+
+
+    echo json_encode($data);
+}
 function getProductStocks()
 {
 
@@ -490,7 +549,7 @@ function getProductInfo()
     $sqlCI = "SELECT * FROM u803991314_main.products
     WHERE id_prducts = $id_product";
     $prod_info = $queries->getData($sqlCI);
-    if (empty($prod_info)) {
+    if (!empty($prod_info)) {
         $data = array(
             'response' => true,
             'message' => '',
