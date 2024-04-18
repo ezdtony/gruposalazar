@@ -177,8 +177,187 @@ function getProductsTable()
         }
 
         $pagNum = 1;
-        if (($actualPage-4) > 1) {
-            $pagNum = $actualPage-4;
+        if (($actualPage - 4) > 1) {
+            $pagNum = $actualPage - 4;
+        }
+        $totalPages = ceil($totalProds / $_POST['limit']);
+
+        $pagination = '';
+
+        $stopNav = $pagNum + 9;
+        if ($stopNav > $totalPages) {
+            $stopNav = $totalPages;
+        }
+        $pagination .= '<nav>';
+        $pagination .= '<ul class="nav nav-pills">';
+
+        for ($i = $pagNum; $i <= $stopNav; $i++) {
+            $active = $i == $actualPage ? "active" : "";
+            $pagination .= '<li class="nav-item">';
+            $pagination .= '<a class="nav-link changePage ' . $active . '" aria-current="page" href="#">' . $i . '</a>';
+            $pagination .= '</li>';
+        }
+
+
+
+
+
+
+
+        $pagination .= '</ul>';
+        $pagination .= '</nav>';
+
+        $data = array(
+            'response' => true,
+            'html' => $html,
+            'totalProds' => $totalProds,
+            'totalResults' => $totalResults,
+            'totalFiltered' => $totalFiltered,
+            'totalPages' => $totalPages,
+            'paginationNav' => $pagination
+        );
+    } else {
+
+        $html .= '
+                    </tbody>
+                </table>';
+        $data = array(
+            'response' => false,
+            'html' => $html
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+function getProductsShop()
+{
+
+    $queries = new Queries;
+
+    //$id_product = $_POST['id_product'];
+    //$product_name = $_POST['product_name'];
+    $colsSearch = [
+        'brand',
+        'product_name',
+        'product_short_name',
+        'product_code',
+        'product_barcode',
+        'sku'
+    ];
+    $limit =  isset($_POST['limit']) ? $_POST['limit'] : 10;
+    $actualPage =  isset($_POST['actualPage']) ? $_POST['actualPage'] : 0;
+
+    if (!$actualPage) {
+        $begin = 0;
+        $actualPage = 1;
+    } else {
+        $begin = ($actualPage - 1) * $limit;
+    }
+    $where = "";
+    if (isset($_POST['searchInput']) && ($_POST['searchInput'] != '')) {
+        $searchInput = $_POST['searchInput'];
+        $where .= " WHERE (";
+        for ($i = 0; $i < count($colsSearch); $i++) {
+            $where .= $colsSearch[$i] . " LIKE '%" . addslashes($searchInput) . "%' OR ";
+        }
+        $where = substr($where, 0, -3);
+        $where .= ") AND active_item = 1 ";
+    }
+
+
+    if ($limit > 0) {
+        $limit = " LIMIT $begin,  $limit";
+    } else {
+        $limit = "";
+    }
+    //echo $limit;
+    $html = "";
+
+
+
+
+
+    $sql = "SELECT SQL_CALC_FOUND_ROWS
+    CASE 
+        WHEN sb_stk.prducts_id_prducts = prods.id_prducts THEN SUM(sb_stk.stock)
+        ELSE 0
+    END
+    AS total_stock, brand,
+    prods.*
+    FROM u803991314_main.products AS prods
+    INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+    LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts
+    $where 
+    GROUP BY prods.id_prducts
+    
+    $limit
+    ";
+
+    $getProducts = $queries->getData($sql);
+
+    $total_stock = 0;
+
+    if (!empty($getProducts)) {
+        $totalResults = count($getProducts);
+
+        $sqlAllProdsFiltered = "SELECT FOUND_ROWS() AS founded";
+        $getTotalProductsFiltered = $queries->getData($sqlAllProdsFiltered);
+        if (!empty($getTotalProductsFiltered)) {
+            $totalFiltered = ($getTotalProductsFiltered[0]->founded);
+        }
+
+        $sqlAllProds = "SELECT COUNT(id_prducts) AS founded
+         FROM u803991314_main.products AS prods
+        INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+        LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts";
+        $getTotalProducts = $queries->getData($sqlAllProds);
+        if (!empty($getTotalProducts)) {
+            $totalProds = ($getTotalProducts[0]->founded);
+        }
+
+
+        foreach ($getProducts as $product) {
+
+            $percentage = 0;
+            if ($product->total_stock > 0) {
+                $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
+            }
+
+            if ($product->thumbnail == 'NULL' || $product->thumbnail == '') {
+                $image_prod = 'images/sin-imagen.png';
+            } else {
+                $archive_route = str_replace('..', 'admin', $product->thumbnail);
+                $image_prod = $archive_route;
+                $file_exs = dirname(__DIR__ . '', 3) . str_replace('..', '', $product->thumbnail);
+                /* echo $file_exs; */
+
+                if (file_exists($file_exs)) {
+                    $image_prod = $archive_route;
+                } else {
+                    $image_prod = 'images/sin-imagen.png';
+                }
+            }
+
+            $html .= '
+            <div class="col-12 col-md-4 col-lg-3 mb-5">
+                    <a class="product-item" href="#">
+                        <img src="' . $image_prod . '" class="img-fluid product-thumbnail">
+                        <h3 class="product-title">' . $product->product_name . '</h3>
+                        <strong class="product-price">$' . round($product->price, 2) . '</strong>
+
+                        <span class="icon-cross">
+                            <img src="images/cross.svg" class="img-fluid" data-id-product="' . $product->id_prducts . '">
+                        </span>
+                    </a>
+                </div>';
+        }
+        $html .= '<button type="button" class="btn btn-primary loadMore">Cargar más productos</button>';
+
+        $pagNum = 1;
+        if (($actualPage - 4) > 1) {
+            $pagNum = $actualPage - 4;
         }
         $totalPages = ceil($totalProds / $_POST['limit']);
 

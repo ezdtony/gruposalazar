@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="css/navBarStyle.css">
 <nav class="custom-navbar navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furni navigation bar">
 
     <div class="container">
@@ -12,7 +13,68 @@
                 <li class="nav-item active">
                     <a class="nav-link" href="index.php">Incio</a>
                 </li>
-                <li><a class="nav-link" href="shop.php">Tienda</a></li>
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> Tienda </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <li><a class="dropdown-item" style="color:black !important" href="#">Todos los productos</a></li>
+                        <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" style="color:black !important">Marcas</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" style="color:black !important" href="#">Submenu</a></li>
+                                <li><a class="dropdown-item" style="color:black !important" href="#">Submenu0</a></li>
+                               <!--  <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" href="#">Submenu 1</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">Subsubmenu1</a></li>
+                                        <li><a class="dropdown-item" href="#">Subsubmenu1</a></li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" href="#">Submenu 2</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">Subsubmenu2</a></li>
+                                        <li><a class="dropdown-item" href="#">Subsubmenu2</a></li>
+                                    </ul>
+                                </li> -->
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" style="color:black !important">Categorias</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" style="color:black !important" href="#">Submenu</a></li>
+                                <li><a class="dropdown-item" style="color:black !important" href="#">Submenu0</a></li>
+                               <!--  <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" href="#">Submenu 1</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">Subsubmenu1</a></li>
+                                        <li><a class="dropdown-item" href="#">Subsubmenu1</a></li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" href="#">Submenu 2</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">Subsubmenu2</a></li>
+                                        <li><a class="dropdown-item" href="#">Subsubmenu2</a></li>
+                                    </ul>
+                                </li> -->
+                            </ul>
+                        </li>
+                        <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" style="color:black !important">Ofertas</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" style="color:black !important" href="#">Submenu</a></li>
+                                <li><a class="dropdown-item" style="color:black !important" href="#">Submenu0</a></li>
+                               <!--  <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" href="#">Submenu 1</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">Subsubmenu1</a></li>
+                                        <li><a class="dropdown-item" href="#">Subsubmenu1</a></li>
+                                    </ul>
+                                </li>
+                                <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" href="#">Submenu 2</a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#">Subsubmenu2</a></li>
+                                        <li><a class="dropdown-item" href="#">Subsubmenu2</a></li>
+                                    </ul>
+                                </li> -->
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+
                 <!-- <li><a class="nav-link" href="about.html">About us</a></li> -->
                 <!-- <li><a class="nav-link" href="services.html">Services</a></li> -->
                 <!-- <li><a class="nav-link" href="blog.html">Blog</a></li> -->
