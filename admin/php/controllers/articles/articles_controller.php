@@ -150,7 +150,9 @@ function getProductsTable()
                 <button title="Ver stock en sucursales" data-bs-toggle="modal" data-bs-target="#subsidiaryStocks" data-product-name=" ' . $product->product_short_name . ' /  ' . $product->product_code . ' |  ' . $product->product_name . '" data-id-product=" ' . $product->id_prducts . '" type="button" class="btn btn-info btn-sm btnSeeStockSubsidiary"><i class="fa-solid fa-cubes"></i></button>
             </td>
             <td class="fw-bold text-center">
-                <div class="dropdown">
+            
+            <button class="btn btn-primary btn-sm prodAddTags" data-id-product="' . $product->id_prducts . '" data-bs-toggle="modal" data-bs-target="#addTags" title="Etiquetas" style="display:inline-block !important"><i class="fa-solid fa-tags"></i></button>
+                <div class="dropdown" style="display:inline-block !important">
                     <a href="javascript: void(0);" class="dropdown-toggle no-arrow text-secondary" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="14" width="14">
                             <g>
@@ -161,6 +163,7 @@ function getProductsTable()
                         </svg>
                     </a>
                     <div class="dropdown-menu">
+                    
                         <a href="javascript: void(0);" data-id-product="' . $product->id_prducts . '" class="dropdown-item editProduct" data-bs-toggle="modal" data-bs-target="#modalEditArticle">
                             Editar
                         </a>
@@ -773,6 +776,71 @@ function updateProduct()
         $data = array(
             'response' => false,
             'message' => 'Eror al actualizar Producto'
+        );
+    }
+
+    echo json_encode($data);
+}
+function getProductTags()
+{
+
+    $id_product = $_POST['id_product'];
+    $queries = new Queries;
+
+    $sqlGetTagsProd = "SELECT DISTINCT tag_name FROM u803991314_main.tags AS tag
+    INNER JOIN u803991314_main.relationship_products_tags AS rpt ON tag.id_tags = rpt.id_tags
+    WHERE rpt.id_prducts = $id_product";
+
+    $getTagsRel = $queries->getData($sqlGetTagsProd);
+
+
+    $html = '';
+    if (!empty($getTagsRel)) {
+        foreach ($getTagsRel as $tag_rel) {
+            $html .= '<p class="badge text-bg-primary">' . $tag_rel->tag_name . '</p>';
+        }
+
+        $data = array(
+            'response' => true,
+            'message' => 'Producto actualizado',
+            'html' => $html
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'Eror al actualizar Producto'
+        );
+    }
+
+    echo json_encode($data);
+}
+function insertProductTags()
+{
+
+    $id_product = $_POST['id_product'];
+    $id_tag = $_POST['id_tag'];
+    $queries = new Queries;
+
+    $sqlGetTagsProd = "SELECT *
+    FROM u803991314_main.relationship_products_tags AS rpt 
+    WHERE rpt.id_prducts = $id_product and rpt.id_tags = $id_tag";
+    $getTagsRel = $queries->getData($sqlGetTagsProd);
+
+    if (empty($getTagsRel)) {
+        $sqlInsertTag = "INSERT INTO u803991314_main.relationship_products_tags (id_prducts, id_tags)
+        VALUES(
+            $id_product,
+            $id_tag
+        )";
+        $getTagsRel = $queries->InsertData($sqlInsertTag);
+        $data = array(
+            'response' => true,
+            'message' => 'Producto actualizado',
+        );
+    } else {
+        $data = array(
+            'response' => true,
+            'message' => 'Producto actualizado',
         );
     }
 

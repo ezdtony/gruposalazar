@@ -36,6 +36,18 @@ class Articles
 
         return ($getSites);
     }
+    public function getAllTags()
+    {
+        include_once('php/models/petitions.php');
+        $queries = new Queries;
+        $sql_colabs = "SELECT *
+        FROM u803991314_main.tags
+        ";
+
+        $getSites = $queries->getData($sql_colabs);
+
+        return ($getSites);
+    }
     public function getAllMU()
     {
         include_once('php/models/petitions.php');

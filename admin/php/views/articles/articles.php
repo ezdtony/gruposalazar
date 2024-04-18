@@ -1,6 +1,7 @@
 <?php
 /* $getArticles = $articles_model->getAllArticles(); */
 $getAllBrands = $articles_model->getAllBrands();
+$getAllTags = $articles_model->getAllTags();
 $getAllMU = $articles_model->getAllMU();
 ?>
 <link rel="stylesheet" href="assets/css/imgViewer.css">
@@ -151,5 +152,6 @@ include 'modals/editModalNewArticle.php';
 include 'modals/modalViewBarcode.php';
 include 'modals/subsidiaryStocks.php';
 include 'modals/imageViewer.php';
+include 'modals/addTags.php';
 
 ?>

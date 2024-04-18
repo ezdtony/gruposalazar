@@ -603,6 +603,88 @@ $(document).ready(function () {
 
     //--- --- ---//
   });
+  $(document).on("click", ".prodAddTags", function (event) {
+    loading();
+    var id_product = $(this).attr("data-id-product");
+    $("#selectTag").attr("data-id-product", id_product);
+
+    $.ajax({
+      url: "php/controllers/articles/articles_controller.php",
+      method: "POST",
+      data: {
+        mod: "getProductTags",
+        id_product: id_product,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response == true) {
+          $(".tagsProd").html(data.html);
+        } else {
+          errorToast(data.message);
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+
+    //--- --- ---//
+  });
+  $(document).on("change", "#selectTag", function (event) {
+    if ($(this).find(":selected").val() !== "") {
+      loading();
+      var id_tag = $(this).find(":selected").val();
+      var id_product = $(this).attr("data-id-product");
+      var tag_name = $(this).find(":selected").text();
+
+      $.ajax({
+        url: "php/controllers/articles/articles_controller.php",
+        method: "POST",
+        data: {
+          mod: "insertProductTags",
+          id_product: id_product,
+          id_tag: id_tag,
+        },
+      })
+        .done(function (data) {
+          Swal.close();
+          var data = JSON.parse(data);
+          console.log(data);
+          if (data.response == true) {
+            html = '<p class="badge text-bg-primary">' + tag_name + "</p>";
+            $("#selectTag").val(""); // Select the option with a value of '1'
+            $("#selectTag").trigger("change"); // Notify any JS components that the value changed
+            $(".tagsProd").append(html);
+            doneToast(data.message);
+          } else {
+            errorToast(data.message);
+          }
+
+          //--- --- ---//
+          //--- --- ---//
+        })
+        .fail(function (message) {
+          Swal.close();
+          var myToast = Toastify({
+            text: data.message,
+            duration: 3000,
+          });
+          myToast.showToast();
+        });
+
+      //--- --- ---//
+    }
+  });
 
   $(document).on("change", ".slctUpdateProduct", function (event) {
     loading();
@@ -1046,5 +1128,8 @@ $(document).ready(function () {
   });
   $("#edit_prod_meassure").select2({
     dropdownParent: $("#modalEditArticle"),
+  });
+  $("#selectTag").select2({
+    dropdownParent: $("#addTags"),
   });
 });
