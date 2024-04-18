@@ -51,7 +51,7 @@
             <div class="col-md-12 col-lg-3 mb-5 mb-lg-0">
                 <h2 class="mb-4 section-title">Pinturas de la más alta calidad.</h2>
                 <p class="mb-4">En nuestro catálogo encontrarás los productos de la mas alta calidad.</p>
-                <p><a href="shop.html" class="btn">Explorar</a></p>
+                <p><a href="shop.php" class="btn">Explorar</a></p>
             </div>
 
             <?php $getThirdProds = $prods_model->getThirdArticles(); ?>

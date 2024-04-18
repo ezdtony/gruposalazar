@@ -239,11 +239,12 @@ function getProductsShop()
     //$id_product = $_POST['id_product'];
     //$product_name = $_POST['product_name'];
     $colsSearch = [
-        'brand',
+        'br.brand',
         'product_name',
         'product_short_name',
         'product_code',
         'product_barcode',
+        'ct.categories_description',
         'sku'
     ];
     $limit =  isset($_POST['limit']) ? $_POST['limit'] : 10;
@@ -289,6 +290,8 @@ function getProductsShop()
     FROM u803991314_main.products AS prods
     INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
     LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts
+    INNER JOIN u803991314_main.relationship_products_categories AS rpc ON rpc.id_prducts = prods.id_prducts
+    INNER JOIN u803991314_main.categories AS ct ON ct.id_categories = rpc.id_categories
     $where 
     GROUP BY prods.id_prducts
     

@@ -62,6 +62,20 @@ class Articles
 
         return ($getSites);
     }
+    public function getCategories()
+    {
+        include_once('php/models/petitions.php');
+        $queries = new Queries;
+        $sql_colabs = "SELECT DISTINCT
+        cat.*
+        FROM u803991314_main.categories AS cat
+        INNER JOIN u803991314_main.relationship_products_categories AS rpc ON rpc.id_categories = cat.id_categories
+        ";
+
+        $getSites = $queries->getData($sql_colabs);
+
+        return ($getSites);
+    }
     public function getAllBrands()
     {
         include_once('php/models/petitions.php');

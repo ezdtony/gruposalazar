@@ -35,9 +35,21 @@ $(document).ready(function () {
     });
   
     function loadProducts(limitProducts, searchInput, actualPage) {
+      var url = window.location.search;
+      const urlParams = new URLSearchParams(url);
+    
+      if (urlParams.has("parms")) {
+        console.log("here");
+        //--- --- ---//
+        const filtered = urlParams.get("filtered");
+        const filter = urlParams.get("filter");
+        searchInput = filter;
+        //--- --- ---//
+      }
       if (actualPage != null) {
         actualPage = actualPage;
       }
+      loading();
       //console.log(actualPage);
   
       $.ajax({

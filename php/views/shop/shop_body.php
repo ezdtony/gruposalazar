@@ -1,28 +1,44 @@
+<div class="hero">
+    <div class="container">
+        <div class="row justify-content-between">
+            <div class="col-lg-5">
+                <div class="intro-excerpt">
+                    <h1>Tienda</h1>
+                    <?php
+                    if (isset($_GET['mod'])) {
+                        switch ($_GET['mod']) {
+                            case 'brands':
+                                $title = "PRODUCTOS DE LA MARCA " . $_GET['filter'];
+                                break;
+                            case 'categories':
+                                $title = "" . $_GET['filter'];
+                                break;
+                            default:
+                                $title = "Todos los articulos";
+                                break;
+                        }
+                    } else {
+                        $title = "Todos los articulos";
+                    }
 
-
-    <div class="hero">
-        <div class="container">
-            <div class="row justify-content-between">
-                <div class="col-lg-5">
-                    <div class="intro-excerpt">
-                        <h1>Tienda</h1>
-                        <h2 class="text-white">Todos los articulos</h2>
-                    </div>
+                    ?>
+                    <h2 class="text-white"><?=$title?></h2>
                 </div>
-                <div class="col-lg-7">
+            </div>
+            <div class="col-lg-7">
 
-                </div>
             </div>
         </div>
     </div>
+</div>
 
 
 
-    <div class="untree_co-section product-section before-footer-section">
-        <div class="container">
-            <div class="row shopRow">
+<div class="untree_co-section product-section before-footer-section">
+    <div class="container">
+        <div class="row shopRow">
 
-               <!--  <div class="col-12 col-md-4 col-lg-3 mb-5">
+            <!--  <div class="col-12 col-md-4 col-lg-3 mb-5">
                     <a class="product-item" href="#">
                         <img src="images/product-3.png" class="img-fluid product-thumbnail">
                         <h3 class="product-title">Nordic Chair</h3>
@@ -119,8 +135,8 @@
                     </a>
                 </div> -->
 
-            </div>
         </div>
     </div>
+</div>
 
-    <script src="js/functions/loadArticlesShop.js"></script>
+<script src="js/functions/loadArticlesShop.js"></script>
