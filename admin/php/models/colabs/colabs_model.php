@@ -40,6 +40,30 @@ class Colabs
 
         return ($getSites);
     }
+    public function getAllOffers()
+    {
+        include_once('php/models/petitions.php');
+        $queries = new Queries;
+        $sql_colabs = "SELECT *
+        FROM u803991314_main.offers 
+        ";
+
+        $getSites = $queries->getData($sql_colabs);
+
+        return ($getSites);
+    }
+    public function getAllTags()
+    {
+        include_once('php/models/petitions.php');
+        $queries = new Queries;
+        $sql_colabs = "SELECT *
+        FROM u803991314_main.tags
+        ";
+
+        $getSites = $queries->getData($sql_colabs);
+
+        return ($getSites);
+    }
     public function getAllStates()
     {
         include_once('php/models/petitions.php');

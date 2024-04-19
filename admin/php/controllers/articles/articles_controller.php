@@ -589,6 +589,64 @@ function editImageProd()
 
     echo json_encode($data);
 }
+function editImageOffers()
+{
+
+    $id_offer = $_POST['id_offer'];
+    $prod_image = $_POST['prod_image'];
+
+    $fecha_archivo = date('Y_m_d');
+    $hora_archivo = date('H:i:s');
+    $fyh = $fecha_archivo . ' ' . $hora_archivo;
+
+
+    $nm_Archivo_img = "gpo_slzr_prodimg_" . time();
+    $extension_img = basename($_FILES["prod_image"]["type"]);
+
+    $directorio_img =  dirname(__DIR__ . '', 3) . '/uploads/offers';
+
+    $archivo_img = $directorio_img . "/" .  $nm_Archivo_img . "." . $extension_img;
+
+    $ruta_sql_img = '../uploads/offers/' .  $nm_Archivo_img . "." . $extension_img;
+
+    $queries = new Queries;
+
+
+    if (!file_exists($directorio_img)) {
+        mkdir($directorio_img, 0777, true);
+    }
+
+    if (move_uploaded_file($_FILES["prod_image"]["tmp_name"], $archivo_img)) {
+
+        $sql = "UPDATE u803991314_main.offers
+        SET thumbnail = '$ruta_sql_img' WHERE id_offers = $id_offer";
+
+        $queries = new Queries;
+        $insert = $queries->insertData($sql);
+
+
+        if (!empty($insert)) {
+            
+            $data = array(
+                'response' => true,
+                'message' => 'Se actualizó correctamente la imagen!!!',
+            );
+        } else {
+            $data = array(
+                'response' => false,
+                'message' => 'No se guardaron los archivos'
+            );
+        }
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'No se guardó el archivo'
+        );
+    }
+
+
+    echo json_encode($data);
+}
 function getProductStocks()
 {
 
@@ -797,7 +855,40 @@ function getProductTags()
     $html = '';
     if (!empty($getTagsRel)) {
         foreach ($getTagsRel as $tag_rel) {
-            $html .= '<p class="badge text-bg-primary">' . $tag_rel->tag_name . '</p>';
+            $html .= '<p style="font-size:1rem !important" class="badge text-bg-primary">' . $tag_rel->tag_name . '</p>';
+        }
+
+        $data = array(
+            'response' => true,
+            'message' => 'Producto actualizado',
+            'html' => $html
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'Eror al actualizar Producto'
+        );
+    }
+
+    echo json_encode($data);
+}
+function getOfferTags()
+{
+
+    $id_offer = $_POST['id_offer'];
+    $queries = new Queries;
+
+    $sqlGetTagsProd = "SELECT DISTINCT tag_name, rpt.id_tags  FROM u803991314_main.tags AS tag
+    INNER JOIN u803991314_main.relationship_offers_tags AS rpt ON tag.id_tags = rpt.id_tags
+    WHERE rpt.id_offers = $id_offer";
+
+    $getTagsRel = $queries->getData($sqlGetTagsProd);
+
+
+    $html = '';
+    if (!empty($getTagsRel)) {
+        foreach ($getTagsRel as $tag_rel) {
+            $html .= '<p style="font-size:1rem !important" class="badge text-bg-primary offerTagItem" data-id-offer="' . $id_offer . '" data-id-tag="' . $tag_rel->id_tags . '">' . $tag_rel->tag_name . '</p>';
         }
 
         $data = array(
@@ -846,7 +937,184 @@ function insertProductTags()
 
     echo json_encode($data);
 }
+function insertOfferTags()
+{
 
+    $id_offers = $_POST['id_offer'];
+    $id_tag = $_POST['id_tag'];
+    $queries = new Queries;
+
+    $sqlGetTagsProd = "SELECT *
+    FROM u803991314_main.relationship_offers_tags AS rpt 
+    WHERE rpt.id_offers = $id_offers and rpt.id_tags = $id_tag";
+    $getTagsRel = $queries->getData($sqlGetTagsProd);
+
+    if (empty($getTagsRel)) {
+        $sqlInsertTag = "INSERT INTO u803991314_main.relationship_offers_tags (id_offers, id_tags)
+        VALUES(
+            $id_offers,
+            $id_tag
+        )";
+        $getTagsRel = $queries->InsertData($sqlInsertTag);
+        $data = array(
+            'response' => true,
+            'message' => 'Oferta actualizada',
+        );
+    } else {
+        $data = array(
+            'response' => true,
+            'message' => 'Oferta actualizada',
+        );
+    }
+
+    echo json_encode($data);
+}
+function removeOfferTags()
+{
+
+    $id_offers = $_POST['id_offer'];
+    $id_tag = $_POST['id_tag'];
+    $queries = new Queries;
+
+    $sqlGetTagsProd = "SELECT *
+    FROM u803991314_main.relationship_offers_tags AS rpt 
+    WHERE rpt.id_offers = $id_offers and rpt.id_tags = $id_tag";
+    $getTagsRel = $queries->getData($sqlGetTagsProd);
+
+    if (!empty($getTagsRel)) {
+        $sqlInsertTag = "DELETE FROM u803991314_main.relationship_offers_tags WHERE id_offers = $id_offers and id_tags = $id_tag";
+        $getTagsRel = $queries->InsertData($sqlInsertTag);
+        $data = array(
+            'response' => true,
+            'message' => 'Oferta actualizada',
+        );
+    } else {
+        $data = array(
+            'response' => true,
+            'message' => 'Oferta actualizada',
+        );
+    }
+
+    echo json_encode($data);
+}
+
+function deleteOffer()
+{
+
+    $id_offers = $_POST['id_offer'];
+    $queries = new Queries;
+
+    $sqlInsertTag = "DELETE FROM u803991314_main.relationship_offers_tags WHERE id_offers = $id_offers";
+    $getTagsRel = $queries->InsertData($sqlInsertTag);
+
+    $sqlInsertTag = "DELETE FROM u803991314_main.offers WHERE id_offers = $id_offers";
+    $getTagsRel = $queries->InsertData($sqlInsertTag);
+    $data = array(
+        'response' => true,
+        'message' => 'Oferta eliminada',
+    );
+
+
+    echo json_encode($data);
+}
+function getOfferDetails()
+{
+
+    $id_offers = $_POST['id_offer'];
+    $queries = new Queries;
+
+    $sqlInsertTag = "SELECT * FROM u803991314_main.relationship_offers_tags WHERE id_offers = $id_offers";
+    $getTagsRel = $queries->getData($sqlInsertTag);
+
+    $data = array(
+        'response' => true,
+        'data' => $getTagsRel
+    );
+
+
+    echo json_encode($data);
+}
+
+function saveNewOffer()
+{
+
+    $offer_name = $_POST['offer_name'];
+    $percentage = $_POST['percentage'];
+    $money_discount = $_POST['money_discount'];
+    $init_date = $_POST['init_date'];
+    $end_date = $_POST['end_date'];
+    $offer_details = $_POST['offer_details'];
+    $min_ammount = $_POST['min_ammount'];
+    $queries = new Queries;
+
+    $sqlInsertTag = "INSERT INTO u803991314_main.offers (
+        offer_name,
+        offer_details,
+        min_ammount,
+        start_date,
+        end_date,
+        percentage,
+        money_discount,
+        offer_status
+    ) VALUES(
+        '$offer_name',
+        '$offer_details',
+        '$min_ammount',
+        '$init_date',
+        '$end_date',
+        '$percentage',
+        '$money_discount',
+        1
+    )
+    ";
+    $getTagsRel = $queries->insertData($sqlInsertTag);
+
+    $data = array(
+        'response' => true,
+        'message' => "Oferta guardada!!!"
+    );
+
+
+    echo json_encode($data);
+}
+function getOfferInfo()
+{
+
+    $id_offers = $_POST['id_offer'];
+    $queries = new Queries;
+
+    $sqlInsertTag = "SELECT DATE(start_date) AS d_start_date, DATE(end_date) AS d_end_date, offe.* FROM u803991314_main.offers AS offe WHERE id_offers = $id_offers";
+    $getTagsRel = $queries->getData($sqlInsertTag);
+
+    $data = array(
+        'response' => true,
+        'data' => $getTagsRel
+    );
+
+
+    echo json_encode($data);
+}
+function editOffer()
+{
+
+    $newVal = $_POST['newVal'];
+    $column_name = $_POST['column_name'];
+    $id_offer = $_POST['id_offer'];
+    
+    $queries = new Queries;
+
+    $sqlInsertTag = "UPDATE u803991314_main.offers SET $column_name = '$newVal' WHERE id_offers = $id_offer
+    ";
+    $getTagsRel = $queries->insertData($sqlInsertTag);
+
+    $data = array(
+        'response' => true,
+        'message' => "Oferta actrualizada!!!"
+    );
+
+
+    echo json_encode($data);
+}
 function deleteProduct()
 {
 
