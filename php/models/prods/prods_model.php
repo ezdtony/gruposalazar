@@ -76,6 +76,20 @@ class Articles
 
         return ($getSites);
     }
+    public function getOffers()
+    {
+        $today = date('Y-m-d');
+        include_once('php/models/petitions.php');
+        $queries = new Queries;
+        $sql_colabs = "SELECT * 
+        FROM u803991314_main.offers 
+        WHERE start_date <= '$today' AND end_date >= '$today' AND id_offers > 1
+        ";
+
+        $getSites = $queries->getData($sql_colabs);
+
+        return ($getSites);
+    }
     public function getAllBrands()
     {
         include_once('php/models/petitions.php');

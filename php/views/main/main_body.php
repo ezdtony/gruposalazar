@@ -1,107 +1,112 @@
 <div class="hero">
-    <!-- Offers Section -->
-    <div class="container">
-        <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                <div class="carousel-item active">
+	<!-- Offers Section -->
+	<div class="container">
+		<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+			<div class="carousel-inner">
+				<div class="carousel-item active">
 
-                    <div class="row justify-content-between">
-                        <div class="col-lg-5">
-                            <div class="intro-excerpt">
-                                <h1>Colores que Inspiran <br><span clsas="d-block"></span></h1>
-                                <h2 class="text-white">Compra desde la comodidad de tu casa</h2>
-                                <p><a href="" class="btn btn-secondary me-2">Comprar ya!!</a></p>
-                            </div>
-                        </div>
-                        <div class="col-lg-7">
-                            <br>
-                            <br>
-                            <br>
-                            <div class="hero-img-wrap">
-                                <img src="images/banner.png" class="img-fluid">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <img src="https://picsum.photos/650/650?r=253" class="d-block w-100" height="450px" alt="https://picsum.photos/650/650?r=253">
-                </div>
-                <div class="carousel-item">
-                    <img src="https://picsum.photos/650/650?r=252" class="d-block w-100" height="450px" alt="https://picsum.photos/650/650?r=253">
-                </div>
-            </div>
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
-    </div>
+					<div class="row justify-content-between">
+						<div class="col-lg-5">
+							<div class="intro-excerpt">
+								<h1>Colores que Inspiran <br><span clsas="d-block"></span></h1>
+								<h2 class="text-white">Compra desde la comodidad de tu casa</h2>
+								<p><a href="" class="btn btn-secondary me-2">Comprar ya!!</a></p>
+							</div>
+						</div>
+						<div class="col-lg-7">
+							<br>
+							<br>
+							<br>
+							<div class="hero-img-wrap">
+								<img src="images/banner.png" class="img-fluid">
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<?php $getOffers = $prods_model->getOffers(); ?>
+				<?php foreach ($getOffers as $offer) : ?>
+					<div class="carousel-item">
+						<img src="<?php echo str_replace("../", "admin/", $offer->thumbnail) ?>" class="d-block w-100" height="450px" alt="https://picsum.photos/650/650?r=253">
+					</div>
+				<?php endforeach; ?>
+				<div class="carousel-item">
+					<img src="images/slide_1_sayer.jpg" class="d-block w-100" height="450px" alt="">
+				</div>
+
+			</div>
+		</div>
+		<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+			<span class="visually-hidden">Previous</span>
+		</button>
+		<button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+			<span class="carousel-control-next-icon" aria-hidden="true"></span>
+			<span class="visually-hidden">Next</span>
+		</button>
+	</div>
 </div>
 
 
 <!-- Start Product Section -->
 <div class="product-section">
-    <div class="container">
-        <div class="row">
+	<div class="container">
+		<div class="row">
 
-            <div class="col-md-12 col-lg-3 mb-5 mb-lg-0">
-                <h2 class="mb-4 section-title">Pinturas de la más alta calidad.</h2>
-                <p class="mb-4">En nuestro catálogo encontrarás los productos de la mas alta calidad.</p>
-                <p><a href="shop.php" class="btn">Explorar</a></p>
-            </div>
+			<div class="col-md-12 col-lg-3 mb-5 mb-lg-0">
+				<h2 class="mb-4 section-title">Pinturas de la más alta calidad.</h2>
+				<p class="mb-4">En nuestro catálogo encontrarás los productos de la mas alta calidad.</p>
+				<p><a href="shop.php" class="btn">Explorar</a></p>
+			</div>
 
-            <?php $getThirdProds = $prods_model->getThirdArticles(); ?>
-            <?php foreach ($getThirdProds as $prod) : ?>
-                <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
-                    <a class="product-item" href="cart.html">
-                    <img src="<?=str_replace('../', 'admin/', $prod->image)?>" class="img-fluid product-thumbnail">
-                        <h3 class="product-title"><?=$prod->product_name?></h3>
-                        <strong class="product-price">$ <?=round($prod->price, 2)?></strong>
+			<?php $getThirdProds = $prods_model->getThirdArticles(); ?>
+			<?php foreach ($getThirdProds as $prod) : ?>
+				<div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
+					<a class="product-item" href="cart.html">
+						<img src="<?= str_replace('../', 'admin/', $prod->image) ?>" class="img-fluid product-thumbnail">
+						<h3 class="product-title"><?= $prod->product_name ?></h3>
+						<strong class="product-price">$ <?= round($prod->price, 2) ?></strong>
 
-                        <span class="icon-cross">
-                            <img src="images/cross.svg" class="img-fluid">
-                        </span>
-                    </a>
-                </div>
-            <?php endforeach; ?>
+						<span class="icon-cross">
+							<img src="images/cross.svg" class="img-fluid">
+						</span>
+					</a>
+				</div>
+			<?php endforeach; ?>
 
-        </div>
-    </div>
+		</div>
+	</div>
 </div>
 <!-- End Product Section -->
 <div class="why-choose-section">
-			<div class="container">
-				<div class="row justify-content-between">
-					<div class="col-lg-6">
-						<h2 class="section-title">¿Por qué elegirnos?</h2>
-						<!-- <p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.</p> -->
+	<div class="container">
+		<div class="row justify-content-between">
+			<div class="col-lg-6">
+				<h2 class="section-title">¿Por qué elegirnos?</h2>
+				<!-- <p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.</p> -->
 
-						<div class="row my-5">
-							<div class="col-6 col-md-6">
-								<div class="feature">
-									<div class="icon">
-										<img src="images/truck.svg" alt="Image" class="imf-fluid">
-									</div>
-									<h3>Pickup en Sucursal</h3>
-									<p>Has tu pedido en línea y recoge en sucursal.</p>
-								</div>
+				<div class="row my-5">
+					<div class="col-6 col-md-6">
+						<div class="feature">
+							<div class="icon">
+								<img src="images/truck.svg" alt="Image" class="imf-fluid">
 							</div>
+							<h3>Pickup en Sucursal</h3>
+							<p>Has tu pedido en línea y recoge en sucursal.</p>
+						</div>
+					</div>
 
-							<div class="col-6 col-md-6">
-								<div class="feature">
-									<div class="icon">
-										<img src="images/bag.svg" alt="Image" class="imf-fluid">
-									</div>
-									<h3>Formas de pago</h3>
-									<p>Puedes pagar con diferentes métodos de pago, o hacer tu pedido y pagar en sucursal al momento de recoger el pedido.</p>
-								</div>
+					<div class="col-6 col-md-6">
+						<div class="feature">
+							<div class="icon">
+								<img src="images/bag.svg" alt="Image" class="imf-fluid">
 							</div>
+							<h3>Formas de pago</h3>
+							<p>Puedes pagar con diferentes métodos de pago, o hacer tu pedido y pagar en sucursal al momento de recoger el pedido.</p>
+						</div>
+					</div>
 
-							<!-- <div class="col-6 col-md-6">
+					<!-- <div class="col-6 col-md-6">
 								<div class="feature">
 									<div class="icon">
 										<img src="images/support.svg" alt="Image" class="imf-fluid">
@@ -121,18 +126,18 @@
 								</div>
 							</div> -->
 
-						</div>
-					</div>
-
-					<div class="col-lg-5">
-						<div class="img-wrap">
-							<img src="images/casher.jpg" alt="Image" class="img-fluid">
-						</div>
-					</div>
-
 				</div>
 			</div>
+
+			<div class="col-lg-5">
+				<div class="img-wrap">
+					<img src="images/casher.jpg" alt="Image" class="img-fluid">
+				</div>
+			</div>
+
 		</div>
+	</div>
+</div>
 <!-- Start Why Choose Us Section -->
 <!-- <div class="why-choose-section">
 			<div class="container">
