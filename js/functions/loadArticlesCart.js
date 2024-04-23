@@ -1,0 +1,141 @@
+$(document).ready(function () {
+  let limitProducts = "";
+  let searchInput = "";
+  let actualPage = 1;
+  loadProductsCart(limitProducts, searchInput, actualPage);
+
+  $(document).on("change", "#numProducts", function (event) {
+    loading();
+    limitProducts = $(this).val();
+
+    loadProductsCart(limitProducts, searchInput, actualPage);
+    //--- --- ---//
+  });
+  $(document).on("click", ".loadMore", function (event) {
+    $(this).remove();
+    loading();
+
+    actualPage = actualPage + 1;
+
+    loadProductsCart(limitProducts, searchInput, actualPage);
+    //--- --- ---//
+  });
+
+  $(document).on("keyup", "#searchProd", function (e) {
+    console.log(e.which);
+    if (e.which == 13) {
+      loading();
+      searchInput = $(this).val();
+
+      loadProductsCart(limitProducts, searchInput, actualPage);
+      return false;
+    }
+    //--- --- ---//
+  });
+
+  function loadProductsCart(limitProducts, searchInput, actualPage) {
+    if (sessionStorage.getItem("cart_shop")) {
+      var cart_shop = JSON.parse(sessionStorage.getItem("cart_shop"));
+    }else{
+        cart_shop = [];
+    }
+    console.log(cart_shop);
+
+    var url = window.location.search;
+    const urlParams = new URLSearchParams(url);
+
+    if (urlParams.has("parms")) {
+      console.log("here");
+      //--- --- ---//
+      const filtered = urlParams.get("filtered");
+      const filter = urlParams.get("filter");
+      searchInput = filter;
+      //--- --- ---//
+    }
+    if (actualPage != null) {
+      actualPage = actualPage;
+    }
+    loading();
+    //console.log(actualPage);
+
+    $.ajax({
+      url: "admin/php/controllers/articles/articles_controller.php",
+      method: "POST",
+      data: {
+        mod: "getProductsCart",
+        cart_shop: cart_shop
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response == true) {
+          $(".tableCart > tbody").html(data.html);
+
+          //            $("#navPagination").html(data.paginationNav);
+
+          /* doneToast(data.message); */
+        } else {
+          errorToast("Ocurrió un error");
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+  }
+
+  function loading() {
+    Swal.fire({
+      title: "Cargando...",
+      html: '<img src="images/paint-loading-2.gif" width="300" height="175">',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showCloseButton: false,
+      showCancelButton: false,
+      showConfirmButton: false,
+    });
+  }
+  function doneToast(text) {
+    Toastify({
+      text: text,
+      duration: 3000,
+      destination: "https://github.com/apvarun/toastify-js",
+      newWindow: true,
+      close: true,
+      gravity: "top", // `top` or `bottom`
+      position: "right", // `left`, `center` or `right`
+      stopOnFocus: true, // Prevents dismissing of toast on hover
+      style: {
+        background: "#00b09b",
+        //background: "linear-gradient(to right, #00b09b, #96c93d)",
+      },
+      onClick: function () {}, // Callback after click
+    }).showToast();
+  }
+  function errorToast(text) {
+    Toastify({
+      text: text,
+      duration: 3000,
+      destination: "https://github.com/apvarun/toastify-js",
+      newWindow: true,
+      close: true,
+      gravity: "top", // `top` or `bottom`
+      position: "left", // `left`, `center` or `right`
+      stopOnFocus: true, // Prevents dismissing of toast on hover
+      style: {
+        background: "#ff3333",
+        //background: "linear-gradient(to right, #00b09b, #96c93d)",
+      },
+      onClick: function () {}, // Callback after click
+    }).showToast();
+  }
+});
