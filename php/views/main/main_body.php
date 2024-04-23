@@ -27,7 +27,7 @@
 				<?php $getOffers = $prods_model->getOffers(); ?>
 				<?php foreach ($getOffers as $offer) : ?>
 					<div class="carousel-item">
-						<img src="<?php echo str_replace("../", "admin/", $offer->thumbnail) ?>" class="d-block w-100" height="450px" alt="https://picsum.photos/650/650?r=253">
+						<img src="<?php echo str_replace("../", "admin/", $offer->thumbnail) ?>" class="d-block w-100" height="450px" alt="">
 					</div>
 				<?php endforeach; ?>
 				<div class="carousel-item">
@@ -62,12 +62,12 @@
 			<?php $getThirdProds = $prods_model->getThirdArticles(); ?>
 			<?php foreach ($getThirdProds as $prod) : ?>
 				<div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
-					<a class="product-item" href="cart.html">
+					<a class="product-item">
 						<img src="<?= str_replace('../', 'admin/', $prod->image) ?>" class="img-fluid product-thumbnail">
 						<h3 class="product-title"><?= $prod->product_name ?></h3>
 						<strong class="product-price">$ <?= round($prod->price, 2) ?></strong>
 
-						<span class="icon-cross">
+						<span class="icon-cross addCartProd" data-id-product="<?= $prod->id_prducts ?>" data-product-price="<?= round($prod->price, 2) ?>">
 							<img src="images/cross.svg" class="img-fluid">
 						</span>
 					</a>

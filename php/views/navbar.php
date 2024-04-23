@@ -5,7 +5,7 @@ $prods_model = new Navbar;
 <nav class="custom-navbar navbar navbar navbar-expand-md navbar-dark bg-dark" arial-label="Furni navigation bar">
 
     <div class="container">
-        <a class="navbar-brand" href="index.html">Grupo Salazar<span>.</span></a>
+        <a class="navbar-brand" href="index.php">Grupo Salazar<span>.</span></a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -23,10 +23,10 @@ $prods_model = new Navbar;
                         <li><a class="dropdown-item" style="color:black !important" href="shop.php">Todos los productos</a></li>
                         <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" style="color:black !important">Marcas</a>
                             <ul class="dropdown-menu">
-                            
-                            <?php $getBrands = $prods_model->getBrands(); ?>
+
+                                <?php $getBrands = $prods_model->getBrands(); ?>
                                 <?php foreach ($getBrands as $brands) : ?>
-                                    <li><a class="dropdown-item" style="color:black !important" href="?parms=filtered&filter=<?=$brands->brand?>&mod=brands"><?=$brands->brand?></a></li>
+                                    <li><a class="dropdown-item" style="color:black !important" href="shop.php?parms=filtered&filter=<?= $brands->brand ?>&mod=brands"><?= $brands->brand ?></a></li>
                                 <?php endforeach; ?>
                             </ul>
                         </li>
@@ -34,11 +34,11 @@ $prods_model = new Navbar;
                             <ul class="dropdown-menu">
                                 <?php $getCategories = $prods_model->getCategories(); ?>
                                 <?php foreach ($getCategories as $categories) : ?>
-                                    <li><a class="dropdown-item" style="color:black !important" href="?parms=filtered&filter=<?=$categories->categories_description?>&mod=categories"><?=$categories->categories_description?></a></li>
+                                    <li><a class="dropdown-item" style="color:black !important" href="shop.php?parms=filtered&filter=<?= $categories->categories_description ?>&mod=categories"><?= $categories->categories_description ?></a></li>
                                 <?php endforeach; ?>
                             </ul>
                         </li>
-                       <!--  <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" style="color:black !important">Ofertas</a>
+                        <!--  <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" style="color:black !important">Ofertas</a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" style="color:black !important" href="#">Submenu</a></li>
                                 <li><a class="dropdown-item" style="color:black !important" href="#">Submenu0</a></li>
@@ -67,7 +67,14 @@ $prods_model = new Navbar;
 
             <ul class="custom-navbar-cta navbar-nav mb-2 mb-md-0 ms-5">
                 <li><a class="nav-link" href="#"><img src="images/user.svg"></a></li>
-                <li><a class="nav-link" href="cart.html"><img src="images/cart.svg"></a></li>
+                <li>
+                    <a class="nav-link" href="cart.php"><img src="images/cart.svg">
+                    <span class="translate-middle badge rounded-pill bg-dark cartSizeTxt">
+                        0
+                        <span class="visually-hidden">Articulos en carrito</span>
+                    </span>
+                </a>
+                </li>
             </ul>
         </div>
     </div>

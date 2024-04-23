@@ -348,13 +348,13 @@ function getProductsShop()
 
             $html .= '
             <div class="col-12 col-md-4 col-lg-3 mb-5">
-                    <a class="product-item" href="#">
+                    <a class="product-item">
                         <img src="' . $image_prod . '" class="img-fluid product-thumbnail">
                         <h3 class="product-title">' . $product->product_name . '</h3>
                         <strong class="product-price">$' . round($product->price, 2) . '</strong>
 
-                        <span class="icon-cross">
-                            <img src="images/cross.svg" class="img-fluid" data-id-product="' . $product->id_prducts . '">
+                        <span class="icon-cross addCartProd"  data-id-product="' . $product->id_prducts . '" data-product-price="' . round($product->price, 2) . '" >
+                            <img src="images/cross.svg" class="img-fluid">
                         </span>
                     </a>
                 </div>';
@@ -401,6 +401,130 @@ function getProductsShop()
             'totalPages' => $totalPages,
             'paginationNav' => $pagination
         );
+    } else {
+
+        $html .= '
+                    </tbody>
+                </table>';
+        $data = array(
+            'response' => false,
+            'html' => $html
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+
+
+function getProductsCart()
+{
+
+    $queries = new Queries;
+
+    //$id_product = $_POST['id_product'];
+    $cart_shop = $_POST['cart_shop'];
+
+
+    $html = "";
+
+
+    foreach ($cart_shop as $cart) {
+        $id_product = $cart['id_product'];
+        $quantity = $cart['quantity'];
+
+        $sql = "SELECT
+                CASE 
+                    WHEN sb_stk.prducts_id_prducts = prods.id_prducts THEN SUM(sb_stk.stock)
+                    ELSE 0
+                END
+                AS total_stock, brand,
+                prods.*
+                FROM u803991314_main.products AS prods
+                INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+                LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts
+                INNER JOIN u803991314_main.relationship_products_categories AS rpc ON rpc.id_prducts = prods.id_prducts
+                INNER JOIN u803991314_main.categories AS ct ON ct.id_categories = rpc.id_categories
+                WHERE prods.id_prducts = $id_product
+    ";
+        $getProducts = $queries->getData($sql);
+
+
+
+        $percentage = 0;
+        foreach ($getProducts as $product) {
+
+            if ($product->total_stock > 0) {
+                $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
+            }
+
+            if ($product->thumbnail == 'NULL' || $product->thumbnail == '') {
+                $image_prod = 'images/sin-imagen.png';
+            } else {
+                $archive_route = str_replace('..', 'admin', $product->thumbnail);
+                $image_prod = $archive_route;
+                $file_exs = dirname(__DIR__ . '', 3) . str_replace('..', '', $product->thumbnail);
+                /* echo $file_exs; */
+
+                if (file_exists($file_exs)) {
+                    $image_prod = $archive_route;
+                } else {
+                    $image_prod = 'images/sin-imagen.png';
+                }
+            }
+            $total_prod = $quantity * round($product->price, 2);
+            $html .= '
+            <tr>
+            <td class="product-thumbnail">
+                <img src="' . $image_prod . '" alt="Imagen" class="img-fluid">
+            </td>
+            <td class="product-name">
+                <h2 class="h5 text-black">' . $product->product_name . '</h2>
+            </td>
+            <td>$' . round($product->price, 2) . '</td>
+            <td>
+                <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
+                    <div class="input-group-prepend">
+                        <button class="btn btn-outline-black decrease" type="button">&minus;</button>
+                    </div>
+                    <input type="text" class="form-control text-center quantity-amount" value="' . $quantity . '" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-black increase" type="button">&plus;</button>
+                    </div>
+                </div>
+
+            </td>
+            <td>$'.$total_prod.'</td>
+            <td><a class="btn btn-black btn-sm removeCartPRod" data-id-product="' . $product->id_prducts . '" >X</a></td>
+        </tr>
+            ';
+        }
+    }
+
+
+
+
+
+    $total_stock = 0;
+
+    if (!empty($getProducts)) {
+
+
+        $data = array(
+            'response' => true,
+            'html' => $html,
+        );
+
+        /* $data = array(
+            'response' => true,
+            'html' => $html,
+            'totalProds' => $totalProds,
+            'totalResults' => $totalResults,
+            'totalFiltered' => $totalFiltered,
+            'totalPages' => $totalPages,
+            'paginationNav' => $pagination
+        ); */
     } else {
 
         $html .= '
@@ -626,7 +750,7 @@ function editImageOffers()
 
 
         if (!empty($insert)) {
-            
+
             $data = array(
                 'response' => true,
                 'message' => 'Se actualizó correctamente la imagen!!!',
@@ -1100,7 +1224,7 @@ function editOffer()
     $newVal = $_POST['newVal'];
     $column_name = $_POST['column_name'];
     $id_offer = $_POST['id_offer'];
-    
+
     $queries = new Queries;
 
     $sqlInsertTag = "UPDATE u803991314_main.offers SET $column_name = '$newVal' WHERE id_offers = $id_offer
