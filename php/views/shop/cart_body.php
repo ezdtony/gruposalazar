@@ -92,7 +92,7 @@
 
                         <div class="row">
                             <div class="col-md-12">
-                                <button class="btn btn-black btn-lg py-3 btn-block" onclick="window.location='checkout.html'">Pagar compra</button>
+                                <button class="btn btn-black btn-lg py-3 btn-block" onclick="window.location='checkout.php'">Pagar compra</button>
                             </div>
                         </div>
                     </div>

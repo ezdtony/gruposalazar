@@ -56,15 +56,25 @@ $(document).ready(function () {
         return actions.order.create({
           purchase_units: [
             {
-              amount: {
-                value: 100
-              }
-            }
+              "amount": {
+                "currency_code": "MXN",
+                "value": total_sale,
+              },
+            },
           ],
-        })   
+        });
+      },
+      onApprove: function (data, actions) {
+        return actions.order.capture().then(function (orderData) {
+          console.log(
+            "capture result: " + orderData,
+            JSON.stringify(orderData, null, 2)
+          );
+          location.href = "thankyou.php";
+        });
       },
       oncancel: function (data) {
-       /*  Swal.fire({
+        /*  Swal.fire({
           title: "Pago cancelado!",
           text: "El pago ha sido cancelado!",
           icon: "info",
