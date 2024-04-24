@@ -36,8 +36,8 @@ $(document).ready(function () {
   function loadProductsCart(limitProducts, searchInput, actualPage) {
     if (sessionStorage.getItem("cart_shop")) {
       var cart_shop = JSON.parse(sessionStorage.getItem("cart_shop"));
-    }else{
-        cart_shop = [];
+    } else {
+      cart_shop = [];
     }
     console.log(cart_shop);
 
@@ -62,8 +62,8 @@ $(document).ready(function () {
       url: "admin/php/controllers/articles/articles_controller.php",
       method: "POST",
       data: {
-        mod: "getProductsCart",
-        cart_shop: cart_shop
+        mod: "getProductsCheckout",
+        cart_shop: cart_shop,
       },
     })
       .done(function (data) {
@@ -71,9 +71,14 @@ $(document).ready(function () {
         var data = JSON.parse(data);
         console.log(data);
         if (data.response == true) {
-          $(".tableCart > tbody").html(data.html);
-          $(".txtTotalCart").text(data.totalSale);
-          sessionStorage.setItem("total_sale", data.totalSale);
+          $(".orderTable > tbody").html(data.html);
+          $(".tdTotal").text(data.totalSale);
+
+          id_order =
+            Date.now().toString(36).substr(2);
+            console.log(id_order);
+
+          //sessionStorage.setItem("total_sale", data.totalSale);
 
           //            $("#navPagination").html(data.paginationNav);
 

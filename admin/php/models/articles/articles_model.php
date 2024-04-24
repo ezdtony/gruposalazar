@@ -23,6 +23,18 @@ class Articles
 
         return ($getSites);
     }
+    public function getStates()
+    {
+        include_once('php/models/petitions.php');
+        $queries = new Queries;
+        $sql_colabs = "SELECT *
+        FROM u803991314_main.estados AS states
+        ";
+
+        $getSites = $queries->getData($sql_colabs);
+
+        return ($getSites);
+    }
 
     public function getAllBrands()
     {

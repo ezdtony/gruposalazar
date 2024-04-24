@@ -430,6 +430,7 @@ function getProductsCart()
     $html = "";
 
 
+    $totalSale = 0;
     foreach ($cart_shop as $cart) {
         $id_product = $cart['id_product'];
         $quantity = $cart['quantity'];
@@ -474,6 +475,7 @@ function getProductsCart()
                 }
             }
             $total_prod = $quantity * round($product->price, 2);
+            $totalSale = $totalSale + $total_prod;
             $html .= '
             <tr>
             <td class="product-thumbnail">
@@ -495,7 +497,7 @@ function getProductsCart()
                 </div>
 
             </td>
-            <td>$'.$total_prod.'</td>
+            <td>$' . $total_prod . '</td>
             <td><a class="btn btn-black btn-sm removeCartPRod" data-id-product="' . $product->id_prducts . '" >X</a></td>
         </tr>
             ';
@@ -510,10 +512,117 @@ function getProductsCart()
 
     if (!empty($getProducts)) {
 
-
+        $totalSale = round($totalSale, 2);
         $data = array(
             'response' => true,
             'html' => $html,
+            'totalSale' => $totalSale,
+        );
+
+        /* $data = array(
+            'response' => true,
+            'html' => $html,
+            'totalProds' => $totalProds,
+            'totalResults' => $totalResults,
+            'totalFiltered' => $totalFiltered,
+            'totalPages' => $totalPages,
+            'paginationNav' => $pagination
+        ); */
+    } else {
+
+        $html .= '
+                    </tbody>
+                </table>';
+        $data = array(
+            'response' => false,
+            'html' => $html
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+function getProductsCheckout()
+{
+
+    $queries = new Queries;
+
+    //$id_product = $_POST['id_product'];
+    $cart_shop = $_POST['cart_shop'];
+
+
+    $html = "";
+
+
+    $totalSale = 0;
+    foreach ($cart_shop as $cart) {
+        $id_product = $cart['id_product'];
+        $quantity = $cart['quantity'];
+
+        $sql = "SELECT
+                CASE 
+                    WHEN sb_stk.prducts_id_prducts = prods.id_prducts THEN SUM(sb_stk.stock)
+                    ELSE 0
+                END
+                AS total_stock, brand,
+                prods.*
+                FROM u803991314_main.products AS prods
+                INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+                LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts
+                INNER JOIN u803991314_main.relationship_products_categories AS rpc ON rpc.id_prducts = prods.id_prducts
+                INNER JOIN u803991314_main.categories AS ct ON ct.id_categories = rpc.id_categories
+                WHERE prods.id_prducts = $id_product
+    ";
+        $getProducts = $queries->getData($sql);
+
+
+
+        $percentage = 0;
+        foreach ($getProducts as $product) {
+
+            if ($product->total_stock > 0) {
+                $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
+            }
+
+            if ($product->thumbnail == 'NULL' || $product->thumbnail == '') {
+                $image_prod = 'images/sin-imagen.png';
+            } else {
+                $archive_route = str_replace('..', 'admin', $product->thumbnail);
+                $image_prod = $archive_route;
+                $file_exs = dirname(__DIR__ . '', 3) . str_replace('..', '', $product->thumbnail);
+                /* echo $file_exs; */
+
+                if (file_exists($file_exs)) {
+                    $image_prod = $archive_route;
+                } else {
+                    $image_prod = 'images/sin-imagen.png';
+                }
+            }
+            $total_prod = $quantity * round($product->price, 2);
+            $totalSale = $totalSale + $total_prod;
+            $html .= '
+                        <tr>
+                            <td>' . $product->product_name . ' <strong class="mx-2">x</strong> ' . $quantity . '</td>
+                            <td>$' . $total_prod . '</td>
+                        </tr>
+                        ';
+        }
+    }
+
+
+
+
+
+    $total_stock = 0;
+
+    if (!empty($getProducts)) {
+
+        $totalSale = round($totalSale, 2);
+        $data = array(
+            'response' => true,
+            'html' => $html,
+            'totalSale' => $totalSale,
         );
 
         /* $data = array(

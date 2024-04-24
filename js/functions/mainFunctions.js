@@ -5,6 +5,7 @@ $(document).ready(function () {
     $(".cartSizeTxt").text(cart_shop.length);
   }else{
     sessionStorage.setItem("cart_shop", JSON.stringify([]));
+    sessionStorage.setItem("total_sale", 0);
   }
 
   $(document).on("click", ".addCartProd", function (event) {
