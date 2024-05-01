@@ -17,11 +17,15 @@ function getUserInfo()
 
     $queries = new Queries;
 
-        $stmt = "SELECT colab.*, up.description AS user_profile
+        $stmt = "SELECT colab.*, up.description AS user_profile,
+        CASE WHEN col_sub.id_relationship_colabs_subs IS NULL THEN 0
+        ELSE id_subsidiary 
+        END AS subs_base
         FROM u803991314_main.colaborators AS colab
         INNER JOIN u803991314_main.relationship_colab_prof AS rel_col_prof ON rel_col_prof.id_colaborator = colab.id_colaborator
         INNER JOIN u803991314_main.user_profiles AS up ON rel_col_prof.id_user_profiles = up.id_user_profiles
-         WHERE (colaborator_code = '$user' OR business_mail = '$user') AND password_access = '$password'";    
+        LEFT JOIN u803991314_main.relationship_colabs_subs AS col_sub ON colab.id_colaborator = col_sub.id_colaborator
+         WHERE (colaborator_code = '$user' OR business_mail = '$user') AND password_access = '$password'";
          
     $getUserInfo = $queries->getData($stmt);
 
@@ -33,6 +37,7 @@ function getUserInfo()
             $_SESSION['id_user']=$key->id_colaborator;
             $_SESSION['business_mail']=$key->business_mail;
             $_SESSION['user_profile']=$key->user_profile;
+            $_SESSION['subs_base']=$key->subs_base;
 
             /* $_SESSION['id_area']=$key->id_areas; */
             /* $_SESSION['id_areas_level']=$key->id_niveles_areas; */

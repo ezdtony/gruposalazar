@@ -155,7 +155,15 @@ $(document).ready(function () {
 
     //--- --- ---//
   });
-
+  $(document).on("focusout", ".setProdQuantity", function (event) {
+    loading();
+    console.log();
+    $(this).attr('value', $(this).val());
+    $(this).attr('data-quantity', $(this).val());
+    $(this).closest('tr').attr('data-quantity', $(this).val());
+    Swal.close();
+    //--- --- ---//
+  });
   $(document).on("click", ".btnRemoveProdList", function (event) {
     loading();
     var id_product = $(this).attr("data-id-prod");
@@ -172,11 +180,11 @@ $(document).ready(function () {
     products_income = Array();
     if (
       (subsidiary_og == "" ||
-      subsidiary_og == null ||
-      subsidiary_og == undefined) &&
+        subsidiary_og == null ||
+        subsidiary_og == undefined) &&
       (subsidiary_des == "" ||
-      subsidiary_des == null ||
-      subsidiary_des == undefined)
+        subsidiary_des == null ||
+        subsidiary_des == undefined)
     ) {
       Swal.fire({
         title: "Por favor seleccione una sucursal",
@@ -199,7 +207,7 @@ $(document).ready(function () {
         data: {
           mod: "insertTransfer",
           subsidiary_og: subsidiary_og,
-          subsidiary_des:subsidiary_des,
+          subsidiary_des: subsidiary_des,
           products_income: products_income,
         },
       })
@@ -248,6 +256,62 @@ $(document).ready(function () {
       //--- --- ---//
     }
   });
+  $(document).on("click", ".btnConfirmTransfer", function (event) {
+    loading();
+    var id_transfer = $(this).attr("data-id-prod-transfer");
+    var transferStatus = 3;
+    if (id_transfer == "" || id_transfer == null || id_transfer == undefined) {
+      Swal.fire({
+        title: "Ocurrió un error",
+        icon: "info",
+      });
+    } else {
+      $.ajax({
+        url: "php/controllers/trasnfer_prods/transfer_prods_controller.php",
+        method: "POST",
+        data: {
+          mod: "updateStatusTransfer",
+          id_transfer: id_transfer,
+          transferStatus: transferStatus,
+        },
+      })
+        .done(function (data) {
+          Swal.close();
+          var data = JSON.parse(data);
+          //console.log(data);
+          if (data.response == true) {
+            Swal.fire({
+              title: data.message,
+              icon: "success",
+            }).then((result) => {
+              /* Read more about isConfirmed, isDenied below */
+              if (result.isConfirmed) {
+                loading();
+                location.reload();
+              }
+            });
+            /* doneToast(data.message); */
+          } else {
+            Swal.fire({
+              title: data.message,
+              icon: "info",
+            });
+          }
+
+          //--- --- ---//
+          //--- --- ---//
+        })
+        .fail(function (message) {
+          Swal.close();
+          var myToast = Toastify({
+            text: data.message,
+            duration: 3000,
+          });
+          myToast.showToast();
+        });
+    }
+  });
+
   function loadTransfers(limitOrders, searchInput, actualPage, id_subsidiary) {
     if (actualPage != null) {
       actualPage = actualPage;

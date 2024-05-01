@@ -143,6 +143,86 @@ function saveNewStock()
 
     echo json_encode($data);
 }
+function updateStatusTransfer()
+{
+
+    $queries = new Queries;
+
+    $id_prods_transfer = $_POST['id_transfer'];
+    $transferStatus = $_POST['transferStatus'];
+
+    $sqlGetStock = "SELECT * FROM u803991314_main.prods_transfer AS pr_tr
+    WHERE id_prods_transfer = $id_prods_transfer";
+
+    $existStock = $queries->getData($sqlGetStock);
+
+    if (!empty($existStock)) {
+
+        $id_subs_or = $existStock[0]->id_subs_or;
+        $id_subs_des = $existStock[0]->id_subs_des;
+
+        $sqlUpdateProdsTransfer = "UPDATE u803991314_main.prods_transfer SET id_prods_transfer_status = $transferStatus WHERE id_prods_transfer = $id_prods_transfer";
+        $queries->insertData($sqlUpdateProdsTransfer);
+
+        $sqlGetStockUpdate = "SELECT * FROM u803991314_main.prods_transfer_detail AS pr_tr
+    WHERE id_prods_transfer = $id_prods_transfer";
+
+        $existStock = $queries->getData($sqlGetStockUpdate);
+
+        if (!empty($existStock)) {
+            foreach ($existStock as $exiStock) {
+                $id_product = $exiStock->id_products;
+                $quantity = $exiStock->quantity;
+                $id_prods_transfer_detail = $exiStock->id_prods_transfer_detail;
+
+                $sqlUpdateStockDetail = "UPDATE u803991314_main.prods_transfer_detail
+                     SET 
+                     completed = 1
+                     WHERE id_prods_transfer_detail = $id_prods_transfer_detail";
+                $queries->insertData($sqlUpdateStockDetail);
+
+
+                $sqlUpdateStockDetailOrigin = "UPDATE u803991314_main.subsidiary_stocks
+                SET 
+                stock = stock - '$quantity'
+                WHERE id_subsidiary = $id_subs_or AND prducts_id_prducts = $id_product";
+                $queries->insertData($sqlUpdateStockDetailOrigin);
+
+
+                $sqlGetStockUpdate = "SELECT * FROM u803991314_main.subsidiary_stocks
+                WHERE id_subsidiary = $id_subs_des AND prducts_id_prducts = $id_product";
+
+                $existStock = $queries->getData($sqlGetStockUpdate);
+                if (!empty($existStock)) {
+                    $sqlUpdateStockDetailDest = "UPDATE u803991314_main.subsidiary_stocks
+                     SET 
+                     stock = stock + '$quantity'
+                     WHERE id_subsidiary = $id_subs_des AND prducts_id_prducts = $id_product";
+                    $queries->insertData($sqlUpdateStockDetailDest);
+                } else {
+                    $sqlUpdateStockDetail = "INSERT INTO u803991314_main.subsidiary_stocks(id_subsidiary, stock, prducts_id_prducts)
+                     VALUES($id_subs_des, $quantity, $id_product)";
+                    $queries->insertData($sqlUpdateStockDetail);
+                }
+            }
+        }
+
+        $data = array(
+            'response' => true,
+            'message' => 'El stock actualizó el correctamente!!'
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'Ocurrió un error al agregar el stock!!'
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+
 function getTransfers()
 {
 
@@ -230,7 +310,11 @@ function getTransfers()
 
         foreach ($getOrder as $order) {
 
-
+            if ($order->id_prods_transfer_status == 3) {
+                $btn_complete = '<button disabled type="button" title="Traspaso completo" class="btn btn-success btnConfirmTransfer"><i class="fa-solid fa-check"></i></button>';
+            } else {
+                $btn_complete = '<button type="button" title="Traspaso completo" data-id-prod-transfer="' . $order->id_prods_transfer . '" class="btn btn-success btnConfirmTransfer"><i class="fa-solid fa-check"></i></button>';
+            }
 
             $html .= '
             <tr id="trStocks' . $order->id_prods_transfer . '">
@@ -248,6 +332,9 @@ function getTransfers()
             </td>
             <td class="name fw-bold" id="td_status_transfer_' . $order->id_prods_transfer . '">
             ' . $order->status_transfer . '
+            </td>
+            <td class="name fw-bold" id="td_status_transfer_' . $order->id_prods_transfer . '">
+            ' . $btn_complete . '
             </td>
         </tr>';
         }
@@ -317,14 +404,14 @@ function insertTransfer()
 
     $sqlGetSOGDet = "SELECT * FROM u803991314_main.subsidiary WHERE id_subsidiary = $id_subsidiary_og";
     $getSOGDet = $queries->getData($sqlGetSOGDet);
-    $subsidiary_og_prefix = substr($getSOGDet[0]->subsidiary_prefix,4, 2);
-    
+    $subsidiary_og_prefix = substr($getSOGDet[0]->subsidiary_prefix, 4, 2);
+
 
     $sqlGetSDestDet = "SELECT * FROM u803991314_main.subsidiary WHERE id_subsidiary = $id_subsidiary_dest";
     $getSDestDet = $queries->getData($sqlGetSDestDet);
-    $subsidiary_des_prefix = substr($getSDestDet[0]->subsidiary_prefix,4, 2);
+    $subsidiary_des_prefix = substr($getSDestDet[0]->subsidiary_prefix, 4, 2);
 
-   
+
     $sqlInsertProductsIncome = "INSERT INTO u803991314_main.prods_transfer (
         id_subs_or,
         id_subs_des,
@@ -346,7 +433,7 @@ function insertTransfer()
 
     if (!empty($insert)) {
         $id_prods_transfer = $insert['last_id'];
-        $transfer_code = "TRF-".$subsidiary_og_prefix . "-" . $subsidiary_des_prefix . "-0" . $id_prods_transfer;
+        $transfer_code = "TRF-" . $subsidiary_og_prefix . "-" . $subsidiary_des_prefix . "-0" . $id_prods_transfer;
         $queries->insertData("UPDATE u803991314_main.prods_transfer SET transfer_code = '$transfer_code' WHERE id_prods_transfer = $id_prods_transfer ");
 
         for ($i = 0; $i < count($products_income); $i++) {

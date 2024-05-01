@@ -89,6 +89,11 @@ $getAllSubsidiary = $stock_subsidiary_model->getAllSubsidiary();
                                         STATUS
                                     </a>
                                 </th>
+                                <th>
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                        CONFIRMAR
+                                    </a>
+                                </th>
                             </tr>
                         </thead>
 

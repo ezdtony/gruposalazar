@@ -3,6 +3,7 @@ $getCollaborators = $sales_model->getAllClientsCredits();
 $getAllClients = $sales_model->getAllClients();
 $getAllSubsidiary = $sales_model->getAllSubsidiary();
 $getPaymentsMethods = $sales_model->getPaymentMethods();
+$active_search_prod = 0;
 ?>
 
 
@@ -31,7 +32,13 @@ $getPaymentsMethods = $sales_model->getPaymentMethods();
                             <select id="id_subsidiary" class="form-control js-example-basic-single">
                                 <option>Seleccione una opción</option>
                                 <?php foreach ($getAllSubsidiary as $subsidiary) : ?>
-                                    <option value="<?= $subsidiary->id_subsidiary ?>"><?= $subsidiary->subsidiary_name ?></option>
+                                    <?php if ($subsidiary->id_subsidiary == $_SESSION['subs_base']) : 
+                                        $active_search_prod++;
+                                        ?>
+                                        <option selected value="<?= $subsidiary->id_subsidiary ?>"><?= $subsidiary->subsidiary_name ?></option>
+                                    <?php else : ?>
+                                        <option value="<?= $subsidiary->id_subsidiary ?>"><?= $subsidiary->subsidiary_name ?></option>
+                                    <?php endif ?>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -40,7 +47,7 @@ $getPaymentsMethods = $sales_model->getPaymentMethods();
                         <div class="row">
                             <div class="col-12">
                                 <div class="input-group mb-3">
-                                    <input disabled type="text" class="form-control" id="search_prod" placeholder="Código de barras" aria-label="Código de barras" aria-describedby="basic-addon1">
+                                    <input <?php echo $active_search_prod ? '' : 'disabled' ?> type="text" class="form-control" id="search_prod" placeholder="Código de barras" aria-label="Código de barras" aria-describedby="basic-addon1">
                                     <span class="input-group-text btn btn-info" id="basic-addon1"><i class="fa-solid fa-barcode"></i></span>
                                 </div>
                                 <div class="mb-3">
@@ -98,7 +105,7 @@ $getPaymentsMethods = $sales_model->getPaymentMethods();
                                 <h2 class="card-title" id="lblTotalSale" data-total="0">Total: </h2>
                             </div>
                             <div class="col-6">
-                                <button  type="button" class="btn btn-success" id="generateSale" data-bs-toggle="modal" data-bs-target="#saveNewSaleModal">Generar venta</button>
+                                <button type="button" class="btn btn-success" id="generateSale" data-bs-toggle="modal" data-bs-target="#saveNewSaleModal">Generar venta</button>
                                 <button disabled type="button" class="btn btn-danger" id="cancelSale">Cancelar venta</button>
                             </div>
                         </div>
