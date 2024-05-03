@@ -223,6 +223,78 @@ function updateStatusTransfer()
     echo json_encode($data);
 }
 
+function getStatusTransfer()
+{
+
+    $queries = new Queries;
+
+    $id_prods_transfer = $_POST['id_transfer'];
+
+    $sqlGetStock = "SELECT 
+    sub_og.subsidiary_name AS subs_origin,
+    sub_des.subsidiary_name AS subs_destination,
+    pts.status_transfer,
+    pr_tr.id_subs_or,
+    pr_tr.id_subs_des
+     FROM u803991314_main.prods_transfer AS pr_tr
+    INNER JOIN u803991314_main.subsidiary AS sub_og ON sub_og.id_subsidiary = pr_tr.id_subs_or
+    INNER JOIN u803991314_main.subsidiary AS sub_des ON sub_des.id_subsidiary = pr_tr.id_subs_des
+    INNER JOIN u803991314_main.prods_transfer_status AS pts ON pts.id_prods_transfer_status = pr_tr.id_prods_transfer_status
+    WHERE id_prods_transfer = $id_prods_transfer";
+
+    $existStock = $queries->getData($sqlGetStock);
+
+    if (!empty($existStock)) {
+
+        $subs_origin = $existStock[0]->subs_origin;
+        $subs_destination = $existStock[0]->subs_destination;
+        $status_transfer = $existStock[0]->status_transfer;
+        $id_subs_des = $existStock[0]->id_subs_des;
+        $id_subs_or = $existStock[0]->id_subs_or;
+
+
+        $sqlGetProdDetail = "SELECT 
+            prd.id_prducts,
+            pr_tr.quantity,
+            prd.product_name
+        FROM u803991314_main.prods_transfer_detail AS pr_tr
+        INNER JOIN u803991314_main.products AS prd ON prd.id_prducts = pr_tr.id_products
+        WHERE id_prods_transfer = $id_prods_transfer";
+
+        $TtransferDetail = $queries->getData($sqlGetProdDetail);
+        $html = "";
+        $no_partida = 0;
+        if (!empty($TtransferDetail)) {
+            foreach ($TtransferDetail as $exiStock) {
+                $no_partida++;
+                $id_product = $exiStock->id_prducts;
+                $quantity = $exiStock->quantity;
+                $product_name = $exiStock->product_name;
+
+                $html .= ' <tr>
+                                <th scope="row">' . $no_partida . '</th>
+                                <td>' . $product_name . '</td>
+                                <td>' . $quantity . '</td>
+                            </tr>';
+            }
+        }
+
+        $data = array(
+            'response' => true,
+            'html' => $html
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'Ocurrió un error al agregar el stock!!'
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+
 function getTransfers()
 {
 
@@ -333,7 +405,10 @@ function getTransfers()
             <td class="name fw-bold" id="td_status_transfer_' . $order->id_prods_transfer . '">
             ' . $order->status_transfer . '
             </td>
-            <td class="name fw-bold" id="td_status_transfer_' . $order->id_prods_transfer . '">
+            <td class="name fw-bold">
+            <button type="button" title="Detalle de la orden" data-id-prod-transfer="' . $order->id_prods_transfer . '" class="btn btn-info btnTransferDetail" data-bs-toggle="modal" data-bs-target="#modalInfotransfer"><i class="fa-solid fa-info"></i></button>
+            </td>
+            <td class="name fw-bold">
             ' . $btn_complete . '
             </td>
         </tr>';

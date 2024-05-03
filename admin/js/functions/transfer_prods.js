@@ -311,6 +311,46 @@ $(document).ready(function () {
         });
     }
   });
+  $(document).on("click", ".btnTransferDetail", function (event) {
+    loading();
+    $("#tableDetailTransfer > body").empty();
+    var id_transfer = $(this).attr("data-id-prod-transfer");
+    
+    
+      $.ajax({
+        url: "php/controllers/trasnfer_prods/transfer_prods_controller.php",
+        method: "POST",
+        data: {
+          mod: "getStatusTransfer",
+          id_transfer: id_transfer,
+        },
+      })
+        .done(function (data) {
+          Swal.close();
+          var data = JSON.parse(data);
+          //console.log(data);
+          if (data.response == true) {
+            $("#tableDetailTransfer > tbody").html(data.html);
+            Swal.close();
+          } else {
+            Swal.fire({
+              title: data.message,
+              icon: "info",
+            });
+          }
+
+          //--- --- ---//
+          //--- --- ---//
+        })
+        .fail(function (message) {
+          Swal.close();
+          var myToast = Toastify({
+            text: data.message,
+            duration: 3000,
+          });
+          myToast.showToast();
+        });
+  });
 
   function loadTransfers(limitOrders, searchInput, actualPage, id_subsidiary) {
     if (actualPage != null) {

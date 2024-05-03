@@ -91,6 +91,11 @@ $getAllSubsidiary = $stock_subsidiary_model->getAllSubsidiary();
                                 </th>
                                 <th>
                                     <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
+                                        DETALLE
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="javascript: void(0);" class="text-muted list-sort" data-sort="name">
                                         CONFIRMAR
                                     </a>
                                 </th>
@@ -118,7 +123,8 @@ $getAllSubsidiary = $stock_subsidiary_model->getAllSubsidiary();
     </div>
 </div>
 <?php
- include 'modals/newProdsTransfer.php';
+include 'modals/newProdsTransfer.php';
+include 'modals/prodTransferDetail.php';
 /*include 'modals/modalIncomeDetails.php'; */
 ?>
 
