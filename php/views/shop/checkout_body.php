@@ -237,7 +237,7 @@
                             </table>
 
                             <div id="paypal-button-container">
-                                
+
                             </div>
 
                             <!-- <div class="border p-3 mb-3">
@@ -283,5 +283,13 @@
         <!-- </form> -->
     </div>
 </div>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        emailjs.init({
+            publicKey: "4Fx6lU8V_sm8_3t6R",
+        });
+    });
+</script>
 <script src="js/functions/cartFunctions.js"></script>
 <script src="js/functions/loadCartCheckout.js"></script>

@@ -56,9 +56,9 @@ $(document).ready(function () {
         return actions.order.create({
           purchase_units: [
             {
-              "amount": {
-                "currency_code": "MXN",
-                "value": total_sale,
+              amount: {
+                currency_code: "MXN",
+                value: total_sale,
               },
             },
           ],
@@ -66,11 +66,7 @@ $(document).ready(function () {
       },
       onApprove: function (data, actions) {
         return actions.order.capture().then(function (orderData) {
-          console.log(
-            "capture result: " + orderData,
-            JSON.stringify(orderData, null, 2)
-          );
-          location.href = "thankyou.php";
+          successOrder(orderData, total_sale);
         });
       },
       oncancel: function (data) {
@@ -86,4 +82,119 @@ $(document).ready(function () {
     .render("#paypal-button-container");
 
   $(".js-example-basic-single").select2();
+
+  function successOrder(orderData) {
+    // loading();
+    var cart_shop = JSON.parse(sessionStorage.getItem("cart_shop"));
+    id_order = Date.now().toString(36).substr(2);
+    console.log(id_order);
+
+    $.ajax({
+      url: "admin/php/controllers/articles/articles_controller.php",
+      method: "POST",
+      data: {
+        mod: "saveClientOrder",
+        cart_shop: cart_shop,
+        id_order: id_order,
+        total_sale: total_sale,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response == true) {
+          sendMailConfirmation(data);
+          /*  Swal.fire({
+            title: "Hecho!!!",
+            icon: 'success',
+            text: data.message,
+          }).then((result) => {
+            loading();
+            sessionStorage.setItem("order_code", data.order_code);
+            location.href = "thankyou.php";
+          }); */
+
+          //location.href = "thankyou.php";
+
+          //sessionStorage.setItem("total_sale", data.totalSale);
+
+          //            $("#navPagination").html(data.paginationNav);
+
+          /* doneToast(data.message); */
+        } else {
+          errorToast("Ocurrió un error");
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+
+    console.log("success order");
+    console.log(
+      "capture result: " + orderData,
+      JSON.stringify(orderData, null, 2)
+    );
+    /*  */
+  }
+
+  async function sendMailConfirmation(data) {
+  
+    $.ajax({
+      url: "admin/php/controllers/articles/articles_controller.php",
+      method: "POST",
+      data: {
+        mod: "sendMailConfirmation",
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response == true) {
+          Swal.fire({
+            title: "Hecho!!!",
+            icon: "success",
+            text: data.message,
+          }).then((result) => {
+           // loading();
+            sessionStorage.setItem("order_code", data.order_code);
+            //location.href = "thankyou.php";
+          });
+        } else {
+          errorToast("Ocurrió un error");
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+  }
+
+  function loading() {
+    Swal.fire({
+      title: "Cargando...",
+      html: '<img src="images/paint-loading-2.gif" width="300" height="175">',
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showCloseButton: false,
+      showCancelButton: false,
+      showConfirmButton: false,
+    });
+  }
 });
