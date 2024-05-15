@@ -28,7 +28,7 @@
         </div>
         <div class="row">
             <div class="col-md-6 mb-5 mb-md-0">
-                <h2 class="h3 mb-3 text-black">Detalles de Facturación</h2>
+                <h2 class="h3 mb-3 text-black">Detalles de Órden</h2>
                 <div class="p-3 p-lg-5 border bg-white">
                     <div class="form-group">
                         <label for="c_country" class="text-black">País <span class="text-danger">*</span></label>
@@ -47,44 +47,6 @@
                         </div>
                     </div>
 
-                    <!--  <div class="form-group row">
-                        <div class="col-md-12">
-                            <label for="c_companyname" class="text-black">Company Name </label>
-                            <input type="text" class="form-control" id="c_companyname" name="c_companyname">
-                        </div>
-                    </div> -->
-
-                    <div class="form-group row">
-                        <div class="col-md-12">
-                            <label for="c_address" class="text-black">Dirección <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="c_address" name="c_address" placeholder="Calle y número">
-                        </div>
-                    </div>
-
-                    <!-- <div class="form-group mt-3">
-                        <input type="text" class="form-control" placeholder="Apartment, suite, unit etc. (optional)">
-                    </div> -->
-
-
-
-                    <div class="form-group row">
-                        <div class="col-md-6">
-                            <label class="form-label">Estado<span class="text-danger">*</span></label><br>
-                            <select class="form-select js-example-basic-single" id="selectState" autocomplete="off">
-                                <option disabled selected value="">Seleccione un estado...</option>
-                                <?php foreach ($getSates as $state) : ?>
-                                    <option value="<?= $state->id ?>"><?= $state->estado ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Municipio<span class="text-danger">*</span></label><br>
-                            <select disabled class="form-select js-example-basic-single" id="selectCity" autocomplete="off">
-                                <option disabled selected value="">Seleccione un estado...</option>
-                            </select>
-                        </div>
-                    </div>
-
                     <div class="form-group row mb-5">
                         <div class="col-md-6">
                             <label for="c_email_address" class="text-black">Correo Electrónico <span class="text-danger">*</span></label>
@@ -92,9 +54,95 @@
                         </div>
                         <div class="col-md-6">
                             <label for="c_phone" class="text-black">Teléfono <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="c_phone" name="c_phone" placeholder="Phone Number">
+                            <input type="text" class="form-control" id="c_phone" name="c_phone" placeholder="Teléfono">
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label for="c_order_notes" class="text-black">Notas de orden</label>
+                        <textarea name="c_order_notes" id="c_order_notes" cols="30" rows="5" class="form-control" placeholder="Escriba notas adicionales a considerar..."></textarea>
+                    </div>
+                    <br>
+                    <h6 class="h5 mb-3 text-black">Método de entrega</h6>
+
+                    <div class="form-group row">
+                        <div class="col-md-6">
+                            <label class="form-label">Seleccione un método de entrega <span class="text-danger">*</span></label><br>
+                            <select class="form-select" id="shippingMethod">
+                                <option disabled selected value="">Seleccione una opción...</option>
+                                <option value="1">Entrega en sucursal</option>
+                                <option value="2">Envío a domicilio</option>
+                            </select>
+                        </div>
+                    </div>
+                    <br>
+                    <!--  <div class="form-group row">
+                        <div class="col-md-12">
+                            <label for="c_companyname" class="text-black">Company Name </label>
+                            <input type="text" class="form-control" id="c_companyname" name="c_companyname">
+                        </div>
+                    </div> -->
+                    <div id="divHomeDelivery" style="display:none">
+                        <div class="form-group row">
+                            <div class="col-md-12">
+                                <label for="c_address" class="text-black">Dirección <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="c_address" name="c_address" placeholder="Calle y número">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="c_address" class="text-black">Colonia <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="c_colony" name="c_colony" placeholder="Colonia">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="c_address" class="text-black">Código Postal <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="c_zip_code" name="c_zip_code" placeholder="Código Postal">
+                            </div>
+                        </div>
+
+                        <!-- <div class="form-group mt-3">
+                        <input type="text" class="form-control" placeholder="Apartment, suite, unit etc. (optional)">
+                    </div> -->
+
+
+
+                        <div class="form-group row">
+                            <!-- <div class="col-md-6">
+                            <label class="form-label">Sucursal de entrega <span class="text-danger">*</span></label><br>
+                            <select class="form-select js-example-basic-single" id="selectState" autocomplete="off">
+                                <option disabled selected value="">Seleccione una sucursal...</option>
+                                <?php foreach ($getSates as $state) : ?>
+                                    <option value="<?= $state->id ?>"><?= $state->estado ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div> -->
+
+                            <div class="col-md-6">
+                                <label class="form-label">Estado<span class="text-danger">*</span></label><br>
+                                <select class="form-select js-example-basic-single" id="selectState" autocomplete="off">
+                                    <option disabled selected value="">Seleccione un estado...</option>
+                                    <?php foreach ($getSates as $state) : ?>
+                                        <option value="<?= $state->id ?>"><?= $state->estado ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Municipio<span class="text-danger">*</span></label><br>
+                                <select disabled class="form-select js-example-basic-single" id="selectCity" autocomplete="off">
+                                    <option disabled selected value="">Seleccione un estado...</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="divSubsidiaryDelivery" style="display:none">
+                        <label class="form-label">Seleccione una sucursal <span class="text-danger">*</span></label><br>
+                        <select class="form-select" id="shippingSubsidiary">
+                            <option disabled selected>Seleccione una opción...</option>
+                            <?php foreach ($getAllSubsidiary as $subsidiary) : ?>
+                                <option value="<?= $subsidiary->id_subsidiary ?>"><?= $subsidiary->subsidiary_name ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
 
                     <!--  <div class="form-group">
                         <label for="c_create_account" class="text-black" data-bs-toggle="collapse" href="#create_an_account" role="button" aria-expanded="false" aria-controls="create_an_account"><input type="checkbox" value="1" id="c_create_account"> Create an account?</label>
@@ -187,10 +235,9 @@
                         </div>
                     </div> -->
 
-                    <div class="form-group">
-                        <label for="c_order_notes" class="text-black">Notas de orden</label>
-                        <textarea name="c_order_notes" id="c_order_notes" cols="30" rows="5" class="form-control" placeholder="Escriba notas adicionales a considerar..."></textarea>
-                    </div>
+
+                    <br>
+                    <button type="button" class="btn btn-primary" id="checkUserDataCheckout">Validar datos</button>
 
                 </div>
             </div>
@@ -236,9 +283,22 @@
                                 </tfoot>
                             </table>
 
-                            <div id="paypal-button-container">
 
+                            <h6 class="h5 mb-3 text-black">Método de pago</h6>
+
+                            <div class="form-group row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Seleccione un método de pago <span class="text-danger">*</span></label><br>
+                                    <select class="form-select" id="paymentMethod" disabled>
+                                        <option disabled selected value="">Seleccione una opción...</option>
+                                        <option value="1">Pago en sucursal</option>
+                                        <option value="2">PAYPAL / TDC / TDD</option>
+                                    </select>
+                                </div>
                             </div>
+                            <br>
+                            <br>
+                            <div id="paypal-button-container"></div>
 
                             <!-- <div class="border p-3 mb-3">
                                 <h3 class="h6 mb-0"><a class="d-block" data-bs-toggle="collapse" href="#collapsebank" role="button" aria-expanded="false" aria-controls="collapsebank">Transferencia Interbancaria (SPEI)</a></h3>

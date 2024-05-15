@@ -3,6 +3,7 @@
 		<?php include("php/models/prods/prods_model.php");
 		$prods_model = new Articles;
 		$getSates = $prods_model->getStates();
+		$getAllSubsidiary = $prods_model->getAllSubsidiary();
 		?>
 		
 		<?php include 'php/views/shop/checkout_body.php'; ?>

@@ -47,44 +47,299 @@ $(document).ready(function () {
         });
       });
   });
-  var total_sale = sessionStorage.getItem("total_sale");
-  total_sale = parseFloat(total_sale);
-  paypal
-    .Buttons({
-      style: { label: "pay" },
-      createOrder: function (data, actions) {
-        return actions.order.create({
-          purchase_units: [
-            {
-              amount: {
-                currency_code: "MXN",
-                value: total_sale,
-              },
-            },
-          ],
-        });
-      },
-      onApprove: function (data, actions) {
-        return actions.order.capture().then(function (orderData) {
-          successOrder(orderData, total_sale);
-        });
-      },
-      oncancel: function (data) {
-        /*  Swal.fire({
-          title: "Pago cancelado!",
-          text: "El pago ha sido cancelado!",
-          icon: "info",
-        }); */
 
-        alert("El pago ha sido cancelado");
-      },
-    })
-    .render("#paypal-button-container");
+  $(document).on("change", "#shippingMethod", function () {
+    var total_sale = sessionStorage.getItem("total_sale");
+    total_sale = parseFloat(total_sale);
 
-  $(".js-example-basic-single").select2();
+    $("#paypal-button-container").html("");
+    if (!$("#paymentMethod").prop("disabled")) {
+      $("#paymentMethod").attr("disabled", true);
+      $("#paymentMethod").val("");
+    }
 
-  function successOrder(orderData) {
-    // loading();
+    // 1 entrega en sucursal
+    // 2 envio a domicilio
+
+    var id_method = this.value;
+    switch (id_method) {
+      case "1":
+        $("#divHomeDelivery").hide();
+        $("#divSubsidiaryDelivery").show();
+        break;
+      case "2":
+        $("#divSubsidiaryDelivery").hide();
+        if (total_sale < "2000") {
+          $("#divHomeDelivery").hide();
+          divSubsidiaryDelivery;
+          Swal.fire({
+            title: "Atención",
+            icon: "error",
+            text: "Su pedido no califica para envió a domicilio. Para esta opción la compa mínima debe ser de $2,000.",
+          });
+          $("#paymentMethod").attr("disabled", true);
+          $("#paypal-button-container").html("");
+          $(this).val("");
+        } else {
+          $("#divHomeDelivery").show();
+        }
+        break;
+
+      default:
+        break;
+    }
+  });
+
+  $(document).on("click", "#checkUserDataCheckout", function () {
+    var id_method = $("#shippingMethod").val();
+    console.log(id_method);
+    if (id_method != "" && id_method != null) {
+      switch (id_method) {
+        case "1":
+          var client_name = $("#c_fname").val();
+          var client_lastname = $("#c_lname").val();
+          var client_email = $("#c_email_address").val();
+          var client_phone = $("#c_phone").val();
+          var order_notes = $("#c_order_notes").val();
+          var id_subsidiary = $("#shippingSubsidiary").val();
+
+          if (
+            $("#selectState").find(":selected").val() != "" &&
+            $("#selectCity").find(":selected").val() != "" &&
+            client_name != "" &&
+            client_lastname != "" &&
+            client_email != "" &&
+            id_subsidiary != null &&
+            client_phone != ""
+          ) {
+            $("#paymentMethod").attr("disabled", false);
+          } else {
+            $("#paymentMethod").attr("disabled", true);
+            Swal.fire({
+              title: "Atención",
+              icon: "error",
+              text: "Es necesario que ingrese todos los datos obligatorios para continuar con la compra",
+            });
+          }
+          break;
+        case "2":
+          var client_name = $("#c_fname").val();
+          var client_lastname = $("#c_lname").val();
+          var client_address = $("#c_address").val();
+          var client_colony = $("#c_colony").val();
+          var client_zipcode = $("#c_zip_code").val();
+          var client_state = $("#selectState").find(":selected").text();
+          var client_city = $("#selectCity").find(":selected").text();
+          var client_email = $("#c_email_address").val();
+          var client_phone = $("#c_phone").val();
+          var order_notes = $("#c_order_notes").val();
+
+          if (
+            $("#selectState").find(":selected").val() != "" &&
+            $("#selectCity").find(":selected").val() != "" &&
+            client_name != "" &&
+            client_lastname != "" &&
+            client_address != "" &&
+            client_email != "" &&
+            client_phone != "" &&
+            client_colony != "" &&
+            client_zipcode != ""
+          ) {
+            $("#paymentMethod").attr("disabled", false);
+          } else {
+            $("#paymentMethod").attr("disabled", true);
+            Swal.fire({
+              title: "Atención",
+              icon: "error",
+              text: "Es necesario que ingrese todos los datos obligatorios para continuar con la compra",
+            });
+          }
+          break;
+
+        default:
+          break;
+      }
+    } else {
+      Swal.fire({
+        title: "Atención!!",
+        icon: "error",
+        text: "Debe seleccionar un método de entrega",
+      });
+    }
+  });
+
+  $(document).on("change", "#paymentMethod", function () {
+    var total_sale = sessionStorage.getItem("total_sale");
+    total_sale = parseFloat(total_sale);
+    $("#paypal-button-container").html("");
+
+    var id_method = this.value;
+
+    if (id_method == 1 && $("#shippingMethod").val() == 2) {
+      Swal.fire({
+        title: "Atención",
+        icon: "error",
+        text: "Para el envío a domicilio no puede seleccionar la opción de pago en sucursal ",
+      });
+    } else {
+      switch (id_method) {
+        case "1":
+          var html =
+            '<br><button type="button" class="btn btn-primary" id="btnSaveSubsidiaryShip"  data-total-sale="' +
+            total_sale +
+            '">Confirmar compra</button>';
+          $("#paypal-button-container").html(html);
+          break;
+
+        case "2":
+          if ($("#paypal-button-container").html() == 0) {
+            var total_sale = sessionStorage.getItem("total_sale");
+            total_sale = parseFloat(total_sale);
+            var id_method = $("#shippingMethod").val();
+            switch (id_method) {
+              //entrega en sucursal
+              case "1":
+                paypal
+                  .Buttons({
+                    style: { label: "pay" },
+                    createOrder: function (data, actions) {
+                      return actions.order.create({
+                        purchase_units: [
+                          {
+                            amount: {
+                              currency_code: "MXN",
+                              value: total_sale,
+                            },
+                          },
+                        ],
+                      });
+                    },
+                    onApprove: function (data, actions) {
+                      return actions.order.capture().then(function (orderData) {
+                        var id_method = $("#shippingMethod").val();
+
+                        switch (id_method) {
+                          case "1":
+                            subsidiaryDeliveryOrder(orderData, total_sale);
+                            break;
+                          case "2":
+                            homeDeliveryOrder(orderData, total_sale);
+                            break;
+
+                          default:
+                            break;
+                        }
+                      });
+                    },
+                    oncancel: function (data) {
+                      /*  Swal.fire({
+                    title: "Pago cancelado!",
+                    text: "El pago ha sido cancelado!",
+                    icon: "info",
+                  }); */
+
+                      alert("El pago ha sido cancelado");
+                    },
+                  })
+                  .render("#paypal-button-container");
+                $(".paypal-button").attr("disabled", true);
+
+                break;
+              case "2":
+                if (total_sale < "2000") {
+                  Swal.fire({
+                    title: "Atención",
+                    icon: "error",
+                    text: "Su pedido no califica para envió a domicilio. Para esta opción la compa mínima debe ser de $2,000.",
+                  });
+                  $("#paymentMethod").attr("disabled", true);
+                  $("#paypal-button-container").html("");
+                } else {
+                  paypal
+                    .Buttons({
+                      style: { label: "pay" },
+                      createOrder: function (data, actions) {
+                        return actions.order.create({
+                          purchase_units: [
+                            {
+                              amount: {
+                                currency_code: "MXN",
+                                value: total_sale,
+                              },
+                            },
+                          ],
+                        });
+                      },
+                      onApprove: function (data, actions) {
+                        return actions.order
+                          .capture()
+                          .then(function (orderData) {
+                            var id_method = $("#shippingMethod").val();
+
+                            switch (id_method) {
+                              case "1":
+                                subsidiaryDeliveryOrder(orderData, total_sale);
+                                break;
+                              case "2":
+                                homeDeliveryOrder(orderData, total_sale);
+                                break;
+
+                              default:
+                                break;
+                            }
+                          });
+                      },
+                      oncancel: function (data) {
+                        /*  Swal.fire({
+                    title: "Pago cancelado!",
+                    text: "El pago ha sido cancelado!",
+                    icon: "info",
+                  }); */
+
+                        alert("El pago ha sido cancelado");
+                      },
+                    })
+                    .render("#paypal-button-container");
+                  $(".paypal-button").attr("disabled", true);
+                }
+                break;
+
+              default:
+                break;
+            }
+
+            $(".js-example-basic-single").select2();
+          }
+          break;
+
+        default:
+          break;
+      }
+    }
+    // 1 pago en sucursal
+    // 2 PAYPAL
+  });
+  $(document).on("click", "#btnSaveSubsidiaryShip", function () {
+    var total_sale = $(this).attr("data-total-sale");
+    loading();
+    subsidiaryDeliveryOrder(total_sale, total_sale);
+  });
+
+  function successOrder(
+    orderData,
+    total_sale,
+    client_name,
+    client_lastname,
+    client_address,
+    client_state,
+    client_city,
+    client_email,
+    client_phone,
+    order_notes,
+    client_colony,
+    client_zipcode
+  ) {
+    loading();
     var cart_shop = JSON.parse(sessionStorage.getItem("cart_shop"));
     id_order = Date.now().toString(36).substr(2);
     console.log(id_order);
@@ -97,6 +352,16 @@ $(document).ready(function () {
         cart_shop: cart_shop,
         id_order: id_order,
         total_sale: total_sale,
+        client_name: client_name,
+        client_lastname: client_lastname,
+        client_address: client_address,
+        client_state: client_state,
+        client_city: client_city,
+        client_email: client_email,
+        client_phone: client_phone,
+        order_notes: order_notes,
+        client_colony: client_colony,
+        client_zipcode: client_zipcode,
       },
     })
       .done(function (data) {
@@ -104,7 +369,21 @@ $(document).ready(function () {
         var data = JSON.parse(data);
         console.log(data);
         if (data.response == true) {
-          sendMailConfirmation(data);
+          var cart_shop = JSON.parse(sessionStorage.getItem("cart_shop"));
+          loading();
+          sendMailConfirmation(
+            data,
+            total_sale,
+            client_name,
+            client_lastname,
+            client_address,
+            client_state,
+            client_city,
+            client_email,
+            client_phone,
+            order_notes,
+            cart_shop
+          );
           /*  Swal.fire({
             title: "Hecho!!!",
             icon: 'success',
@@ -139,20 +418,261 @@ $(document).ready(function () {
       });
 
     console.log("success order");
-    console.log(
+    /* console.log(
       "capture result: " + orderData,
       JSON.stringify(orderData, null, 2)
-    );
+    ); */
+    /*  */
+  }
+  function homeDeliveryOrder(orderData, total_sale) {
+    loading();
+    var cart_shop = JSON.parse(sessionStorage.getItem("cart_shop"));
+    id_order = Date.now().toString(36).substr(2);
+    console.log(id_order);
+
+    var client_name = $("#c_fname").val();
+    var client_lastname = $("#c_lname").val();
+    var client_address = $("#c_address").val();
+    var client_colony = $("#c_colony").val();
+    var client_zipcode = $("#c_zip_code").val();
+    var client_state = $("#selectState").find(":selected").text();
+    var client_city = $("#selectCity").find(":selected").text();
+    var client_email = $("#c_email_address").val();
+    var client_phone = $("#c_phone").val();
+    var order_notes = $("#c_order_notes").val();
+
+    if (
+      $("#selectState").find(":selected").val() != "" &&
+      $("#selectCity").find(":selected").val() != "" &&
+      client_name != "" &&
+      client_lastname != "" &&
+      client_address != "" &&
+      client_email != "" &&
+      client_phone != "" &&
+      client_colony != "" &&
+      client_zipcode != ""
+    ) {
+      $.ajax({
+        url: "admin/php/controllers/articles/articles_controller.php",
+        method: "POST",
+        data: {
+          mod: "saveClientOrderHomeDelivery",
+          cart_shop: cart_shop,
+          id_order: id_order,
+          total_sale: total_sale,
+          client_name: client_name,
+          client_lastname: client_lastname,
+          client_address: client_address,
+          client_state: client_state,
+          client_city: client_city,
+          client_email: client_email,
+          client_phone: client_phone,
+          order_notes: order_notes,
+          client_colony: client_colony,
+          client_zipcode: client_zipcode,
+        },
+      })
+        .done(function (data) {
+          Swal.close();
+          var data = JSON.parse(data);
+          console.log(data);
+          if (data.response == true) {
+            var cart_shop = JSON.parse(sessionStorage.getItem("cart_shop"));
+            loading();
+            sendMailConfirmation(
+              data,
+              total_sale,
+              client_name,
+              client_lastname,
+              client_address,
+              client_state,
+              client_city,
+              client_email,
+              client_phone,
+              order_notes,
+              cart_shop
+            );
+            /*  Swal.fire({
+              title: "Hecho!!!",
+              icon: 'success',
+              text: data.message,
+            }).then((result) => {
+              loading();
+              sessionStorage.setItem("order_code", data.order_code);
+              location.href = "thankyou.php";
+            }); */
+
+            //location.href = "thankyou.php";
+
+            //sessionStorage.setItem("total_sale", data.totalSale);
+
+            //            $("#navPagination").html(data.paginationNav);
+
+            /* doneToast(data.message); */
+          } else {
+            errorToast("Ocurrió un error");
+          }
+
+          //--- --- ---//
+          //--- --- ---//
+        })
+        .fail(function (message) {
+          Swal.close();
+          var myToast = Toastify({
+            text: data.message,
+            duration: 3000,
+          });
+          myToast.showToast();
+        });
+    } else {
+      Swal.fire({
+        title: "Atención",
+        icon: "error",
+        text: "Su pago se procesó, pero ocurrió un error al registrar sus datos",
+      });
+    }
+
+    console.log("success order home delivery");
+    /* console.log(
+      "capture result: " + orderData,
+      JSON.stringify(orderData, null, 2)
+    ); */
     /*  */
   }
 
-  async function sendMailConfirmation(data) {
-  
+  function subsidiaryDeliveryOrder(orderData, total_sale) {
+    loading();
+    var cart_shop = JSON.parse(sessionStorage.getItem("cart_shop"));
+    id_order = Date.now().toString(36).substr(2);
+    console.log(id_order);
+
+    var client_name = $("#c_fname").val();
+    var client_lastname = $("#c_lname").val();
+    var client_email = $("#c_email_address").val();
+    var client_phone = $("#c_phone").val();
+    var order_notes = $("#c_order_notes").val();
+    var id_subsidiary = $("#shippingSubsidiary").val();
+    var subsidiary_name = $("#shippingSubsidiary").find(":selected").text();
+    var cart_shop = JSON.parse(sessionStorage.getItem("cart_shop"));
+    var payment_method = $("#paymentMethod").val();
+
+    if (
+      $("#selectState").find(":selected").val() != "" &&
+      $("#selectCity").find(":selected").val() != "" &&
+      client_name != "" &&
+      client_lastname != "" &&
+      client_email != "" &&
+      id_subsidiary != null &&
+      id_subsidiary != "" &&
+      client_phone != ""
+    ) {
+      $.ajax({
+        url: "admin/php/controllers/articles/articles_controller.php",
+        method: "POST",
+        data: {
+          mod: "saveClientOrderSubsidiaryDelivery",
+          cart_shop: cart_shop,
+          id_order: id_order,
+          total_sale: total_sale,
+          client_name: client_name,
+          client_lastname: client_lastname,
+          client_email: client_email,
+          client_phone: client_phone,
+          order_notes: order_notes,
+          id_subsidiary: id_subsidiary,
+          subsidiary_name: subsidiary_name,
+          payment_method: payment_method,
+        },
+      })
+        .done(function (data) {
+          Swal.close();
+          var data = JSON.parse(data);
+          console.log(data);
+          if (data.response == true) {
+            var cart_shop = JSON.parse(sessionStorage.getItem("cart_shop"));
+            loading();
+            sendMailConfirmationSubDelivery(
+              data,
+              total_sale,
+              client_name,
+              client_lastname,
+              client_email,
+              order_notes,
+              cart_shop
+            );
+            /*  Swal.fire({
+              title: "Hecho!!!",
+              icon: 'success',
+              text: data.message,
+            }).then((result) => {
+              loading();
+              sessionStorage.setItem("order_code", data.order_code);
+              location.href = "thankyou.php";
+            }); */
+
+            //location.href = "thankyou.php";
+
+            //sessionStorage.setItem("total_sale", data.totalSale);
+
+            //            $("#navPagination").html(data.paginationNav);
+
+            /* doneToast(data.message); */
+          } else {
+            errorToast("Ocurrió un error");
+          }
+
+          //--- --- ---//
+          //--- --- ---//
+        })
+        .fail(function (message) {
+          Swal.close();
+          var myToast = Toastify({
+            text: data.message,
+            duration: 3000,
+          });
+          myToast.showToast();
+        });
+    } else {
+      Swal.fire({
+        title: "Atención",
+        icon: "error",
+        text: "Su pago se procesó y fue recibido, sin embargo ocurrió un error al registrar sus datos personales...",
+      });
+    }
+  }
+
+  async function sendMailConfirmation(
+    data,
+    total_sale,
+    client_name,
+    client_lastname,
+    client_address,
+    client_state,
+    client_city,
+    client_email,
+    client_phone,
+    order_notes,
+    cart_shop
+  ) {
+    sessionStorage.setItem("order_code", data.order_code);
     $.ajax({
       url: "admin/php/controllers/articles/articles_controller.php",
       method: "POST",
       data: {
         mod: "sendMailConfirmation",
+        total_sale: total_sale,
+        client_name: client_name,
+        client_lastname: client_lastname,
+        client_address: client_address,
+        client_state: client_state,
+        client_city: client_city,
+        client_email: client_email,
+        client_phone: client_phone,
+        order_notes: order_notes,
+        cart_shop: cart_shop,
+        order_code: data.order_code,
+        subsidiary_phone: data.subsidiary_phone,
+        addressShip: data.addressShip,
       },
     })
       .done(function (data) {
@@ -165,9 +685,66 @@ $(document).ready(function () {
             icon: "success",
             text: data.message,
           }).then((result) => {
-           // loading();
-            sessionStorage.setItem("order_code", data.order_code);
-            //location.href = "thankyou.php";
+             loading();
+            location.href = "thankyou.php";
+          });
+        } else {
+          errorToast("Ocurrió un error");
+        }
+
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+  }
+
+  async function sendMailConfirmationSubDelivery(
+    data,
+    total_sale,
+    client_name,
+    client_lastname,
+    client_email,
+    order_notes,
+    cart_shop
+  ) {
+    sessionStorage.setItem("order_code", data.order_code);
+    $.ajax({
+      url: "admin/php/controllers/articles/articles_controller.php",
+      method: "POST",
+      data: {
+        mod: "sendMailConfirmationSubsDelivery",
+        total_sale: total_sale,
+        client_name: client_name,
+        client_lastname: client_lastname,
+        client_email: client_email,
+        order_notes: order_notes,
+        cart_shop: cart_shop,
+        order_code: data.order_code,
+        subsidiary_name: data.subsidiary_name,
+        subsidiary_phone: data.subsidiary_phone,
+        addressShip: data.addressShip,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+        if (data.response == true) {
+          Swal.fire({
+            title: "Hecho!!!",
+            icon: "success",
+            text: data.message,
+          }).then((result) => {
+             loading();
+            
+            location.href = "thankyou.php";
           });
         } else {
           errorToast("Ocurrió un error");

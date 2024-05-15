@@ -89,6 +89,19 @@ class Articles
 
         return ($getSites);
     }
+    public function getAllSubsidiary()
+    {
+        include_once('php/models/petitions.php');
+        $queries = new Queries;
+        $sql_colabs = "SELECT *
+        FROM u803991314_main.subsidiary AS sbs
+        ORDER BY subsidiary_name
+        ";
+
+        $getSites = $queries->getData($sql_colabs);
+
+        return ($getSites);
+    }
     public function getOffers()
     {
         $today = date('Y-m-d');

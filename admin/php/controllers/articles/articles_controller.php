@@ -658,7 +658,7 @@ function getProductsCheckout()
     echo json_encode($data);
 }
 
-function saveClientOrder()
+function saveClientOrderHomeDelivery()
 {
 
     $queries = new Queries;
@@ -667,6 +667,33 @@ function saveClientOrder()
     $cart_shop = $_POST['cart_shop'];
     $total_sale = $_POST['total_sale'];
     $order_code = 'TLSLZR-' . mb_strtoupper($_POST['id_order']);
+
+    $client_name = $_POST['client_name'];
+    $client_lastname = $_POST['client_lastname'];
+    $name_client = $client_name . ' ' . $client_lastname;
+    $client_address = $_POST['client_address'];
+    $client_colony = $_POST['client_colony'];
+    $client_zipcode = $_POST['client_zipcode'];
+    $client_state = $_POST['client_state'];
+    $client_city = $_POST['client_city'];
+    $client_email = $_POST['client_email'];
+    $client_phone = $_POST['client_phone'];
+    $order_notes = $_POST['order_notes'];
+    $id_payment_methods = 2;
+
+    $sqlGetSubsidiaryInfo = "SELECT sub_add.*,
+    sub.subsidiary_name,
+    sub.subsidiary_phone,
+    sub.subsidiary_second_phone
+    FROM u803991314_main.subsidiary AS sub
+    INNER JOIN u803991314_main.subsidiary_address AS sub_add ON sub_add.id_subsidiary_address = sub.id_subsidiary_address
+    WHERE sub.id_subsidiary = 1";
+    $getSubsidiaryInfo = $queries->getData($sqlGetSubsidiaryInfo);
+
+    $subsidiary_phone = $getSubsidiaryInfo[0]->subsidiary_phone;
+
+
+    $client_address_complete = $client_address . ', ' . $client_colony . ', C.P. ' . $client_zipcode . ', ' . $client_city . ', ' . $client_state;
 
     $today = date('Y-m-d H:i:s');
 
@@ -679,22 +706,26 @@ function saveClientOrder()
     order_code,
     pikup_subsidiary,
     ammount,
+    shipping_name_client,
     shipping_address,
     order_phone,
     order_mail,
+    shipping_notes,
     order_date
     ) VALUES (
         2,
         2,
         1,
-        4,
+        $id_payment_methods,
         1,
         '$order_code',
         1,
         '$total_sale',
-        'CALLE ENTREGA',
-        'TELEFONO ENTREGA',
-        'CORREO ENTREGA',
+        '$name_client',
+        '$client_address_complete',
+        '$client_phone',
+        '$client_email',
+        '$order_notes',
         '$today'
     )
 ";
@@ -757,6 +788,157 @@ function saveClientOrder()
             'message' => 'Su órden ha sido registrada, y se encuentra en proceso de validación',
             'order_code' => $order_code,
             'id_order' => $id_order,
+            'addressShip' => $client_address_complete,
+            'subsidiary_phone' => $subsidiary_phone
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'Ocurrió un error al registrar la orden en nuestra base de datos'
+        );
+    }
+
+    echo json_encode($data);
+}
+
+function saveClientOrderSubsidiaryDelivery()
+{
+
+    $queries = new Queries;
+
+
+    //$id_product = $_POST['id_product'];
+    $cart_shop = $_POST['cart_shop'];
+    $total_sale = $_POST['total_sale'];
+    $order_code = 'TLSLZR-' . mb_strtoupper($_POST['id_order']);
+
+    $client_name = $_POST['client_name'];
+    $client_lastname = $_POST['client_lastname'];
+    $name_client = $client_name . ' ' . $client_lastname;
+    $client_email = $_POST['client_email'];
+    $client_phone = $_POST['client_phone'];
+    $order_notes = $_POST['order_notes'];
+    $id_subsidiary = $_POST['id_subsidiary'];
+    $subsidiary_name = $_POST['subsidiary_name'];
+    $id_payment_methods = $_POST['payment_method'];;
+
+    $sqlGetSubsidiaryInfo = "SELECT sub_add.*,
+    sub.subsidiary_name,
+    sub.subsidiary_phone,
+    sub.subsidiary_second_phone
+    FROM u803991314_main.subsidiary AS sub
+    INNER JOIN u803991314_main.subsidiary_address AS sub_add ON sub_add.id_subsidiary_address = sub.id_subsidiary_address
+    WHERE sub.id_subsidiary = $id_subsidiary";
+    $getSubsidiaryInfo = $queries->getData($sqlGetSubsidiaryInfo);
+
+    $client_address = $getSubsidiaryInfo[0]->street . " " . $getSubsidiaryInfo[0]->int_number;
+    $client_colony = " Col. " . $getSubsidiaryInfo[0]->colony;
+    $client_zipcode = $getSubsidiaryInfo[0]->postal_code;
+    $client_state = $getSubsidiaryInfo[0]->state;
+    $client_city = $getSubsidiaryInfo[0]->delegation;
+    $subsidiary_name = $getSubsidiaryInfo[0]->subsidiary_name;
+    $subsidiary_phone = $getSubsidiaryInfo[0]->subsidiary_phone;
+
+
+
+    $client_address_complete = $client_address . ', ' . $client_colony . ', C.P. ' . $client_zipcode . ', ' . $client_city . ', ' . $client_state;
+
+    $today = date('Y-m-d H:i:s');
+
+    $sql = "INSERT INTO u803991314_main.orders (
+    id_clients,
+    id_orders_status_types,
+    id_offers,
+    id_payment_methods,
+    id_subsidiary,
+    order_code,
+    pikup_subsidiary,
+    ammount,
+    shipping_name_client,
+    shipping_address,
+    order_phone,
+    order_mail,
+    shipping_notes,
+    order_date
+    ) VALUES (
+        2,
+        2,
+        1,
+        $id_payment_methods,
+        1,
+        '$order_code',
+        1,
+        '$total_sale',
+        '$name_client',
+        '$client_address_complete',
+        '$client_phone',
+        '$client_email',
+        '$order_notes',
+        '$today'
+    )
+";
+    $saveOrderIndex = $queries->InsertData($sql);
+    if (!empty($saveOrderIndex)) {
+        $id_order = $saveOrderIndex['last_id'];
+
+        $totalSale = 0;
+        foreach ($cart_shop as $cart) {
+            $id_product = $cart['id_product'];
+            $quantity = $cart['quantity'];
+            $price = $cart['price'];
+
+            $sql = "INSERT INTO u803991314_main.order_details (
+                id_orders,
+                id_prducts,
+                price,
+                quantity
+            )VALUES (
+                $id_order,
+                $id_product,
+                '$price',
+                $quantity
+            )
+                ";
+            $queries->InsertData($sql);
+            $percentage = 0;
+            /* foreach ($getProducts as $product) {
+
+                if ($product->total_stock > 0) {
+                    $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
+                }
+
+                if ($product->thumbnail == 'NULL' || $product->thumbnail == '') {
+                    $image_prod = 'images/sin-imagen.png';
+                } else {
+                    $archive_route = str_replace('..', 'admin', $product->thumbnail);
+                    $image_prod = $archive_route;
+                    $file_exs = dirname(__DIR__ . '', 3) . str_replace('..', '', $product->thumbnail);
+                   
+
+                    if (file_exists($file_exs)) {
+                        $image_prod = $archive_route;
+                    } else {
+                        $image_prod = 'images/sin-imagen.png';
+                    }
+                }
+                $total_prod = $quantity * round($product->price, 2);
+                $totalSale = $totalSale + $total_prod;
+                $html .= '
+                        <tr>
+                            <td>' . $product->product_name . ' <strong class="mx-2">x</strong> ' . $quantity . '</td>
+                            <td>$' . $total_prod . '</td>
+                        </tr>
+                        ';
+            } */
+        }
+        $data = array(
+            'response' => true,
+            'message' => 'Su órden ha sido registrada, y se encuentra en proceso de validación',
+            'order_code' => $order_code,
+            'id_order' => $id_order,
+            'addressShip' => $client_address_complete,
+            'subsidiary_name' => $subsidiary_name,
+            'subsidiary_phone' => $subsidiary_phone
         );
     } else {
         $data = array(
@@ -771,9 +953,26 @@ function saveClientOrder()
 function sendMailConfirmation()
 {
 
+    $total_sale = $_POST['total_sale'];
+    $client_name = $_POST['client_name'];
+    $client_lastname = $_POST['client_lastname'];
+    $client_address = $_POST['client_address'];
+    $client_state = $_POST['client_state'];
+    $client_city = $_POST['client_city'];
+    $client_email = $_POST['client_email'];
+    $client_phone = $_POST['client_phone'];
+    $order_notes = $_POST['order_notes'];
+    $cart_shop = $_POST['cart_shop'];
+    $order_code = $_POST['order_code'];
+    
+    $subsidiary_phone = $_POST['subsidiary_phone'];
+    $addressShip = $_POST['addressShip'];
+    $name_client = $client_name . ' ' . $client_lastname;
+    $text_ship = "<strong>para confirmar que tu pedido está en camino a tu domicilio.</strong> ";
     //Import PHPMailer classes into the global namespace
     //These must be at the top of your script, not inside a function
 
+    $prod_list = getProducts($cart_shop);
 
     //Load Composer's autoloader
     require dirname(__DIR__ . '', 4) . '/vendor/autoload.php';
@@ -793,11 +992,11 @@ function sendMailConfirmation()
         $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
 
         //Recipients
-        $mail->setFrom('eshop.grupo.salazar@gruposalazar.com.mx', 'TIENDA EN LÍNEA GRUPO SALAZAR');
-        $mail->addAddress('antoniogonzalez.rt@gmail.com', 'Antonio Olvera');     //Add a recipient
+        $mail->setFrom('eshop.grupo.salazar@gruposalazar.com.mx', utf8_decode('TIENDA EN LÍNEA GRUPO SALAZAR'));
+        $mail->addAddress($client_email, $name_client);     //Add a recipient
         //$mail->addAddress('ellen@example.com');               //Name is optional
-        $mail->addReplyTo('eshop.grupo.salazar@gruposalazar.com.mx', 'TIENDA EN LÍNEA GRUPO SALAZAR');
-        $mail->addCC('soporte@gruposalazar.com.mx');
+        $mail->addReplyTo('eshop.grupo.salazar@gruposalazar.com.mx', utf8_decode('TIENDA EN LÍNEA GRUPO SALAZAR'));
+        //$mail->addCC('soporte@gruposalazar.com.mx');
         //$mail->addBCC('bcc@example.com');
 
         //Attachments
@@ -807,7 +1006,7 @@ function sendMailConfirmation()
         //Content
         $mail->isHTML(true);                                  //Set email format to HTML
         $mail->Subject = 'Resumen de su Compra';
-        $mail->Body    = getHTMLMailConfirmationClient();
+        $mail->Body    = getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $total_sale, $addressShip,  $subsidiary_phone, $text_ship);
 
 
         $mail->send();
@@ -928,7 +1127,180 @@ function sendMailConfirmation()
 
     echo json_encode($data);
 }
-function getHTMLMailConfirmationClient()
+function sendMailConfirmationSubsDelivery()
+{
+
+    $total_sale = $_POST['total_sale'];
+    $client_name = $_POST['client_name'];
+    $client_lastname = $_POST['client_lastname'];
+    $client_email = $_POST['client_email'];
+    $order_notes = $_POST['order_notes'];
+    $cart_shop = $_POST['cart_shop'];
+    $order_code = $_POST['order_code'];
+    $subsidiary_name = $_POST['subsidiary_name'];
+    $subsidiary_phone = $_POST['subsidiary_phone'];
+    $addressShip = $_POST['addressShip'];
+    $name_client = $client_name . ' ' . $client_lastname;
+    $text_ship = "para que puedas acudir a la <strong>$subsidiary_name</strong> a recogerla. ";
+    //Import PHPMailer classes into the global namespace
+    //These must be at the top of your script, not inside a function
+
+    $prod_list = getProducts($cart_shop);
+
+    //Load Composer's autoloader
+    require dirname(__DIR__ . '', 4) . '/vendor/autoload.php';
+
+    //Create an instance; passing `true` enables exceptions
+    $mail = new PHPMailer(true);
+
+    try {
+        //Server settings
+        $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+        $mail->isSMTP();                                            //Send using SMTP
+        $mail->Host       = 'smtp.hostinger.com';                     //Set the SMTP server to send through
+        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+        $mail->Username   = 'eshop.grupo.salazar@gruposalazar.com.mx';                     //SMTP username
+        $mail->Password   = 'E8%V7w5#ke';                               //SMTP password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+        $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+        //Recipients
+        $mail->setFrom('eshop.grupo.salazar@gruposalazar.com.mx', utf8_decode('TIENDA EN LÍNEA GRUPO SALAZAR'));
+        $mail->addAddress($client_email, $name_client);     //Add a recipient
+        //$mail->addAddress('ellen@example.com');               //Name is optional
+        $mail->addReplyTo('eshop.grupo.salazar@gruposalazar.com.mx', utf8_decode('TIENDA EN LÍNEA GRUPO SALAZAR'));
+        //$mail->addCC('soporte@gruposalazar.com.mx');
+        //$mail->addBCC('bcc@example.com');
+
+        //Attachments
+        //$mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
+        //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+        $mail->SMTPDebug = false;
+        //Content
+        $mail->isHTML(true);                                  //Set email format to HTML
+        $mail->Subject = 'Resumen de su Compra';
+        $mail->Body    = getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $total_sale, $addressShip, $subsidiary_phone, $text_ship);
+
+
+        $mail->send();
+        $data = array(
+            'response' => true,
+            'message' => 'Su órden ha sido registrada, y se encuentra en proceso de validación'
+        );
+    } catch (Exception $e) {
+        $data = array(
+            'response' => false,
+            'message' => 'Ocurrió un error al envíar el correo de confirmación'
+        );
+    }
+
+    $queries = new Queries;
+
+    //$id_product = $_POST['id_product'];
+    /*  $cart_shop = $_POST['cart_shop'];
+    $total_sale = $_POST['total_sale'];
+    $order_code = 'TLSLZR-'.mb_strtoupper($_POST['id_order']); */
+
+    $today = date('Y-m-d H:i:s');
+    /* 
+    $sql = "INSERT INTO u803991314_main.orders (
+    id_clients,
+    id_orders_status_types,
+    id_offers,
+    id_payment_methods,
+    id_subsidiary,
+    order_code,
+    pikup_subsidiary,
+    ammount,
+    shipping_address,
+    order_phone,
+    order_mail,
+    order_date
+    ) VALUES (
+        2,
+        2,
+        1,
+        4,
+        1,
+        '$order_code',
+        1,
+        '$total_sale',
+        'CALLE ENTREGA',
+        'TELEFONO ENTREGA',
+        'CORREO ENTREGA',
+        '$today'
+    )
+";
+    $saveOrderIndex = $queries->InsertData($sql);
+    if (!empty($saveOrderIndex)) {
+        $id_order = $saveOrderIndex['last_id'];
+
+        $totalSale = 0;
+        foreach ($cart_shop as $cart) {
+            $id_product = $cart['id_product'];
+            $quantity = $cart['quantity'];
+            $price = $cart['price'];
+
+            $sql = "INSERT INTO u803991314_main.order_details (
+                id_orders,
+                id_prducts,
+                price,
+                quantity
+            )VALUES (
+                $id_order,
+                $id_product,
+                '$price',
+                $quantity
+            )
+                ";
+            $queries->InsertData($sql);
+            $percentage = 0;
+            /* foreach ($getProducts as $product) {
+
+                if ($product->total_stock > 0) {
+                    $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
+                }
+
+                if ($product->thumbnail == 'NULL' || $product->thumbnail == '') {
+                    $image_prod = 'images/sin-imagen.png';
+                } else {
+                    $archive_route = str_replace('..', 'admin', $product->thumbnail);
+                    $image_prod = $archive_route;
+                    $file_exs = dirname(__DIR__ . '', 3) . str_replace('..', '', $product->thumbnail);
+                   
+
+                    if (file_exists($file_exs)) {
+                        $image_prod = $archive_route;
+                    } else {
+                        $image_prod = 'images/sin-imagen.png';
+                    }
+                }
+                $total_prod = $quantity * round($product->price, 2);
+                $totalSale = $totalSale + $total_prod;
+                $html .= '
+                        <tr>
+                            <td>' . $product->product_name . ' <strong class="mx-2">x</strong> ' . $quantity . '</td>
+                            <td>$' . $total_prod . '</td>
+                        </tr>
+                        ';
+            } 
+        }
+        $data = array(
+            'response' => true,
+            'message' => 'Su órden ha sido registrada, y se encuentra en proceso de validación',
+            'order_code' => $order_code,
+            'id_order' => $id_order,
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'Ocurrió un error al registrar la orden en nuestra base de datos'
+        );
+    } */
+
+    echo json_encode($data);
+}
+function getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $total_sale, $addressShip, $subsidiary_phone, $text_ship)
 {
     $html = '<!DOCTYPE html>
     <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
@@ -1127,10 +1499,11 @@ function getHTMLMailConfirmationClient()
                                                             <tr>
                                                                 <td class="pad" style="padding-bottom:10px;padding-left:40px;padding-right:40px;">
                                                                     <div style="color:#052D3D;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:22px;line-height:150%;text-align:center;mso-line-height-alt:33px;">
-                                                                        <p style="margin: 0; word-break: break-word;"><span><span>Hola <strong>*user*</strong>,&nbsp; gracias de nuevo por comprar en www.gruposalazar.com.mx</span></span></p>
-                                                                        <p style="margin: 0; word-break: break-word;"><span><span> Nos complace informarte que tu órden ha sido recibida y esta siendo procesada por nuestro personal para su recolección. En cuanto esté lista te enviaremos un correo electrónico para que puedas acudir a la sucursal <strong>*sucursal*</strong> a recogerla.&nbsp; Ante cualquier duda o aclaración no dudes en contactarnos a través de este correo.</span></span></p>
+                                                                        <p style="margin: 0; word-break: break-word;"><span><span>Hola <strong>' . $client_name . '</strong>,&nbsp; gracias de nuevo por comprar en www.gruposalazar.com.mx</span></span></p>
+                                                                        <p style="margin: 0; word-break: break-word;"><span><span> Nos complace informarte que tu órden ha sido recibida y esta 
+                                                                        siendo procesada por nuestro personal para su recolección. En cuanto esté lista te enviaremos un correo electrónico '.$text_ship.'&nbsp; Ante cualquier duda o aclaración no dudes en contactarnos a través de este correo.</span></span></p>
                                                                         <p style="margin: 0; word-break: break-word;">&nbsp;</p>
-                                                                        <p style="margin: 0; word-break: break-word;"><span><span>Tu código de órden es: <strong>*CÓDIGO DE ORDEN*</strong></span></span></p>
+                                                                        <p style="margin: 0; word-break: break-word;"><span><span>Tu código de órden es: <strong>' . $order_code . '</strong></span></span></p>
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -1221,51 +1594,7 @@ function getHTMLMailConfirmationClient()
                                     <td>
                                         <table class="row-content" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #F9F9F9; color: #333; width: 675px; margin: 0 auto;" width="675">
                                             <tbody>
-                                                <tr>
-                                                    <td class="column column-1" width="50%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-right: 1px dotted #E8E8E8; padding-bottom: 35px; padding-left: 30px; padding-top: 30px; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;">
-                                                        <table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
-                                                            <tr>
-                                                                <td class="pad" style="padding-bottom:5px;padding-right:10px;padding-top:10px;">
-                                                                    <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:16px;line-height:120%;text-align:left;mso-line-height-alt:19.2px;">
-                                                                        <p style="margin: 0; word-break: break-word;"><span style="color: #2190e3;"><strong>NAME&nbsp;</strong></span></p>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        </table>
-                                                        <table class="paragraph_block block-2" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
-                                                            <tr>
-                                                                <td class="pad" style="padding-bottom:10px;padding-right:10px;">
-                                                                    <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:14px;line-height:120%;text-align:left;mso-line-height-alt:16.8px;">
-                                                                        <p style="margin: 0; word-break: break-word;">Sed et justo molestie, <strong>convallis</strong> ipsumac.</p>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        </table>
-                                                    </td>
-                                                    <td class="column column-2" width="25%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-right: 1px dotted #E8E8E8; padding-bottom: 5px; padding-top: 55px; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;">
-                                                        <table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
-                                                            <tr>
-                                                                <td class="pad" style="padding-bottom:10px;padding-left:10px;padding-right:10px;">
-                                                                    <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:20px;line-height:120%;text-align:center;mso-line-height-alt:24px;">
-                                                                        <p style="margin: 0; word-break: break-word;">1</p>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        </table>
-                                                        <div class="spacer_block block-2" style="height:50px;line-height:50px;font-size:1px;">&#8202;</div>
-                                                    </td>
-                                                    <td class="column column-3" width="25%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 55px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
-                                                        <table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
-                                                            <tr>
-                                                                <td class="pad" style="padding-right:15px;">
-                                                                    <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:20px;line-height:120%;text-align:center;mso-line-height-alt:24px;">
-                                                                        <p style="margin: 0; word-break: break-word;">$ 15,00</p>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        </table>
-                                                    </td>
-                                                </tr>
+                                            ' . $prod_list . '
                                             </tbody>
                                         </table>
                                     </td>
@@ -1295,7 +1624,7 @@ function getHTMLMailConfirmationClient()
                                                             <tr>
                                                                 <td class="pad" style="padding-bottom:10px;padding-left:10px;padding-right:10px;">
                                                                     <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:21px;line-height:120%;text-align:center;mso-line-height-alt:25.2px;">
-                                                                        <p style="margin: 0;"><strong>$ 215,00</strong></p>
+                                                                        <p style="margin: 0;"><strong>$' . $total_sale . '</strong></p>
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -1338,7 +1667,7 @@ function getHTMLMailConfirmationClient()
                                                             <tr>
                                                                 <td class="pad" style="padding-bottom:15px;padding-left:15px;padding-right:15px;padding-top:5px;">
                                                                     <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:14px;line-height:150%;text-align:left;mso-line-height-alt:21px;">
-                                                                        <p style="margin: 0; word-break: break-word;"><strong>HARRY MAC INTOSH</strong><br>123 Anywhere road<br>Anywhere, IT 82933</p>
+                                                                        <p style="margin: 0; word-break: break-word;"><strong>' . $addressShip . '</strong></p>
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -1372,7 +1701,7 @@ function getHTMLMailConfirmationClient()
     <v:textbox inset="0px,0px,0px,0px">
     <center style="color:#ffffff; font-family:Tahoma, Verdana, sans-serif; font-size:16px">
     <![endif]-->
-                                                                        <div style="text-decoration:none;display:inline-block;color:#ffffff;background-color:#2190E3;border-radius:15px;width:auto;border-top:0px solid transparent;font-weight:undefined;border-right:0px solid transparent;border-bottom:0px solid transparent;border-left:0px solid transparent;padding-top:5px;padding-bottom:5px;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:16px;text-align:center;mso-border-alt:none;word-break:keep-all;"><span style="padding-left:20px;padding-right:20px;font-size:16px;display:inline-block;letter-spacing:normal;"><span style="word-break: break-word; line-height: 32px;"><strong>Descarga tu recibo de compra</strong></span></span></div><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
+                                                                        <div style="text-decoration:none;display:inline-block;color:#ffffff;background-color:#2190E3;border-radius:15px;width:auto;border-top:0px solid transparent;font-weight:undefined;border-right:0px solid transparent;border-bottom:0px solid transparent;border-left:0px solid transparent;padding-top:5px;padding-bottom:5px;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:16px;text-align:center;mso-border-alt:none;word-break:keep-all;"><span style="padding-left:20px;padding-right:20px;font-size:16px;display:inline-block;letter-spacing:normal;"><span style="word-break: break-word; line-height: 32px;"><strong>Tu recibo de compra esta adjunto en este correo</strong></span></span></div><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -1406,7 +1735,7 @@ function getHTMLMailConfirmationClient()
                                                             <tr>
                                                                 <td class="pad" style="padding-bottom:30px;padding-left:10px;padding-right:10px;">
                                                                     <div style="color:#787878;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:18px;line-height:150%;text-align:center;mso-line-height-alt:27px;">
-                                                                        <p style="margin: 0; word-break: break-word;">Envíanos un correo a&nbsp;<strong><a style="text-decoration: none; color: #2190E3;" href="#" target="_blank" rel="noopener">soporte@gruposalazar.com.mx</a></strong><br>O llámanos al &nbsp;<span style="color: #2190e3;">5639608153 (N° Sucursal)</span></p>
+                                                                        <p style="margin: 0; word-break: break-word;">Envíanos un correo a&nbsp;<strong><a style="text-decoration: none; color: #2190E3;" href="#" target="_blank" rel="noopener">soporte@gruposalazar.com.mx</a></strong><br>O llámanos al &nbsp;<span style="color: #2190e3;">' . $subsidiary_phone . '</span></p>
                                                                         <p style="margin: 0; word-break: break-word;"><strong>Lunes a Domingo </strong></p>
                                                                         <p style="margin: 0; word-break: break-word;"><strong>de 8:30 A.M. -&nbsp; 5:30 P.M.&nbsp;</strong></p>
                                                                     </div>
@@ -1446,63 +1775,13 @@ function getHTMLMailConfirmationClient()
                                             <tbody>
                                                 <tr>
                                                     <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 35px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
-                                                        <table class="social_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
-                                                            <tr>
-                                                                <td class="pad">
-                                                                    <div class="alignment" align="center">
-                                                                        <table class="social-table" width="188px" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block;">
-                                                                            <tr>
-                                                                                <td style="padding:0 15px 0 0px;"><a href="https://www.facebook.com" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/circle-color/facebook@2x.png" width="32" height="auto" alt="Facebook" title="Facebook" style="display: block; height: auto; border: 0;"></a></td>
-                                                                                <td style="padding:0 15px 0 0px;"><a href="https://www.twitter.com" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/circle-color/twitter@2x.png" width="32" height="auto" alt="Twitter" title="Twitter" style="display: block; height: auto; border: 0;"></a></td>
-                                                                                <td style="padding:0 15px 0 0px;"><a href="https://www.instagram.com" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/circle-color/instagram@2x.png" width="32" height="auto" alt="Instagram" title="Instagram" style="display: block; height: auto; border: 0;"></a></td>
-                                                                                <td style="padding:0 15px 0 0px;"><a href="https://www.pinterest.com" target="_blank"><img src="https://app-rsrc.getbee.io/public/resources/social-networks-icon-sets/circle-color/pinterest@2x.png" width="32" height="auto" alt="Pinterest" title="Pinterest" style="display: block; height: auto; border: 0;"></a></td>
-                                                                            </tr>
-                                                                        </table>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        </table>
+                                                        
                                                         <table class="paragraph_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
                                                             <tr>
                                                                 <td class="pad">
                                                                     <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:14px;line-height:150%;text-align:center;mso-line-height-alt:21px;">
                                                                         <p style="margin: 0; word-break: break-word;">Grupo Salazar - Todos los derechos reservados</p>
                                                                     </div>
-                                                                </td>
-                                                            </tr>
-                                                        </table>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <table class="row row-12" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff;">
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; color: #000000; width: 675px; margin: 0 auto;" width="675">
-                                            <tbody>
-                                                <tr>
-                                                    <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
-                                                        <table class="icons_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; text-align: center;">
-                                                            <tr>
-                                                                <td class="pad" style="vertical-align: middle; color: #1e0e4b; font-family: Inter, sans-serif; font-size: 15px; padding-bottom: 5px; padding-top: 5px; text-align: center;">
-                                                                    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
-                                                                        <tr>
-                                                                            <td class="alignment" style="vertical-align: middle; text-align: center;"><!--[if vml]><table align="center" cellpadding="0" cellspacing="0" role="presentation" style="display:inline-block;padding-left:0px;padding-right:0px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;"><![endif]-->
-                                                                                <!--[if !vml]><!-->
-                                                                                <table class="icons-inner" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; margin-right: -4px; padding-left: 0px; padding-right: 0px;" cellpadding="0" cellspacing="0" role="presentation"><!--<![endif]-->
-                                                                                    <tr>
-                                                                                        <td style="vertical-align: middle; text-align: center; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 6px;"><a href="http://designedwithbeefree.com/" target="_blank" style="text-decoration: none;"><img class="icon" alt="Beefree Logo" src="https://d1oco4z2z1fhwp.cloudfront.net/assets/Beefree-logo.png" height="auto" width="34" align="center" style="display: block; height: auto; margin: 0 auto; border: 0;"></a></td>
-                                                                                        <td style="font-family: Inter, sans-serif; font-size: 15px; font-weight: undefined; color: #1e0e4b; vertical-align: middle; letter-spacing: undefined; text-align: center;"><a href="http://designedwithbeefree.com/" target="_blank" style="color: #1e0e4b; text-decoration: none;">Designed with Beefree</a></td>
-                                                                                    </tr>
-                                                                                </table>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </table>
                                                                 </td>
                                                             </tr>
                                                         </table>
@@ -1522,6 +1801,92 @@ function getHTMLMailConfirmationClient()
     
     </html>';
 
+    return $html;
+}
+function getProducts($cart_shop)
+{
+    $html = "";
+
+    $queries = new Queries;
+    $totalSale = 0;
+    foreach ($cart_shop as $cart) {
+        $id_product = $cart['id_product'];
+        $quantity = $cart['quantity'];
+
+        $sql = "SELECT brand,
+                prods.*
+                FROM u803991314_main.products AS prods
+                INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+                INNER JOIN u803991314_main.relationship_products_categories AS rpc ON rpc.id_prducts = prods.id_prducts
+                INNER JOIN u803991314_main.categories AS ct ON ct.id_categories = rpc.id_categories
+                WHERE prods.id_prducts = $id_product
+    ";
+        $getProducts = $queries->getData($sql);
+
+
+        $percentage = 0;
+        foreach ($getProducts as $product) {
+
+            /*  if ($product->total_stock > 0) {
+                $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
+            } */
+
+            if ($product->thumbnail == 'NULL' || $product->thumbnail == '') {
+                $image_prod = 'images/sin-imagen.png';
+            } else {
+                $archive_route = str_replace('..', 'admin', $product->thumbnail);
+                $image_prod = $archive_route;
+                $file_exs = dirname(__DIR__ . '', 3) . str_replace('..', '', $product->thumbnail);
+                /* echo $file_exs; */
+
+                if (file_exists($file_exs)) {
+                    $image_prod = $archive_route;
+                } else {
+                    $image_prod = 'images/sin-imagen.png';
+                }
+            }
+            $total_prod = $quantity * round($product->price, 2);
+            $totalSale = $totalSale + $total_prod;
+            $html .= '
+                        <tr>
+                            <td class="column column-1" width="50%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-right: 1px dotted #E8E8E8; padding-bottom: 35px; padding-left: 30px; padding-top: 30px; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;">
+                                <table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                    <tr>
+                                        <td class="pad" style="padding-bottom:5px;padding-right:10px;padding-top:10px;">
+                                            <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:16px;line-height:120%;text-align:left;mso-line-height-alt:19.2px;">
+                                                <p style="margin: 0; word-break: break-word;"><span style="color: #2190e3;"><strong>' . $product->product_name . '&nbsp;</strong></span></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                            <td class="column column-2" width="25%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-right: 1px dotted #E8E8E8; padding-bottom: 5px; padding-top: 55px; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;">
+                                <table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                    <tr>
+                                        <td class="pad" style="padding-bottom:10px;padding-left:10px;padding-right:10px;">
+                                            <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:20px;line-height:120%;text-align:center;mso-line-height-alt:24px;">
+                                                <p style="margin: 0; word-break: break-word;">' . $quantity . '</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div class="spacer_block block-2" style="height:50px;line-height:50px;font-size:1px;">&#8202;</div>
+                            </td>
+                            <td class="column column-3" width="25%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 55px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                <table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                    <tr>
+                                        <td class="pad" style="padding-right:15px;">
+                                            <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:20px;line-height:120%;text-align:center;mso-line-height-alt:24px;">
+                                                <p style="margin: 0; word-break: break-word;">$' . round($product->price, 2) . '</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+            ';
+        }
+    }
     return $html;
 }
 
