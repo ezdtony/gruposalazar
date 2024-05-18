@@ -333,7 +333,7 @@ function getProductsShop()
 
 
         foreach ($getProducts as $product) {
-
+            $total_stock = $product->total_stock;
             $percentage = 0;
             if ($product->total_stock > 0) {
                 $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
@@ -353,17 +353,24 @@ function getProductsShop()
                     $image_prod = 'images/sin-imagen.png';
                 }
             }
+            $enabled = "";
+            $html_stock = '<p class="text-muted">Disponible en stock: ' . $total_stock . '</p>';
+            if ($total_stock <= 0) {
+                $enabled = "disabled";
+                $html_stock = '<p class="text-muted" style="color:red !important">Sin stock disponible</p>';
+            }
 
             $html .= '
             <div class="col-12 col-md-4 col-lg-3 mb-5">
                     <a class="product-item">
                         <img src="' . $image_prod . '" class="img-fluid product-thumbnail">
                         <h3 class="product-title">' . $product->product_name . '</h3>
+                        '.$html_stock.'
                         <strong class="product-price">$' . round($product->price, 2) . '</strong>
 
-                        <span class="icon-cross addCartProd"  data-id-product="' . $product->id_prducts . '" data-product-price="' . round($product->price, 2) . '" >
+                        <button '.$enabled.' class="icon-cross addCartProd"  data-id-product="' . $product->id_prducts . '" data-product-price="' . round($product->price, 2) . '" data-stock="' . $total_stock . '">
                             <img src="images/cross.svg" class="img-fluid">
-                        </span>
+                        </button>
                     </a>
                 </div>';
         }
@@ -439,6 +446,7 @@ function getProductsCart()
 
 
     $totalSale = 0;
+    $cart_index = 0;
     foreach ($cart_shop as $cart) {
         $id_product = $cart['id_product'];
         $quantity = $cart['quantity'];
@@ -496,19 +504,20 @@ function getProductsCart()
             <td>
                 <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
                     <div class="input-group-prepend">
-                        <button class="btn btn-outline-black decrease" type="button">&minus;</button>
+                        <button class="btn btn-outline-black decrease"  type="button">&minus;</button>
                     </div>
-                    <input type="text" class="form-control text-center quantity-amount" value="' . $quantity . '" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+                    <input type="text" class="form-control text-center quantity-amount" data-price="' . round($product->price, 2) . '" value="' . $quantity . '" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
                     <div class="input-group-append">
                         <button class="btn btn-outline-black increase" type="button">&plus;</button>
                     </div>
                 </div>
 
             </td>
-            <td>$' . $total_prod . '</td>
+            <td class="total-prod" data-id-product="' . $id_product . '" data-cart-index="'.$cart_index.'" data-product-quantity="' . $quantity . '"  data-price="' . round($product->price, 2) . '"  data-total-prod="' . $total_prod . '">$' . $total_prod . '</td>
             <td><a class="btn btn-black btn-sm removeCartPRod" data-id-product="' . $product->id_prducts . '" >X</a></td>
         </tr>
             ';
+            $cart_index++;
         }
     }
 
@@ -680,6 +689,7 @@ function saveClientOrderHomeDelivery()
     $client_phone = $_POST['client_phone'];
     $order_notes = $_POST['order_notes'];
     $id_payment_methods = 2;
+    $id_subsidiary = 1;
 
     $sqlGetSubsidiaryInfo = "SELECT sub_add.*,
     sub.subsidiary_name,
@@ -717,7 +727,7 @@ function saveClientOrderHomeDelivery()
         2,
         1,
         $id_payment_methods,
-        1,
+        $id_subsidiary,
         '$order_code',
         1,
         '$total_sale',
@@ -751,6 +761,9 @@ function saveClientOrderHomeDelivery()
                 $quantity
             )
                 ";
+            $queries->InsertData($sql);
+
+            $sql = "UPDATE u803991314_main.subsidiary_stocks SET stock = stock - '$quantity' WHERE id_subsidiary = $id_subsidiary AND prducts_id_prducts = $id_product";
             $queries->InsertData($sql);
             $percentage = 0;
             /* foreach ($getProducts as $product) {
@@ -900,6 +913,9 @@ function saveClientOrderSubsidiaryDelivery()
             )
                 ";
             $queries->InsertData($sql);
+
+            $sql = "UPDATE u803991314_main.subsidiary_stocks SET stock = stock - '$quantity' WHERE id_subsidiary = $id_subsidiary AND prducts_id_prducts = $id_product";
+            $queries->InsertData($sql);
             $percentage = 0;
             /* foreach ($getProducts as $product) {
 
@@ -964,7 +980,7 @@ function sendMailConfirmation()
     $order_notes = $_POST['order_notes'];
     $cart_shop = $_POST['cart_shop'];
     $order_code = $_POST['order_code'];
-    
+
     $subsidiary_phone = $_POST['subsidiary_phone'];
     $addressShip = $_POST['addressShip'];
     $name_client = $client_name . ' ' . $client_lastname;
@@ -1501,7 +1517,7 @@ function getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $t
                                                                     <div style="color:#052D3D;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:22px;line-height:150%;text-align:center;mso-line-height-alt:33px;">
                                                                         <p style="margin: 0; word-break: break-word;"><span><span>Hola <strong>' . $client_name . '</strong>,&nbsp; gracias de nuevo por comprar en www.gruposalazar.com.mx</span></span></p>
                                                                         <p style="margin: 0; word-break: break-word;"><span><span> Nos complace informarte que tu órden ha sido recibida y esta 
-                                                                        siendo procesada por nuestro personal para su recolección. En cuanto esté lista te enviaremos un correo electrónico '.$text_ship.'&nbsp; Ante cualquier duda o aclaración no dudes en contactarnos a través de este correo.</span></span></p>
+                                                                        siendo procesada por nuestro personal para su recolección. En cuanto esté lista te enviaremos un correo electrónico ' . $text_ship . '&nbsp; Ante cualquier duda o aclaración no dudes en contactarnos a través de este correo.</span></span></p>
                                                                         <p style="margin: 0; word-break: break-word;">&nbsp;</p>
                                                                         <p style="margin: 0; word-break: break-word;"><span><span>Tu código de órden es: <strong>' . $order_code . '</strong></span></span></p>
                                                                     </div>

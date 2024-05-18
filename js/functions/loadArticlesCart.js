@@ -36,8 +36,8 @@ $(document).ready(function () {
   function loadProductsCart(limitProducts, searchInput, actualPage) {
     if (sessionStorage.getItem("cart_shop")) {
       var cart_shop = JSON.parse(sessionStorage.getItem("cart_shop"));
-    }else{
-        cart_shop = [];
+    } else {
+      cart_shop = [];
     }
     console.log(cart_shop);
 
@@ -63,7 +63,7 @@ $(document).ready(function () {
       method: "POST",
       data: {
         mod: "getProductsCart",
-        cart_shop: cart_shop
+        cart_shop: cart_shop,
       },
     })
       .done(function (data) {
@@ -94,6 +94,187 @@ $(document).ready(function () {
         myToast.showToast();
       });
   }
+  var sitePlusMinus = function () {
+    var value,
+      quantity = document.getElementsByClassName("quantity-container");
+
+    function createBindings(quantityContainer) {
+      var quantityAmount =
+        quantityContainer.getElementsByClassName("quantity-amount")[0];
+      var increase = quantityContainer.getElementsByClassName("increase")[0];
+      var decrease = quantityContainer.getElementsByClassName("decrease")[0];
+      increase.addEventListener("click", function (e) {
+        increaseValue(e, quantityAmount);
+      });
+      decrease.addEventListener("click", function (e) {
+        decreaseValue(e, quantityAmount);
+      });
+    }
+
+    function init() {
+      for (var i = 0; i < quantity.length; i++) {
+        createBindings(quantity[i]);
+      }
+    }
+
+    function increaseValue(event, quantityAmount) {
+      console.log(event);
+      value = parseInt(quantityAmount.value, 10);
+
+      console.log(quantityAmount, quantityAmount.value);
+
+      value = isNaN(value) ? 0 : value;
+      value++;
+      quantityAmount.value = value;
+      console.log(quantityAmount, quantityAmount.value);
+    }
+
+    function decreaseValue(event, quantityAmount) {
+      value = parseInt(quantityAmount.value, 10);
+
+      value = isNaN(value) ? 0 : value;
+      if (value > 0) value--;
+
+      quantityAmount.value = value;
+    }
+
+    init();
+  };
+  $(document).on("click", ".increase", async function (event) {
+    //loading();
+    var value = $(this)
+      .parents(".quantity-container")
+      .children(".quantity-amount")
+      .val();
+    var prod_price = $(this)
+      .parents(".quantity-container")
+      .children(".quantity-amount")
+      .attr("data-price");
+
+    value = parseInt(value, 10);
+    value = isNaN(value) ? 1 : value;
+    value++;
+
+    prod_price = parseFloat(prod_price, 10);
+    prod_price = isNaN(prod_price) ? prod_price : prod_price;
+
+    prod_total = (value * prod_price).toFixed(2);
+
+    $(this)
+      .parents(".quantity-container")
+      .children(".quantity-amount")
+      .val(value);
+    $(this)
+      .parents(".quantity-container")
+      .children(".quantity-amount")
+      .attr("value", value);
+    $(this)
+      .parents("tr")
+      .children(".total-prod")
+      .text("$" + prod_total);
+
+    $(this)
+      .parents("tr")
+      .children(".total-prod")
+      .attr("data-total-prod", prod_total);
+
+    $(this)
+      .parents("tr")
+      .children(".total-prod")
+      .attr("data-product-quantity", value);
+
+    await recalcTotal();
+    //    Swal.close();
+    console.log(value);
+
+    //--- --- ---//
+  });
+
+  async function recalcTotal() {
+    var total_sale = 0;
+    var cart_shop = JSON.parse(sessionStorage.getItem("cart_shop"));
+    $(".total-prod").each(function () {
+      total_prod = $(this).attr("data-total-prod");
+      var id_product = $(this).attr("data-id-product");
+      var price = $(this).attr("data-price");
+      var stock = 0;
+      var quantity = $(this).attr("data-product-quantity");
+      var cart_index = $(this).attr("data-cart-index");
+
+      total_prod = parseFloat(total_prod, 10);
+      total_prod = isNaN(total_prod) ? total_prod : total_prod;
+
+      total_sale = total_sale + total_prod;
+
+      let arr_prod_cart = {
+        id_product: id_product,
+        quantity: quantity,
+        price: price,
+        stock: stock,
+      };
+
+      console.log(cart_shop);
+      cart_shop[cart_index] = arr_prod_cart;
+      console.log(cart_shop);
+    });
+    $(".txtTotalCart").text(total_sale.toFixed(2));
+
+    sessionStorage.setItem("cart_shop", JSON.stringify(cart_shop));
+
+    sessionStorage.setItem("total_sale", total_sale.toFixed(2));
+    console.log(sessionStorage.getItem("cart_shop", JSON.stringify(cart_shop)));
+  }
+
+  $(document).on("click", ".decrease", async function (event) {
+    //loading();
+    var value = $(this)
+      .parents(".quantity-container")
+      .children(".quantity-amount")
+      .val();
+
+    var prod_price = $(this)
+      .parents(".quantity-container")
+      .children(".quantity-amount")
+      .attr("data-price");
+
+    value = parseInt(value, 10);
+    value = isNaN(value) ? 0 : value;
+
+    prod_price = parseFloat(prod_price, 10);
+    prod_price = isNaN(prod_price) ? prod_price : prod_price;
+
+    if (value > 1) value--;
+
+    prod_total = (value * prod_price).toFixed(2);
+    $(this)
+      .parents(".quantity-container")
+      .children(".quantity-amount")
+      .val(value);
+    $(this)
+      .parents(".quantity-container")
+      .children(".quantity-amount")
+      .attr("value", value);
+
+    $(this)
+      .parents("tr")
+      .children(".total-prod")
+      .text("$" + prod_total);
+    $(this)
+      .parents("tr")
+      .children(".total-prod")
+      .attr("data-total-prod", prod_total);
+
+    $(this)
+      .parents("tr")
+      .children(".total-prod")
+      .attr("data-product-quantity", value);
+
+    await recalcTotal();
+    //Swal.close();
+    console.log(value);
+
+    //--- --- ---//
+  });
 
   function loading() {
     Swal.fire({

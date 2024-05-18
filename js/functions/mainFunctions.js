@@ -13,8 +13,9 @@ $(document).ready(function () {
 
     var id_product = $(this).attr("data-id-product");
     var price = $(this).attr("data-product-price");
+    var stock = $(this).attr("data-stock");
 
-    let arr_prod_cart = {id_product:id_product, quantity:1, price:price};
+    let arr_prod_cart = {id_product:id_product, quantity:1, price:price, stock:stock};
     cart_shop.push(arr_prod_cart);
     $(".cartSizeTxt").text(cart_shop.length);
 

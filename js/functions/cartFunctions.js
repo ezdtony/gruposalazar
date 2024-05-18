@@ -685,7 +685,7 @@ $(document).ready(function () {
             icon: "success",
             text: data.message,
           }).then((result) => {
-             loading();
+            loading();
             location.href = "thankyou.php";
           });
         } else {
@@ -742,8 +742,8 @@ $(document).ready(function () {
             icon: "success",
             text: data.message,
           }).then((result) => {
-             loading();
-            
+            loading();
+
             location.href = "thankyou.php";
           });
         } else {
@@ -762,6 +762,8 @@ $(document).ready(function () {
         myToast.showToast();
       });
   }
+
+
 
   function loading() {
     Swal.fire({
