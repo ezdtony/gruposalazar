@@ -151,7 +151,7 @@ $(document).ready(function () {
 
           /* doneToast(data.message); */
         } else {
-          errorToast("Ocurrió un error");
+          errorToast("Ocursrió un error");
         }
 
         //--- --- ---//

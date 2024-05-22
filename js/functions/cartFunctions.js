@@ -598,7 +598,8 @@ $(document).ready(function () {
               client_lastname,
               client_email,
               order_notes,
-              cart_shop
+              cart_shop,
+              client_phone
             );
             /*  Swal.fire({
               title: "Hecho!!!",
@@ -712,7 +713,8 @@ $(document).ready(function () {
     client_lastname,
     client_email,
     order_notes,
-    cart_shop
+    cart_shop,
+    client_phone
   ) {
     sessionStorage.setItem("order_code", data.order_code);
     $.ajax({
@@ -730,6 +732,7 @@ $(document).ready(function () {
         subsidiary_name: data.subsidiary_name,
         subsidiary_phone: data.subsidiary_phone,
         addressShip: data.addressShip,
+        client_phone:client_phone
       },
     })
       .done(function (data) {
@@ -743,7 +746,6 @@ $(document).ready(function () {
             text: data.message,
           }).then((result) => {
             loading();
-
             location.href = "thankyou.php";
           });
         } else {

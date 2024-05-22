@@ -365,10 +365,10 @@ function getProductsShop()
                     <a class="product-item">
                         <img src="' . $image_prod . '" class="img-fluid product-thumbnail">
                         <h3 class="product-title">' . $product->product_name . '</h3>
-                        '.$html_stock.'
+                        ' . $html_stock . '
                         <strong class="product-price">$' . round($product->price, 2) . '</strong>
 
-                        <button '.$enabled.' class="icon-cross addCartProd"  data-id-product="' . $product->id_prducts . '" data-product-price="' . round($product->price, 2) . '" data-stock="' . $total_stock . '">
+                        <button ' . $enabled . ' class="icon-cross addCartProd"  data-id-product="' . $product->id_prducts . '" data-product-price="' . round($product->price, 2) . '" data-stock="' . $total_stock . '">
                             <img src="images/cross.svg" class="img-fluid">
                         </button>
                     </a>
@@ -504,17 +504,16 @@ function getProductsCart()
             <td>
                 <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
                     <div class="input-group-prepend">
-                        <button class="btn btn-outline-black decrease"  type="button">&minus;</button>
+                        <button data-stock="' . $product->total_stock . '" class="btn btn-outline-black decrease"  type="button">&minus;</button>
                     </div>
-                    <input type="text" class="form-control text-center quantity-amount" data-price="' . round($product->price, 2) . '" value="' . $quantity . '" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+                    <input type="text" disabled class="form-control text-center quantity-amount" data-price="' . round($product->price, 2) . '" value="' . $quantity . '" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
                     <div class="input-group-append">
-                        <button class="btn btn-outline-black increase" type="button">&plus;</button>
+                        <button data-stock="' . $product->total_stock . '" class="btn btn-outline-black increase" type="button">&plus;</button>
                     </div>
                 </div>
 
             </td>
-            <td class="total-prod" data-id-product="' . $id_product . '" data-cart-index="'.$cart_index.'" data-product-quantity="' . $quantity . '"  data-price="' . round($product->price, 2) . '"  data-total-prod="' . $total_prod . '">$' . $total_prod . '</td>
-            <td><a class="btn btn-black btn-sm removeCartPRod" data-id-product="' . $product->id_prducts . '" >X</a></td>
+            <td class="total-prod" data-stock="' . $product->total_stock . '" data-id-product="' . $id_product . '" data-cart-index="' . $cart_index . '" data-product-quantity="' . $quantity . '"  data-price="' . round($product->price, 2) . '"  data-total-prod="' . $total_prod . '">$' . $total_prod . '</td>
         </tr>
             ';
             $cart_index++;
@@ -985,6 +984,7 @@ function sendMailConfirmation()
     $addressShip = $_POST['addressShip'];
     $name_client = $client_name . ' ' . $client_lastname;
     $text_ship = "<strong>para confirmar que tu pedido está en camino a tu domicilio.</strong> ";
+    $text_ship_colab = "Esta compra será envíada al domicilio del cliente.";
     //Import PHPMailer classes into the global namespace
     //These must be at the top of your script, not inside a function
 
@@ -1022,10 +1022,12 @@ function sendMailConfirmation()
         //Content
         $mail->isHTML(true);                                  //Set email format to HTML
         $mail->Subject = 'Resumen de su Compra';
-        $mail->Body    = getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $total_sale, $addressShip,  $subsidiary_phone, $text_ship);
+        $mail->Body    = getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $total_sale, $addressShip,  $subsidiary_phone, $text_ship, $order_notes);
 
 
         $mail->send();
+
+        
         $data = array(
             'response' => true,
             'message' => 'Su órden ha sido registrada, y se encuentra en proceso de validación'
@@ -1036,7 +1038,7 @@ function sendMailConfirmation()
             'message' => 'Ocurrió un error al envíar el correo de confirmación'
         );
     }
-
+    sendMailConfirmationColaborator($client_name, $order_code, $prod_list, $total_sale, $addressShip, $client_phone, $client_email, $text_ship_colab, $order_notes);
     $queries = new Queries;
 
     //$id_product = $_POST['id_product'];
@@ -1156,8 +1158,10 @@ function sendMailConfirmationSubsDelivery()
     $subsidiary_name = $_POST['subsidiary_name'];
     $subsidiary_phone = $_POST['subsidiary_phone'];
     $addressShip = $_POST['addressShip'];
+    $client_phone = $_POST['client_phone'];
     $name_client = $client_name . ' ' . $client_lastname;
     $text_ship = "para que puedas acudir a la <strong>$subsidiary_name</strong> a recogerla. ";
+    $text_ship_colab = "Esta compra será entregada en la <strong>$subsidiary_name</strong>";
     //Import PHPMailer classes into the global namespace
     //These must be at the top of your script, not inside a function
 
@@ -1195,10 +1199,13 @@ function sendMailConfirmationSubsDelivery()
         //Content
         $mail->isHTML(true);                                  //Set email format to HTML
         $mail->Subject = 'Resumen de su Compra';
-        $mail->Body    = getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $total_sale, $addressShip, $subsidiary_phone, $text_ship);
+        $mail->Body    = getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $total_sale, $addressShip, $subsidiary_phone, $text_ship, $order_notes);
 
 
         $mail->send();
+
+        
+
         $data = array(
             'response' => true,
             'message' => 'Su órden ha sido registrada, y se encuentra en proceso de validación'
@@ -1209,7 +1216,7 @@ function sendMailConfirmationSubsDelivery()
             'message' => 'Ocurrió un error al envíar el correo de confirmación'
         );
     }
-
+    sendMailConfirmationColaborator($name_client, $order_code, $prod_list, $total_sale, $addressShip, $client_phone, $client_email, $text_ship_colab, $order_notes);
     $queries = new Queries;
 
     //$id_product = $_POST['id_product'];
@@ -1316,7 +1323,7 @@ function sendMailConfirmationSubsDelivery()
 
     echo json_encode($data);
 }
-function getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $total_sale, $addressShip, $subsidiary_phone, $text_ship)
+function getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $total_sale, $addressShip, $subsidiary_phone, $text_ship, $order_notes)
 {
     $html = '<!DOCTYPE html>
     <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
@@ -1654,6 +1661,34 @@ function getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $t
                             </tbody>
                         </table>
                         <table class="row row-8" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #F8F8F8; color: #333; width: 675px; margin: 0 auto;" width="675">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-right: 1px dotted #E8E8E8; padding-bottom: 5px; padding-left: 15px; padding-right: 15px; padding-top: 15px; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad" style="padding-bottom:10px;padding-left:10px;padding-right:10px;">
+																<div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:20px;line-height:120%;text-align:center;mso-line-height-alt:24px;">
+																	<p style="margin: 0; word-break: break-word;">&nbsp;</p>
+																	<p style="margin: 0; word-break: break-word;"><strong>Notas de la Orden:</strong></p>
+																	<p style="margin: 0; word-break: break-word;">&nbsp;</p>
+																	<p style="margin: 0; word-break: break-word;"><strong>' . $order_notes . '</strong></p>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+                        <table class="row row-8" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
                             <tbody>
                                 <tr>
                                     <td>
@@ -1798,6 +1833,737 @@ function getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $t
                                                                     <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:14px;line-height:150%;text-align:center;mso-line-height-alt:21px;">
                                                                         <p style="margin: 0; word-break: break-word;">Grupo Salazar - Todos los derechos reservados</p>
                                                                     </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table><!-- End -->
+    </body>
+    
+    </html>';
+
+    return $html;
+}
+function sendMailConfirmationColaborator($client_name, $order_code, $prod_list, $total_sale, $addressShip, $client_phone, $client_mail, $text_ship, $order_notes)
+{
+ 
+
+    //Import PHPMailer classes into the global namespace
+    //These must be at the top of your script, not inside a function
+
+
+    //Load Composer's autoloader
+    require dirname(__DIR__ . '', 4) . '/vendor/autoload.php';
+
+    //Create an instance; passing `true` enables exceptions
+    $mail = new PHPMailer(true);
+
+    try {
+        //Server settings
+        $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+        $mail->isSMTP();                                            //Send using SMTP
+        $mail->Host       = 'smtp.hostinger.com';                     //Set the SMTP server to send through
+        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+        $mail->Username   = 'ventas_online@gruposalazar.com.mx';                     //SMTP username
+        $mail->Password   = '5&0L6$h~Zo#*';                               //SMTP password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+        $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+        //Recipients
+        $mail->setFrom('ventas_online@gruposalazar.com.mx', utf8_decode('VENTAS EN LÍNEA GRUPO SALAZAR'));
+        //$mail->addAddress('antoniogonzalez.rt@gmail.com', 'Ventas en Línea Grupo Salazar');
+        $mail->addAddress('ventas_online@gruposalazar.com.mx', 'Ventas en Línea Grupo Salazar');
+        
+        //$mail->addAddress('ellen@example.com');               //Name is optional
+        $mail->addReplyTo('ventas_online@gruposalazar.com.mx', utf8_decode('VENTAS EN LÍNEA GRUPO SALAZAR'));
+        //$mail->addCC('soporte@gruposalazar.com.mx');
+        //$mail->addBCC('bcc@example.com');
+
+        //Attachments
+        //$mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
+        //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+        $mail->SMTPDebug = false;
+        //Content
+        $mail->isHTML(true);                                  //Set email format to HTML
+        $mail->Subject = 'Nueva Venta';
+        $mail->Body    = utf8_decode(getHTMLMailConfirmationColaborator($client_name, $order_code, $prod_list, $total_sale, $addressShip, $client_phone, $client_mail, $text_ship, $order_notes));
+
+
+        $mail->send();
+        //$mail->SMTPDebug  = 1; 
+
+        $data = array(
+            'response' => true,
+            'message' => 'Su órden ha sido registrada, y se encuentra en proceso de validación'
+        );
+    } catch (Exception $e) {
+        $data = array(
+            'response' => false,
+            'message' => 'Ocurrió un error al envíar el correo de confirmación'
+        );
+    }
+
+    $queries = new Queries;
+
+    //$id_product = $_POST['id_product'];
+    /*  $cart_shop = $_POST['cart_shop'];
+    $total_sale = $_POST['total_sale'];
+    $order_code = 'TLSLZR-'.mb_strtoupper($_POST['id_order']); */
+
+    $today = date('Y-m-d H:i:s');
+    /* 
+    $sql = "INSERT INTO u803991314_main.orders (
+    id_clients,
+    id_orders_status_types,
+    id_offers,
+    id_payment_methods,
+    id_subsidiary,
+    order_code,
+    pikup_subsidiary,
+    ammount,
+    shipping_address,
+    order_phone,
+    order_mail,
+    order_date
+    ) VALUES (
+        2,
+        2,
+        1,
+        4,
+        1,
+        '$order_code',
+        1,
+        '$total_sale',
+        'CALLE ENTREGA',
+        'TELEFONO ENTREGA',
+        'CORREO ENTREGA',
+        '$today'
+    )
+";
+    $saveOrderIndex = $queries->InsertData($sql);
+    if (!empty($saveOrderIndex)) {
+        $id_order = $saveOrderIndex['last_id'];
+
+        $totalSale = 0;
+        foreach ($cart_shop as $cart) {
+            $id_product = $cart['id_product'];
+            $quantity = $cart['quantity'];
+            $price = $cart['price'];
+
+            $sql = "INSERT INTO u803991314_main.order_details (
+                id_orders,
+                id_prducts,
+                price,
+                quantity
+            )VALUES (
+                $id_order,
+                $id_product,
+                '$price',
+                $quantity
+            )
+                ";
+            $queries->InsertData($sql);
+            $percentage = 0;
+            /* foreach ($getProducts as $product) {
+
+                if ($product->total_stock > 0) {
+                    $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
+                }
+
+                if ($product->thumbnail == 'NULL' || $product->thumbnail == '') {
+                    $image_prod = 'images/sin-imagen.png';
+                } else {
+                    $archive_route = str_replace('..', 'admin', $product->thumbnail);
+                    $image_prod = $archive_route;
+                    $file_exs = dirname(__DIR__ . '', 3) . str_replace('..', '', $product->thumbnail);
+                   
+
+                    if (file_exists($file_exs)) {
+                        $image_prod = $archive_route;
+                    } else {
+                        $image_prod = 'images/sin-imagen.png';
+                    }
+                }
+                $total_prod = $quantity * round($product->price, 2);
+                $totalSale = $totalSale + $total_prod;
+                $html .= '
+                        <tr>
+                            <td>' . $product->product_name . ' <strong class="mx-2">x</strong> ' . $quantity . '</td>
+                            <td>$' . $total_prod . '</td>
+                        </tr>
+                        ';
+            } 
+        }
+        $data = array(
+            'response' => true,
+            'message' => 'Su órden ha sido registrada, y se encuentra en proceso de validación',
+            'order_code' => $order_code,
+            'id_order' => $id_order,
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => 'Ocurrió un error al registrar la orden en nuestra base de datos'
+        );
+    } */
+
+    //echo json_encode($data);
+}
+function getHTMLMailConfirmationColaborator($client_name, $order_code, $prod_list, $total_sale, $addressShip, $client_phone, $client_mail, $text_ship, $order_notes)
+{
+    $html = '<!DOCTYPE html>
+    <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
+    
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch><o:AllowPNG/></o:OfficeDocumentSettings></xml><![endif]--><!--[if !mso]><!-->
+        <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" type="text/css"><!--<![endif]-->
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+    
+            body {
+                margin: 0;
+                padding: 0;
+            }
+    
+            a[x-apple-data-detectors] {
+                color: inherit !important;
+                text-decoration: inherit !important;
+            }
+    
+            #MessageViewBody a {
+                color: inherit;
+                text-decoration: none;
+            }
+    
+            p {
+                line-height: inherit
+            }
+    
+            .desktop_hide,
+            .desktop_hide table {
+                mso-hide: all;
+                display: none;
+                max-height: 0px;
+                overflow: hidden;
+            }
+    
+            .image_block img+div {
+                display: none;
+            }
+    
+            @media (max-width:695px) {
+                .desktop_hide table.icons-inner {
+                    display: inline-block !important;
+                }
+    
+                .icons-inner {
+                    text-align: center;
+                }
+    
+                .icons-inner td {
+                    margin: 0 auto;
+                }
+    
+                .image_block div.fullWidth {
+                    max-width: 100% !important;
+                }
+    
+                .mobile_hide {
+                    display: none;
+                }
+    
+                .row-content {
+                    width: 100% !important;
+                }
+    
+                .stack .column {
+                    width: 100%;
+                    display: block;
+                }
+    
+                .mobile_hide {
+                    min-height: 0;
+                    max-height: 0;
+                    max-width: 0;
+                    overflow: hidden;
+                    font-size: 0px;
+                }
+    
+                .desktop_hide,
+                .desktop_hide table {
+                    display: table !important;
+                    max-height: none !important;
+                }
+    
+                .row-3 .column-1 .block-5.paragraph_block td.pad>div {
+                    font-size: 18px !important;
+                }
+    
+                .row-5 .column-2 .block-1.paragraph_block td.pad>div {
+                    font-size: 10px !important;
+                }
+    
+                .row-5 .column-1 .block-1.paragraph_block td.pad>div,
+                .row-5 .column-3 .block-1.paragraph_block td.pad>div {
+                    font-size: 12px !important;
+                }
+    
+                .row-6 .column-2 .block-1.paragraph_block td.pad>div,
+                .row-6 .column-3 .block-1.paragraph_block td.pad>div,
+                .row-7 .column-2 .block-1.paragraph_block td.pad>div {
+                    font-size: 14px !important;
+                }
+    
+                .row-7 .column-1 .block-1.paragraph_block td.pad>div,
+                .row-8 .column-1 .block-1.paragraph_block td.pad>div {
+                    font-size: 17px !important;
+                }
+    
+                .row-10 .column-1 .block-2.paragraph_block td.pad>div {
+                    font-size: 11px !important;
+                }
+            }
+        </style>
+    </head>
+    
+    <body style="background-color: #F5F5F5; margin: 0; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;">
+        <table class="nl-container" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #F5F5F5;">
+            <tbody>
+                <tr>
+                    <td>
+                        <table class="row row-1" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; color: #000000; width: 675px; margin: 0 auto;" width="675">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <div class="spacer_block block-1" style="height:30px;line-height:30px;font-size:1px;">&#8202;</div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-2" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #FFFFFF; color: #333; width: 675px; margin: 0 auto;" width="675">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-left: 25px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="image_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-top:5px;width:100%;padding-right:0px;padding-left:0px;">
+                                                                    <div class="alignment" align="left" style="line-height:10px">
+                                                                        <div class="fullWidth" style="max-width: 292.5px;"><img src="https://a9643fabd5.imgdist.com/pub/bfra/70ubjxk6/6kg/2u5/hbv/navbar_logo_lg.png" style="display: block; height: auto; border: 0; width: 100%;" width="292.5" alt="Image" title="Image" height="auto"></div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-3" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #D6E7F0; color: #000000; width: 675px; margin: 0 auto;" width="675">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 15px; padding-top: 55px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:5px;padding-left:15px;padding-right:10px;padding-top:20px;">
+                                                                    <div style="color:#052D3D;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:51px;line-height:120%;text-align:center;mso-line-height-alt:61.199999999999996px;">
+                                                                        <p style="margin: 0; word-break: break-word;"><span><strong><span>NUEVA <span style="color: #2190e3;">VENTA!</span></span></strong></span></p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        <table class="paragraph_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad">
+                                                                    <div style="color:#052d3d;direction:ltr;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:30px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:center;mso-line-height-alt:36px;">
+                                                                        <p style="margin: 0;"><strong>Se ha registrado una venta en línea</strong></p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        <table class="image_block block-3" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:15px;padding-top:25px;width:100%;padding-right:0px;padding-left:0px;">
+                                                                    <div class="alignment" align="center" style="line-height:10px">
+                                                                        <div class="fullWidth" style="max-width: 506.25px;"><img src="https://d1oco4z2z1fhwp.cloudfront.net/templates/default/371/hero_getoff.png" style="display: block; height: auto; border: 0; width: 100%;" width="506.25" alt="Image" title="Image" height="auto"></div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        <table class="paragraph_block block-4" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:5px;padding-left:15px;padding-right:10px;padding-top:20px;">
+                                                                    <div style="color:#052D3D;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:34px;line-height:120%;text-align:center;mso-line-height-alt:40.8px;">
+                                                                        <p style="margin: 0; word-break: break-word;"><strong>&nbsp;Estimado colaborador</strong></p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        <table class="paragraph_block block-5" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:10px;padding-left:40px;padding-right:40px;">
+                                                                    <div style="color:#052D3D;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:22px;line-height:150%;text-align:center;mso-line-height-alt:33px;">
+                                                                        <p style="margin: 0; word-break: break-word;">La siguiente órden ha sido registrada, te solicitamos amablemente nos ayudes a prepararla para su recolección. Una vez lista, favor de ingresar al sistema y marcarla como lista para recolección, o bien, da 
+                                                                        click al botón del final de la tabla para marcarla como lista. </p>
+                                                                        <p style="margin: 0; word-break: break-word;"><span><span><strong>' . $text_ship . '</strong></span></span></p>
+                                                                        <p style="margin: 0; word-break: break-word;"><span><span>El código de órden es: <strong>' . $order_code . '</strong></span></span></p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-4" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #FFFFFF; color: #000000; width: 675px; margin: 0 auto;" width="675">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 15px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="paragraph_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad">
+                                                                    <div style="color:#052d3d;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:20px;line-height:120%;text-align:center;mso-line-height-alt:24px;">
+                                                                        <p style="margin: 0; word-break: break-word;"><strong><span>Detalle de tu órden:</span></strong></p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-5" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #F8F8F8; color: #333; width: 675px; margin: 0 auto;" width="675">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="50%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 15px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:10px;padding-left:10px;padding-right:10px;">
+                                                                    <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:14px;line-height:120%;text-align:center;mso-line-height-alt:16.8px;">
+                                                                        <p style="margin: 0; word-break: break-word;"><strong>PRODUCTO</strong></p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td class="column column-2" width="25%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-right: 1px dotted #E8E8E8; padding-bottom: 5px; padding-left: 15px; padding-right: 15px; padding-top: 15px; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:10px;padding-left:10px;padding-right:10px;">
+                                                                    <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:14px;line-height:120%;text-align:center;mso-line-height-alt:16.8px;">
+                                                                        <p style="margin: 0; word-break: break-word;"><strong>CANT.</strong></p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td class="column column-3" width="25%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 15px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:10px;padding-left:10px;padding-right:10px;">
+                                                                    <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:14px;line-height:120%;text-align:center;mso-line-height-alt:16.8px;">
+                                                                        <p style="margin: 0;">PRECIO</p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-6" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #F9F9F9; color: #333; width: 675px; margin: 0 auto;" width="675">
+                                            <tbody>
+                                            ' . $prod_list . '
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-7" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #F8F8F8; color: #333; width: 675px; margin: 0 auto;" width="675">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="75%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-right: 1px dotted #E8E8E8; padding-bottom: 5px; padding-left: 15px; padding-right: 15px; padding-top: 15px; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:10px;padding-left:10px;padding-right:10px;">
+                                                                    <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:20px;line-height:120%;text-align:center;mso-line-height-alt:24px;">
+                                                                        <p style="margin: 0; word-break: break-word;"><strong>TOTAL DE COMPRA:</strong></p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td class="column column-2" width="25%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 15px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:10px;padding-left:10px;padding-right:10px;">
+                                                                    <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:21px;line-height:120%;text-align:center;mso-line-height-alt:25.2px;">
+                                                                        <p style="margin: 0;"><strong>$' . $total_sale . '</strong></p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-8" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+						<tbody>
+							<tr>
+								<td>
+									<table class="row-content" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #F8F8F8; color: #333; width: 675px; margin: 0 auto;" width="675">
+										<tbody>
+											<tr>
+												<td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-right: 1px dotted #E8E8E8; padding-bottom: 5px; padding-left: 15px; padding-right: 15px; padding-top: 15px; vertical-align: top; border-top: 0px; border-bottom: 0px; border-left: 0px;">
+													<table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+														<tr>
+															<td class="pad" style="padding-bottom:10px;padding-left:10px;padding-right:10px;">
+																<div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:20px;line-height:120%;text-align:center;mso-line-height-alt:24px;">
+																	<p style="margin: 0; word-break: break-word;">&nbsp;</p>
+																	<p style="margin: 0; word-break: break-word;"><strong>Notas de la Orden:</strong></p>
+																	<p style="margin: 0; word-break: break-word;">&nbsp;</p>
+																	<p style="margin: 0; word-break: break-word;"><strong>' . $order_notes . '</strong></p>
+																</div>
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+                    <table class="row row-8" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #D6E7F0; color: #333; width: 675px; margin: 0 auto;" width="675">
+                                    <tbody>
+                                        <tr>
+                                            <td class="column column-1" width="50%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #FFFFFF; border-bottom: 18px solid #D6E7F0; border-left: 18px solid #D6E7F0; border-right: 18px solid #D6E7F0; border-top: 18px solid #D6E7F0; padding-bottom: 10px; padding-left: 15px; padding-top: 5px; vertical-align: top;">
+                                                <table class="image_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                                    <tr>
+                                                        <td class="pad" style="width:100%;padding-right:0px;padding-left:0px;">
+                                                            <div class="alignment" align="center" style="line-height:10px">
+                                                                <div style="max-width: 128.925px;"><img src="https://d1oco4z2z1fhwp.cloudfront.net/templates/default/386/002-shipped.png" style="display: block; height: auto; border: 0; width: 100%;" width="128.925" alt="Image" title="Image" height="auto"></div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <table class="paragraph_block block-2" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                    <tr>
+                                                        <td class="pad" style="padding-bottom:5px;padding-left:15px;padding-right:15px;padding-top:15px;">
+                                                            <div style="color:#fc7318;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:20px;line-height:120%;text-align:left;mso-line-height-alt:24px;">
+                                                                <p style="margin: 0; word-break: break-word;"><span><strong>DIRECCIÓN DE ENTREGA</strong></span></p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <table class="paragraph_block block-3" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                    <tr>
+                                                        <td class="pad" style="padding-bottom:15px;padding-left:15px;padding-right:15px;padding-top:5px;">
+                                                            <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:14px;line-height:150%;text-align:left;mso-line-height-alt:21px;">
+                                                                <p style="margin: 0; word-break: break-word;"><strong>' . $addressShip . '</strong></p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            <td class="column column-2" width="50%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; background-color: #FFFFFF; border-bottom: 18px solid #D6E7F0; border-left: 18px solid #D6E7F0; border-right: 18px solid #D6E7F0; border-top: 18px solid #D6E7F0; padding-bottom: 10px; padding-left: 15px; padding-top: 5px; vertical-align: top;">
+                                                <table class="image_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                                    <tr>
+                                                        <td class="pad" style="padding-bottom:20px;padding-top:20px;width:100%;padding-right:0px;padding-left:0px;">
+                                                            <div class="alignment" align="center" style="line-height:10px">
+                                                                <div style="max-width: 85.95px;"><img src="https://d1oco4z2z1fhwp.cloudfront.net/templates/default/386/001-receipt.png" style="display: block; height: auto; border: 0; width: 100%;" width="85.95" alt="Image" title="Image" height="auto"></div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <table class="paragraph_block block-2" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                    <tr>
+                                                        <td class="pad" style="padding-bottom:5px;padding-left:15px;padding-right:15px;padding-top:15px;">
+                                                            <div style="color:#2190E3;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:24px;line-height:120%;text-align:left;mso-line-height-alt:28.799999999999997px;">
+                                                                <p style="margin: 0; word-break: break-word;"><span><strong>RECIBO DE COMPRA </strong></span></p>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                <table class="button_block block-3" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                                    <tr>
+                                                        <td class="pad">
+                                                            <div class="alignment" align="left"><!--[if mso]>
+                                                                    <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" style="height:42px;width:251px;v-text-anchor:middle;" arcsize="36%" stroke="false" fillcolor="#2190E3">
+                                                                    <w:anchorlock/>
+                                                                    <v:textbox inset="0px,0px,0px,0px">
+                                                                    <center style="color:#ffffff; font-family:Tahoma, Verdana, sans-serif; font-size:16px">
+                                                                    <![endif]-->
+                                                                <div style="text-decoration:none;display:inline-block;color:#ffffff;background-color:#2190E3;border-radius:15px;width:auto;border-top:0px solid transparent;font-weight:undefined;border-right:0px solid transparent;border-bottom:0px solid transparent;border-left:0px solid transparent;padding-top:5px;padding-bottom:5px;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:16px;text-align:center;mso-border-alt:none;word-break:keep-all;"><span style="padding-left:20px;padding-right:20px;font-size:16px;display:inline-block;letter-spacing:normal;"><span style="word-break: break-word; line-height: 32px;"><strong>Tu recibo de compra esta adjunto en este correo</strong></span></span></div><!--[if mso]></center></v:textbox></v:roundrect><![endif]-->
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                        <table class="row row-10" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #F0F0F0; color: #000000; width: 675px; margin: 0 auto;" width="675">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; border-bottom: 18px solid #FFFFFF; border-left: 25px solid #FFFFFF; border-right: 25px solid #FFFFFF; border-top: 18px solid #FFFFFF; padding-bottom: 5px; padding-left: 35px; padding-right: 35px; padding-top: 15px; vertical-align: top;">
+                                                        <table class="paragraph_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:10px;padding-left:15px;padding-right:15px;padding-top:15px;">
+                                                                    <div style="color:#052d3d;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:34px;line-height:120%;text-align:center;mso-line-height-alt:40.8px;">
+                                                                        <p style="margin: 0; word-break: break-word;"><span><span>Información de contacto de cliente</span></span></p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        <table class="paragraph_block block-2" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:30px;padding-left:10px;padding-right:10px;">
+                                                                    <div style="color:#787878;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:18px;line-height:150%;text-align:center;mso-line-height-alt:27px;">
+                                                                        <p style="margin: 0; word-break: break-word;"><strong>Nombre: ' . $client_name . '</strong></p>
+                                                                        <p style="margin: 0; word-break: break-word;">Correo electrónico: <strong>
+                                                                        <a style="text-decoration: none; color: #2190E3;" href="#" target="_blank" rel="noopener">
+                                                                        ' . $client_mail . '</a></strong>
+                                                                        <br>Número telefónico:&nbsp; <span style="color: #2190e3;">' . $client_phone . '</span></p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-11" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; color: #000000; width: 675px; margin: 0 auto;" width="675">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 35px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="paragraph_block block-1" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad">
+                                                                    <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:14px;line-height:150%;text-align:center;mso-line-height-alt:21px;">
+                                                                        <p style="margin: 0; word-break: break-word;">Grupo Salazar - Todos los derechos reservados</p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-12" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; color: #000000; width: 675px; margin: 0 auto;" width="675">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="icons_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; text-align: center;">
+                                                            <tr>
+                                                                <td class="pad" style="vertical-align: middle; color: #1e0e4b; font-family: Inter, sans-serif; font-size: 15px; padding-bottom: 5px; padding-top: 5px; text-align: center;">
+                                                                    <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                                                        <tr>
+                                                                            <td class="alignment" style="vertical-align: middle; text-align: center;"><!--[if vml]><table align="center" cellpadding="0" cellspacing="0" role="presentation" style="display:inline-block;padding-left:0px;padding-right:0px;mso-table-lspace: 0pt;mso-table-rspace: 0pt;"><![endif]-->
+                                                                                <!--[if !vml]><!-->
+                                                                                <table class="icons-inner" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-block; margin-right: -4px; padding-left: 0px; padding-right: 0px;" cellpadding="0" cellspacing="0" role="presentation"><!--<![endif]-->
+                                                                                    <tr>
+                                                                                        <td style="vertical-align: middle; text-align: center; padding-top: 5px; padding-bottom: 5px; padding-left: 5px; padding-right: 6px;"><a href="http://designedwithbeefree.com/" target="_blank" style="text-decoration: none;"><img class="icon" alt="Beefree Logo" src="https://d1oco4z2z1fhwp.cloudfront.net/assets/Beefree-logo.png" height="auto" width="34" align="center" style="display: block; height: auto; margin: 0 auto; border: 0;"></a></td>
+                                                                                        <td style="font-family: Inter, sans-serif; font-size: 15px; font-weight: undefined; color: #1e0e4b; vertical-align: middle; letter-spacing: undefined; text-align: center;"><a href="http://designedwithbeefree.com/" target="_blank" style="color: #1e0e4b; text-decoration: none;">Designed with Beefree</a></td>
+                                                                                    </tr>
+                                                                                </table>
+                                                                            </td>
+                                                                        </tr>
+                                                                    </table>
                                                                 </td>
                                                             </tr>
                                                         </table>

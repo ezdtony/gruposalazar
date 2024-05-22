@@ -3,10 +3,10 @@
 	    <div class="container relative">
 
 	        <div class="sofa-img">
-	            <img src="images/paint.png" alt="Image" class="img-fluid">
+	            <img src="images/paint.png" alt="Image" class="img-fluid" width="200px">
 	        </div>
 
-	        <div class="row">
+<!-- 	        <div class="row">
 	            <div class="col-lg-8">
 	                <div class="subscription-form">
 	                    <h3 class="d-flex align-items-center"><span class="me-1"><img src="images/envelope-outline.svg" alt="Image" class="img-fluid"></span><span>Suscribete para recibir las ofertas mas recientes!!</span></h3>
@@ -26,7 +26,7 @@
 	                    </form>
 
 	                </div>
-	            </div>
+	            </div> -->
 	        </div>
 
 	        <div class="row g-5 mb-5">

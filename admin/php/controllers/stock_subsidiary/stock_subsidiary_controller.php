@@ -152,9 +152,9 @@ function getStocks()
 
     $colsSearch = [
         'br.brand',
-        'product_short_name',
-        'product_barcode',
-        'brand'
+        'prods.product_short_name',
+        'prods.product_barcode',
+        'prods.product_name'
     ];
     $limit =  isset($_POST['limit']) ? $_POST['limit'] : 10;
     $actualPage =  isset($_POST['actualPage']) ? $_POST['actualPage'] : 0;

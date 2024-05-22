@@ -146,6 +146,9 @@ $(document).ready(function () {
       .parents(".quantity-container")
       .children(".quantity-amount")
       .val();
+      var stock = $(this).attr("data-stock");
+      stock = parseInt(stock, 10);
+
     var prod_price = $(this)
       .parents(".quantity-container")
       .children(".quantity-amount")
@@ -153,7 +156,13 @@ $(document).ready(function () {
 
     value = parseInt(value, 10);
     value = isNaN(value) ? 1 : value;
-    value++;
+    if (value >= stock) {
+      value = value;
+      errorToast("No hay existencias suficientes para este producto");
+    }else{
+      value++;
+    }
+    
 
     prod_price = parseFloat(prod_price, 10);
     prod_price = isNaN(prod_price) ? prod_price : prod_price;
@@ -197,7 +206,7 @@ $(document).ready(function () {
       total_prod = $(this).attr("data-total-prod");
       var id_product = $(this).attr("data-id-product");
       var price = $(this).attr("data-price");
-      var stock = 0;
+      var stock = $(this).attr("data-stock");
       var quantity = $(this).attr("data-product-quantity");
       var cart_index = $(this).attr("data-cart-index");
 
@@ -243,7 +252,7 @@ $(document).ready(function () {
     prod_price = parseFloat(prod_price, 10);
     prod_price = isNaN(prod_price) ? prod_price : prod_price;
 
-    if (value > 1) value--;
+    if (value > 0) value--;
 
     prod_total = (value * prod_price).toFixed(2);
     $(this)
@@ -308,7 +317,6 @@ $(document).ready(function () {
     Toastify({
       text: text,
       duration: 3000,
-      destination: "https://github.com/apvarun/toastify-js",
       newWindow: true,
       close: true,
       gravity: "top", // `top` or `bottom`

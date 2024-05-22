@@ -30,7 +30,6 @@
                                 <th class="product-price">Precio</th>
                                 <th class="product-quantity">Cantidad</th>
                                 <th class="product-total">Total</th>
-                                <th class="product-remove">Quitar</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -78,7 +77,7 @@
                                 <span class="text-black">Subtotal</span>
                             </div>
                             <div class="col-md-6 text-right">
-                                <strong class="text-black txtTotalCart">$230.00</strong>
+                                <strong class="text-black txtTotalCart">$0</strong>
                             </div>
                         </div>
                         <div class="row mb-5">
@@ -86,7 +85,7 @@
                                 <span class="text-black">Total</span>
                             </div>
                             <div class="col-md-6 text-right">
-                                <strong class="text-black txtTotalCart">$230.00</strong>
+                                <strong class="text-black txtTotalCart">$0</strong>
                             </div>
                         </div>
 
