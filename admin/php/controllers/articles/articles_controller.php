@@ -2247,8 +2247,7 @@ function getHTMLMailConfirmationColaborator($client_name, $order_code, $prod_lis
                                                             <tr>
                                                                 <td class="pad" style="padding-bottom:10px;padding-left:40px;padding-right:40px;">
                                                                     <div style="color:#052D3D;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:22px;line-height:150%;text-align:center;mso-line-height-alt:33px;">
-                                                                        <p style="margin: 0; word-break: break-word;">La siguiente órden ha sido registrada, te solicitamos amablemente nos ayudes a prepararla para su recolección. Una vez lista, favor de ingresar al sistema y marcarla como lista para recolección, o bien, da 
-                                                                        click al botón del final de la tabla para marcarla como lista. </p>
+                                                                        <p style="margin: 0; word-break: break-word;">La siguiente órden ha sido registrada, te solicitamos amablemente nos ayudes a prepararla para su recolección. Una vez lista, favor de ingresar al sistema y marcarla como lista para recolección.</p>
                                                                         <p style="margin: 0; word-break: break-word;"><span><span><strong>' . $text_ship . '</strong></span></span></p>
                                                                         <p style="margin: 0; word-break: break-word;"><span><span>El código de órden es: <strong>' . $order_code . '</strong></span></span></p>
                                                                     </div>

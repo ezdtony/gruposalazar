@@ -771,8 +771,8 @@ $(document).ready(function () {
             icon: "success",
             text: data.message,
           }).then((result) => {
-            // loading();
-            // location.href = "thankyou.php";
+            loading();
+            location.href = "thankyou.php";
           });
         } else {
           errorToast("Ocurrió un error");
