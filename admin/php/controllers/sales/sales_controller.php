@@ -624,6 +624,182 @@ function getSalesTable()
 
     echo json_encode($data);
 }
+function getOnlineSalesTable()
+{
+
+    $queries = new Queries;
+
+    //$id_product = $_POST['id_product'];
+    //$product_name = $_POST['product_name'];
+    $colsSearch = [
+        'order_date',
+        'subs.subsidiary_name',
+        'CONCAT (colab.name, ´ ´, colab.lastname)'
+    ];
+    $limit =  isset($_POST['limit']) ? $_POST['limit'] : 10;
+    $actualPage =  isset($_POST['actualPage']) ? $_POST['actualPage'] : 0;
+
+    if (!$actualPage) {
+        $begin = 0;
+        $actualPage = 1;
+    } else {
+        $begin = ($actualPage - 1) * $limit;
+    }
+    $where = "";
+    if (isset($_POST['searchInput']) && ($_POST['searchInput'] != '')) {
+        $searchInput = $_POST['searchInput'];
+        $where .= " WHERE (";
+        for ($i = 0; $i < count($colsSearch); $i++) {
+            $where .= $colsSearch[$i] . " LIKE '%" . addslashes($searchInput) . "%' OR ";
+        }
+        $where = substr($where, 0, -3);
+        $where .= " AND online = 1) ";
+    }
+
+
+    if ($limit > 0) {
+        $limit = " LIMIT $begin,  $limit";
+    } else {
+        $limit = "";
+    }
+    //echo $limit;
+    $html = "";
+
+
+
+
+
+    $sql = "SELECT SQL_CALC_FOUND_ROWS
+    CASE
+        WHEN colab.colaborator_code IS NULL THEN 'N/A'
+        ELSE CONCAT(colab.name, ' ', colab.lastname)
+        END
+        AS colab_reg,
+        id_orders,
+    ord.ammount,
+    stty.admin_status_description,
+    stty.btstr_class,
+    payment_method_description,
+    DATE(order_date) AS order_date,
+    subs.subsidiary_name
+    FROM u803991314_main.orders AS ord
+    INNER JOIN u803991314_main.orders_status_types AS stty ON ord.id_orders_status_types = stty.id_orders_status_types
+    INNER JOIN u803991314_main.payment_methods AS pym ON ord.id_payment_methods = pym.id_payment_methods
+    INNER JOIN u803991314_main.subsidiary AS subs ON ord.id_subsidiary = subs.id_subsidiary
+    LEFT JOIN u803991314_main.colaborators AS colab ON colab.id_colaborator = ord.id_user_registered
+    $where 
+    GROUP BY ord.order_date DESC
+    
+    $limit
+    ";
+
+    $getProducts = $queries->getData($sql);
+
+    $total_stock = 0;
+
+    if (!empty($getProducts)) {
+        $totalResults = count($getProducts);
+
+        $sqlAllProdsFiltered = "SELECT FOUND_ROWS() AS founded";
+        $getTotalProductsFiltered = $queries->getData($sqlAllProdsFiltered);
+        if (!empty($getTotalProductsFiltered)) {
+            $totalFiltered = ($getTotalProductsFiltered[0]->founded);
+        }
+
+        $sqlAllProds = "SELECT COUNT(id_orders) AS founded
+         FROM u803991314_main.orders AS ord
+    INNER JOIN u803991314_main.orders_status_types AS stty ON ord.id_orders_status_types = stty.id_orders_status_types
+    INNER JOIN u803991314_main.payment_methods AS pym ON ord.id_payment_methods = pym.id_payment_methods
+    INNER JOIN u803991314_main.subsidiary AS subs ON ord.id_subsidiary = subs.id_subsidiary
+    LEFT JOIN u803991314_main.colaborators AS colab ON colab.id_colaborator = ord.id_user_registered 
+    WHERE online = 1";
+        $getTotalProducts = $queries->getData($sqlAllProds);
+        if (!empty($getTotalProducts)) {
+            $totalProds = ($getTotalProducts[0]->founded);
+        }
+
+
+        foreach ($getProducts as $product) {
+
+
+
+            $html .= '
+            <tr id="trOrder' . $product->id_orders . '">
+            <td class="">' . $product->id_orders . '</td>
+            <td class="">' . $product->order_date . '</td>
+            <td class=""> $ ' . round($product->ammount, 2) . ' MXN</td>
+            <td class=""><p style="font-size:1rem !important" class="badge text-bg-' . $product->btstr_class . ' rounded-pill">' . $product->admin_status_description . '</p></td>
+            <td class="">' . $product->payment_method_description . '</td>
+            <td class=""> <div class="fw-bold">
+            <button type="button"class="btn btn-primary getSaleDetail" data-id-order="' . $product->id_orders . '"
+            data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-info"></i></button>
+            </div></td>
+            <td class=""> <div class="fw-bold">
+            <button type="button"class="btn btn-secondary saleReady" data-id-order="' . $product->id_orders . '"
+            data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-check"></i></button>
+            </div></td>
+            <td class=""> <div class="fw-bold">
+            <button type="button"class="btn btn-success saleDelivered" data-id-order="' . $product->id_orders . '"
+            data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-check"></i></button>
+            </div></td>
+        </tr>';
+        }
+
+        $pagNum = 1;
+        if (($actualPage - 4) > 1) {
+            $pagNum = $actualPage - 4;
+        }
+        $totalPages = ceil($totalProds / $_POST['limit']);
+
+        $pagination = '';
+
+        $stopNav = $pagNum + 9;
+        if ($stopNav > $totalPages) {
+            $stopNav = $totalPages;
+        }
+        $pagination .= '<nav>';
+        $pagination .= '<ul class="nav nav-pills">';
+
+        for ($i = $pagNum; $i <= $stopNav; $i++) {
+            $active = $i == $actualPage ? "active" : "";
+            $pagination .= '<li class="nav-item">';
+            $pagination .= '<a class="nav-link changePage ' . $active . '" aria-current="page" href="#">' . $i . '</a>';
+            $pagination .= '</li>';
+        }
+
+
+
+
+
+
+
+        $pagination .= '</ul>';
+        $pagination .= '</nav>';
+
+        $data = array(
+            'response' => true,
+            'html' => $html,
+            'totalProds' => $totalProds,
+            'totalResults' => $totalResults,
+            'totalFiltered' => $totalFiltered,
+            'totalPages' => $totalPages,
+            'paginationNav' => $pagination
+        );
+    } else {
+
+        $html .= '
+                    </tbody>
+                </table>';
+        $data = array(
+            'response' => false,
+            'html' => $html
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
 function getSaleDetail()
 {
 
@@ -659,6 +835,117 @@ function getSaleDetail()
         $html .= '<h4> Total: ' . round($saleinfo[0]->ammount, 2) . '</h4>';
         $html .= '<h4> Método de pago: ' . ($saleinfo[0]->payment_method_description) . '</h4>';
         $html .= '<h4> Sucursal: ' . ($saleinfo[0]->subsidiary_name) . '</h4>';
+
+        $html .= '<div class="table-responsive">';
+        $html .= '    <table class="table">';
+        $html .= '<thead>';
+        $html .= '<tr>';
+        $html .= '<th class="table-dark text-white" scope="col" colspan="4">Compra #' . $id_order . ' | Total de compra: $ ' . round($saleinfo[0]->ammount, 2) . ' MXN  | Fecha: ' . $saleinfo[0]->order_date . '</th>';
+        $html .= '</tr>';
+        $html .= '<tr>';
+        $html .= '<th>PRODUCTO</th>';
+        $html .= '<th>CANTIDAD</th>';
+        $html .= '<th>PRECIO UNITARIO</th>';
+        $html .= '<th>SUBTOTAL</th>';
+        $html .= '</tr>';
+        $html .= '</thead>';
+        $html .= '<tbody>';
+
+
+
+        $sqlOrderDetail = "SELECT prd.product_name, ord_det.*
+        FROM u803991314_main.order_details AS ord_det
+        INNER JOIN u803991314_main.products AS prd ON ord_det.id_prducts = prd.id_prducts
+        WHERE id_orders = $id_order";
+        $saleDetail = $queries->getData($sqlOrderDetail);
+
+        if (!empty($saleDetail)) {
+            foreach ($saleDetail  as $detail) {
+                $html .= '<tr>';
+                $html .= '<td>' . $detail->product_name . '</td>';
+                $html .= '<td>' . $detail->quantity . '</td>';
+                $html .= '<td> $ ' . round($detail->price, 2) . ' MXN</td>';
+                $html .= '<td> $ ' . round(($detail->price * $detail->quantity), 2) . ' MXN</td>';
+                $html .= '</tr>';
+            }
+        }
+        $html .= '<tfoot>';
+        $html .= '<tr>';
+        $html .= '<th colspan="3"><strong>TOTAL:</strong></th>';
+        $html .= '<th colspan="1"><strong>$ ' . round($saleinfo[0]->ammount, 2) . ' MXN</strong></th>';
+        $html .= '</tr>';
+        $html .= '</tfoot>';
+        $html .= '</tbody>';
+        $html .= '</table>';
+        $html .=
+            '</div>';
+
+        $data = array(
+            'response' => true,
+            'html' => $html,
+        );
+    } else {
+
+        $html .= '
+                    </tbody>
+                </table>';
+        $data = array(
+            'response' => false,
+            'html' => $html
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+
+function getOnlineSaleDetail()
+{
+
+    $queries = new Queries;
+
+    $id_order = $_POST['id_sale'];
+
+    $sqlOrderIndex = "SELECT 
+    CONCAT(cl.name, ' ', cl.lastname) AS client_name,
+    CASE
+    WHEN colab.colaborator_code IS NULL THEN 'N/A'
+    ELSE CONCAT(colab.name, ' ', colab.lastname)
+    END
+    AS colab_reg,
+    id_orders,
+    ord.ammount,
+    ord.shipping_address,
+    ord.order_mail,
+    ord.order_phone,
+    ord.shipping_notes,
+    ord.order_code,
+    ord.shipping_name_client,
+    stty.admin_status_description,
+    payment_method_description,
+    DATE(order_date) AS order_date,
+    subs.subsidiary_name
+    FROM u803991314_main.orders AS ord
+    INNER JOIN u803991314_main.orders_status_types AS stty ON ord.id_orders_status_types = stty.id_orders_status_types
+    INNER JOIN u803991314_main.payment_methods AS pym ON ord.id_payment_methods = pym.id_payment_methods
+    INNER JOIN u803991314_main.subsidiary AS subs ON ord.id_subsidiary = subs.id_subsidiary
+    LEFT JOIN u803991314_main.colaborators AS colab ON colab.id_colaborator = ord.id_user_registered
+    INNER JOIN u803991314_main.clients AS cl ON ord.id_clients = cl.id_clients
+    WHERE id_orders = $id_order";
+    $saleinfo = $queries->getData($sqlOrderIndex);
+
+    $html = '';
+    if (!empty($saleinfo)) {
+        $html .= '<h4> Código de Compra: ' . $saleinfo[0]->order_code . '</h4>';
+        $html .= '<h4> Total: $ ' . round($saleinfo[0]->ammount, 2) . '</h4>';
+        $html .= '<h4> Método de pago: ' . ($saleinfo[0]->payment_method_description) . '</h4>';
+        $html .= '<h4> Nombre de Cliente: ' . ($saleinfo[0]->shipping_name_client) . '</h4>';
+        $html .= '<h4> Teléfono de Cliente: ' . ($saleinfo[0]->order_phone) . '</h4>';
+        $html .= '<h4> Correo de Cliente: ' . ($saleinfo[0]->order_mail) . '</h4>';
+        $html .= '<h4> Dirección de entrega: ' . ($saleinfo[0]->shipping_address) . '</h4>';
+        $html .= '<h4> Notas de entrega: ' . ($saleinfo[0]->shipping_notes) . '</h4>';
+        $html .= '<h4> Status de órden: ' . ($saleinfo[0]->admin_status_description) . '</h4>';
 
         $html .= '<div class="table-responsive">';
         $html .= '    <table class="table">';
