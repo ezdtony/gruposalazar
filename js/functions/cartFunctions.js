@@ -104,8 +104,6 @@ $(document).ready(function () {
           var id_subsidiary = $("#shippingSubsidiary").val();
 
           if (
-            $("#selectState").find(":selected").val() != "" &&
-            $("#selectCity").find(":selected").val() != "" &&
             client_name != "" &&
             client_lastname != "" &&
             client_email != "" &&
@@ -114,6 +112,7 @@ $(document).ready(function () {
           ) {
             $("#paymentMethod").attr("disabled", false);
           } else {
+            console.log("here");
             $("#paymentMethod").attr("disabled", true);
             Swal.fire({
               title: "Atención",
@@ -479,6 +478,7 @@ $(document).ready(function () {
           if (data.response == true) {
             var cart_shop = JSON.parse(sessionStorage.getItem("cart_shop"));
             loading();
+
             sendMailConfirmation(
               data,
               total_sale,
@@ -557,8 +557,6 @@ $(document).ready(function () {
     var payment_method = $("#paymentMethod").val();
 
     if (
-      $("#selectState").find(":selected").val() != "" &&
-      $("#selectCity").find(":selected").val() != "" &&
       client_name != "" &&
       client_lastname != "" &&
       client_email != "" &&
@@ -656,6 +654,18 @@ $(document).ready(function () {
     cart_shop
   ) {
     sessionStorage.setItem("order_code", data.order_code);
+
+    var pdf_string = await generateSalePDF(
+      client_name,
+      client_lastname,
+      data.addressShip,
+      client_phone,
+      order_notes,
+      client_email,
+      data.order_code,
+      cart_shop
+    );
+    //console.log(pdf_string);
     $.ajax({
       url: "admin/php/controllers/articles/articles_controller.php",
       method: "POST",
@@ -674,6 +684,7 @@ $(document).ready(function () {
         order_code: data.order_code,
         subsidiary_phone: data.subsidiary_phone,
         addressShip: data.addressShip,
+        pdf_string: pdf_string,
       },
     })
       .done(function (data) {
@@ -716,7 +727,21 @@ $(document).ready(function () {
     cart_shop,
     client_phone
   ) {
+    loading();
     sessionStorage.setItem("order_code", data.order_code);
+
+    var pdf_string = await generateSalePDF(
+      client_name,
+      client_lastname,
+      data.addressShip,
+      client_phone,
+      order_notes,
+      client_email,
+      data.order_code,
+      cart_shop
+    );
+    //console.log(pdf_string);
+
     $.ajax({
       url: "admin/php/controllers/articles/articles_controller.php",
       method: "POST",
@@ -732,7 +757,8 @@ $(document).ready(function () {
         subsidiary_name: data.subsidiary_name,
         subsidiary_phone: data.subsidiary_phone,
         addressShip: data.addressShip,
-        client_phone:client_phone
+        client_phone: client_phone,
+        pdf_string,
       },
     })
       .done(function (data) {
@@ -745,8 +771,8 @@ $(document).ready(function () {
             icon: "success",
             text: data.message,
           }).then((result) => {
-            loading();
-            location.href = "thankyou.php";
+            // loading();
+            // location.href = "thankyou.php";
           });
         } else {
           errorToast("Ocurrió un error");
@@ -764,8 +790,247 @@ $(document).ready(function () {
         myToast.showToast();
       });
   }
+  async function generateSalePDF(
+    client_name,
+    client_lastname,
+    client_address,
+    client_phone,
+    order_notes,
+    client_email,
+    order_code,
+    cart_shop
+  ) {
+    loading();
+    var data = await asyncAjax(cart_shop);
+    data = JSON.parse(data);
 
+    /* if (data.response == true) { */
+    var string = await generateOrderIncomePDF(
+      client_name,
+      client_lastname,
+      client_address,
+      data,
+      client_phone,
+      order_notes,
+      client_email,
+      order_code
+    );
+    return string;
+  }
 
+  function asyncAjax(cart_shop) {
+    return new Promise(function (resolve, reject) {
+      $.ajax({
+        url: "admin/php/controllers/articles/articles_controller.php",
+        method: "POST",
+        data: {
+          mod: "getProductsPDF",
+          cart_shop: cart_shop,
+        },
+        beforeSend: function () {},
+        success: function (data) {
+          resolve(data); // Resolve promise and when success
+        },
+        error: function (err) {
+          reject(err); // Reject the promise and go to catch()
+        },
+      });
+    });
+  }
+
+  async function generateOrderIncomePDF(
+    client_name,
+    client_lastname,
+    client_address,
+    cart_shop,
+    client_phone,
+    order_notes,
+    client_email,
+    order_code
+  ) {
+    console.log(cart_shop);
+    window.jsPDF = window.jspdf.jsPDF;
+    var doc = new jsPDF("portrait");
+    var font = getFont();
+    doc.addFileToVFS("assets/fonts/VarelaRound-Regular.ttf", font);
+    doc.addFont(
+      "assets/fonts/VarelaRound-Regular.ttf",
+      "VarelaRound-Regular",
+      "normal"
+    );
+
+    let date = new Date();
+    let output =
+      String(date.getDate()).padStart(2, "0") +
+      "/" +
+      String(date.getMonth() + 1).padStart(2, "0") +
+      "/" +
+      date.getFullYear();
+
+    var sbj_final = 0;
+    //var order_code = data.info_order[0].order_code;
+    //var subsidiary_name = data.info_order[0].subsidiary_name;
+    //var date_register = data.info_order[0].date_register;
+    //var subsidiary_name = data.info_order[0].order_code;
+    //var username = data.info_order[0].username;
+    //var status_description = data.info_order[0].status_description;
+    //--- --- ---//
+    //--- --- ---//
+    var table_titles = ["Producto", "Precio U.", "Cant.", "Total"];
+    products = [];
+    var total_sale = 0;
+    for (let prod = 0; prod < cart_shop.products.length; prod++) {
+      var data_product = [
+        cart_shop.products[prod].name,
+        parseFloat(cart_shop.products[prod].price).toFixed(2),
+        cart_shop.products[prod].quantity,
+        parseFloat(cart_shop.products[prod].prod_total).toFixed(2),
+      ];
+      products.push(data_product);
+    }
+
+    lastPositions = 25;
+
+    doc.autoTable({
+      theme: "plain",
+      startY: lastPositions,
+      tableWidth: 180,
+      margin: {
+        left: 8,
+      },
+      headStyles: {
+        halign: "left",
+        valign: "middle",
+        font: "VarelaRound-Regular",
+        fillColor: [255, 255, 255],
+        textColor: [0, 0, 0],
+        fontSize: 10,
+      },
+      bodyStyles: {
+        font: "VarelaRound-Regular",
+        fillColor: [255, 255, 255],
+        textColor: [0, 0, 0],
+        fontSize: 13,
+      },
+      columnStyles: {
+        0: {
+          cellWidth: 180,
+        },
+      },
+      body: [
+        [
+          {
+            content: "DETALLES DE COMPRA",
+            styles: { borders: "b" },
+          },
+        ],
+      ],
+    });
+    lastPositions = doc.lastAutoTable.finalY + 10;
+
+    doc.autoTable({
+      theme: "plain",
+      startY: lastPositions,
+      tableWidth: 180,
+      margin: {
+        left: 8,
+      },
+      headStyles: {
+        halign: "left",
+        valign: "middle",
+        font: "VarelaRound-Regular",
+        fillColor: [43, 255, 255],
+        textColor: [0, 0, 0],
+        fontSize: 10,
+      },
+      bodyStyles: {
+        font: "VarelaRound-Regular",
+        fillColor: [255, 255, 255],
+        textColor: [0, 0, 0],
+        fontSize: 10,
+      },
+      columnStyles: {
+        0: {
+          cellWidth: 180,
+        },
+      },
+      body: [
+        [
+          {
+            content:
+              "Código de Órden: " +
+              order_code +
+              "\n \nNombre Cliente: " +
+              client_name +
+              " " +
+              client_lastname +
+              "\nNúmero Cliente: " +
+              client_phone +
+              "\nCorreo Cliente: " +
+              client_email +
+              "\n \nDirección entrega: " +
+              client_address +
+              "\nNotas de órden: " +
+              order_notes +
+              "\n \nFecha de emisión: " +
+              output,
+            styles: { halign: "left" },
+          },
+        ],
+      ],
+    });
+    lastPositions = doc.lastAutoTable.finalY + 7;
+
+    doc.autoTable({
+      theme: "striped",
+      startY: lastPositions,
+      tableWidth: 180,
+      margin: {
+        left: 8,
+      },
+      headStyles: {
+        halign: "left",
+        valign: "middle",
+        font: "VarelaRound-Regular",
+        fillColor: [44, 69, 191],
+        textColor: [255, 255, 255],
+        fontSize: 10,
+      },
+      bodyStyles: {
+        font: "VarelaRound-Regular",
+        fillColor: [255, 255, 255],
+        textColor: [0, 0, 0],
+        fontSize: 10,
+      },
+      head: [table_titles],
+      body: products,
+    });
+    //--- --- ---//
+    lastPositions = doc.lastAutoTable.finalY + 10;
+
+    doc.setFontSize(14);
+    doc.text(
+      130,
+      lastPositions,
+      "Total de articulos: " + cart_shop.products.length
+    );
+    lastPositions = lastPositions + 8;
+    doc.text(130, lastPositions, "Costo total: $ " + cart_shop.total_sale);
+
+    doc.addImage(getMainLogo(), "png", 8, 5, 40, 20);
+    let string = doc.output("datauristring");
+    //doc.save("ORDEN COMPRA" + ".pdf");
+    /* 
+    Swal.close(); */
+    return string;
+    await timer(2000);
+
+    //--- --- ---//
+  }
+
+  function timer(ms) {
+    return new Promise((res) => setTimeout(res, ms));
+  }
 
   function loading() {
     Swal.fire({

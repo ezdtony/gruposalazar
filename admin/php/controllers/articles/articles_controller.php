@@ -985,6 +985,7 @@ function sendMailConfirmation()
     $name_client = $client_name . ' ' . $client_lastname;
     $text_ship = "<strong>para confirmar que tu pedido está en camino a tu domicilio.</strong> ";
     $text_ship_colab = "Esta compra será envíada al domicilio del cliente.";
+    $pdf_string = $_POST['pdf_string'];
     //Import PHPMailer classes into the global namespace
     //These must be at the top of your script, not inside a function
 
@@ -1018,6 +1019,10 @@ function sendMailConfirmation()
         //Attachments
         //$mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
         //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+        //$mail->addStringAttachment($pdf_string, 'ORDEN ' . $order_code . ' .pdf');
+        $base = explode('data:application/pdf;filename=generated.pdf;base64,', $pdf_string);
+        $base = base64_decode($base[1]);
+        $mail->addStringAttachment($base, 'ORDEN ' . $order_code . ' .pdf');
         $mail->SMTPDebug = false;
         //Content
         $mail->isHTML(true);                                  //Set email format to HTML
@@ -1025,9 +1030,9 @@ function sendMailConfirmation()
         $mail->Body    = getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $total_sale, $addressShip,  $subsidiary_phone, $text_ship, $order_notes);
 
 
-        $mail->send();
+       $mail->send();
 
-        
+
         $data = array(
             'response' => true,
             'message' => 'Su órden ha sido registrada, y se encuentra en proceso de validación'
@@ -1038,7 +1043,7 @@ function sendMailConfirmation()
             'message' => 'Ocurrió un error al envíar el correo de confirmación'
         );
     }
-    sendMailConfirmationColaborator($client_name, $order_code, $prod_list, $total_sale, $addressShip, $client_phone, $client_email, $text_ship_colab, $order_notes);
+    sendMailConfirmationColaborator($client_name, $order_code, $prod_list, $total_sale, $addressShip, $client_phone, $client_email, $text_ship_colab, $order_notes, $pdf_string);
     $queries = new Queries;
 
     //$id_product = $_POST['id_product'];
@@ -1162,6 +1167,7 @@ function sendMailConfirmationSubsDelivery()
     $name_client = $client_name . ' ' . $client_lastname;
     $text_ship = "para que puedas acudir a la <strong>$subsidiary_name</strong> a recogerla. ";
     $text_ship_colab = "Esta compra será entregada en la <strong>$subsidiary_name</strong>";
+    $pdf_string = $_POST['pdf_string'];
     //Import PHPMailer classes into the global namespace
     //These must be at the top of your script, not inside a function
 
@@ -1195,6 +1201,9 @@ function sendMailConfirmationSubsDelivery()
         //Attachments
         //$mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
         //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+        $base = explode('data:application/pdf;filename=generated.pdf;base64,', $pdf_string);
+        $base = base64_decode($base[1]);
+        $mail->addStringAttachment($base, 'ORDEN ' . $order_code . ' .pdf');
         $mail->SMTPDebug = false;
         //Content
         $mail->isHTML(true);                                  //Set email format to HTML
@@ -1204,7 +1213,7 @@ function sendMailConfirmationSubsDelivery()
 
         $mail->send();
 
-        
+
 
         $data = array(
             'response' => true,
@@ -1216,7 +1225,7 @@ function sendMailConfirmationSubsDelivery()
             'message' => 'Ocurrió un error al envíar el correo de confirmación'
         );
     }
-    sendMailConfirmationColaborator($name_client, $order_code, $prod_list, $total_sale, $addressShip, $client_phone, $client_email, $text_ship_colab, $order_notes);
+    sendMailConfirmationColaborator($name_client, $order_code, $prod_list, $total_sale, $addressShip, $client_phone, $client_email, $text_ship_colab, $order_notes, $pdf_string);
     $queries = new Queries;
 
     //$id_product = $_POST['id_product'];
@@ -1854,9 +1863,9 @@ function getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $t
 
     return $html;
 }
-function sendMailConfirmationColaborator($client_name, $order_code, $prod_list, $total_sale, $addressShip, $client_phone, $client_mail, $text_ship, $order_notes)
+function sendMailConfirmationColaborator($client_name, $order_code, $prod_list, $total_sale, $addressShip, $client_phone, $client_mail, $text_ship, $order_notes, $pdf_string)
 {
- 
+
 
     //Import PHPMailer classes into the global namespace
     //These must be at the top of your script, not inside a function
@@ -1883,7 +1892,7 @@ function sendMailConfirmationColaborator($client_name, $order_code, $prod_list, 
         $mail->setFrom('ventas_online@gruposalazar.com.mx', utf8_decode('VENTAS EN LÍNEA GRUPO SALAZAR'));
         //$mail->addAddress('antoniogonzalez.rt@gmail.com', 'Ventas en Línea Grupo Salazar');
         $mail->addAddress('ventas_online@gruposalazar.com.mx', 'Ventas en Línea Grupo Salazar');
-        
+
         //$mail->addAddress('ellen@example.com');               //Name is optional
         $mail->addReplyTo('ventas_online@gruposalazar.com.mx', utf8_decode('VENTAS EN LÍNEA GRUPO SALAZAR'));
         //$mail->addCC('soporte@gruposalazar.com.mx');
@@ -1892,6 +1901,9 @@ function sendMailConfirmationColaborator($client_name, $order_code, $prod_list, 
         //Attachments
         //$mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
         //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+        $base = explode('data:application/pdf;filename=generated.pdf;base64,', $pdf_string);
+        $base = base64_decode($base[1]);
+        $mail->addStringAttachment($base, 'ORDEN ' . $order_code . ' .pdf');
         $mail->SMTPDebug = false;
         //Content
         $mail->isHTML(true);                                  //Set email format to HTML
@@ -2670,6 +2682,68 @@ function getProducts($cart_shop)
         }
     }
     return $html;
+}
+
+function getProductsPDF()
+{
+    $html = "";
+    $cart_shop = $_POST['cart_shop'];
+    $queries = new Queries;
+    $totalSale = 0;
+    $products = [];
+    foreach ($cart_shop as $cart) {
+        $id_product = $cart['id_product'];
+        $quantity = $cart['quantity'];
+
+        $sql = "SELECT brand,
+                prods.*
+                FROM u803991314_main.products AS prods
+                INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+                INNER JOIN u803991314_main.relationship_products_categories AS rpc ON rpc.id_prducts = prods.id_prducts
+                INNER JOIN u803991314_main.categories AS ct ON ct.id_categories = rpc.id_categories
+                WHERE prods.id_prducts = $id_product
+    ";
+        $getProducts = $queries->getData($sql);
+
+
+        $percentage = 0;
+        foreach ($getProducts as $product) {
+
+            /*  if ($product->total_stock > 0) {
+                $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
+            } */
+
+            if ($product->thumbnail == 'NULL' || $product->thumbnail == '') {
+                $image_prod = 'images/sin-imagen.png';
+            } else {
+                $archive_route = str_replace('..', 'admin', $product->thumbnail);
+                $image_prod = $archive_route;
+                $file_exs = dirname(__DIR__ . '', 3) . str_replace('..', '', $product->thumbnail);
+                /* echo $file_exs; */
+
+                if (file_exists($file_exs)) {
+                    $image_prod = $archive_route;
+                } else {
+                    $image_prod = 'images/sin-imagen.png';
+                }
+            }
+            $total_prod = $quantity * round($product->price, 2);
+            $totalSale = $totalSale + $total_prod;
+            $product_item = array(
+                'name' => $product->product_name,
+                'quantity' => $quantity,
+                'price' => round($product->price, 2),
+                'prod_total' => round($quantity * (round($product->price, 2)), 2)
+            );
+
+            array_push($products, $product_item);
+        }
+    }
+    $data = array(
+        "products" => $products,
+        "total_sale" => $totalSale,
+    );
+    echo json_encode($data);
 }
 
 function saveNewProd()
