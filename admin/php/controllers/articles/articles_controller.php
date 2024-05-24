@@ -877,7 +877,7 @@ function saveClientOrderSubsidiaryDelivery()
         2,
         1,
         $id_payment_methods,
-        1,
+        $id_subsidiary,
         '$order_code',
         1,
         '$total_sale',

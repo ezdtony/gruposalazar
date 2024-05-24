@@ -1,6 +1,14 @@
 <?php
 include_once dirname(__DIR__ . '', 2) . "/models/petitions.php";
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
+include_once dirname(__DIR__ . '', 4) . '/vendor/phpmailer/phpmailer/src/Exception.php';
+include_once dirname(__DIR__ . '', 4) . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
+include_once dirname(__DIR__ . '', 4) . '/vendor/phpmailer/phpmailer/src/SMTP.php';
+
 session_start();
 date_default_timezone_set('America/Mexico_City');
 
@@ -677,6 +685,7 @@ function getOnlineSalesTable()
         AS colab_reg,
         id_orders,
     ord.ammount,
+    ord.id_orders_status_types,
     stty.admin_status_description,
     stty.btstr_class,
     payment_method_description,
@@ -720,8 +729,15 @@ function getOnlineSalesTable()
 
 
         foreach ($getProducts as $product) {
+            $prop_enabled = '';
+            if ($product->id_orders_status_types != 2) {
+                $prop_enabled = 'disabled';
+            }
 
-
+            $prop_enabled_success = '';
+            if ($product->id_orders_status_types == 1) {
+                $prop_enabled_success = 'disabled';
+            }
 
             $html .= '
             <tr id="trOrder' . $product->id_orders . '">
@@ -735,12 +751,10 @@ function getOnlineSalesTable()
             data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-info"></i></button>
             </div></td>
             <td class=""> <div class="fw-bold">
-            <button type="button"class="btn btn-secondary saleReady" data-id-order="' . $product->id_orders . '"
-            data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-check"></i></button>
+            <button type="button" ' . $prop_enabled . ' class="btn btn-info saleReady" data-id-order="' . $product->id_orders . '"><i class="fa-solid fa-check"></i></button>
             </div></td>
             <td class=""> <div class="fw-bold">
-            <button type="button"class="btn btn-success saleDelivered" data-id-order="' . $product->id_orders . '"
-            data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-check"></i></button>
+            <button type="button" ' . $prop_enabled_success . ' class="btn btn-success saleDelivered" data-id-order="' . $product->id_orders . '"><i class="fa-solid fa-check"></i></button>
             </div></td>
         </tr>';
         }
@@ -799,6 +813,747 @@ function getOnlineSalesTable()
 
 
     echo json_encode($data);
+}
+function setOrderReady()
+{
+
+
+    $queries = new Queries;
+    $id_order = $_POST['id_sale'];
+
+    $saleinfo = array();
+    $sqlGetDataOrder = "SELECT 
+    order_code,
+    shipping_name_client,
+    shipping_address,
+    order_phone,
+    order_mail,
+    home_delivery,
+    subs_address.*,
+    subs.subsidiary_name,
+    subs.subsidiary_phone,
+    subs.subsidiary_second_phone
+    FROM u803991314_main.orders AS ord
+    INNER JOIN u803991314_main.subsidiary AS subs ON ord.id_subsidiary = subs.id_subsidiary
+    INNER JOIN u803991314_main.subsidiary_address AS subs_address ON subs_address.id_subsidiary_address = subs.id_subsidiary_address
+    WHERE ord.id_orders = $id_order
+    ";
+    $saleinfo = $queries->getData($sqlGetDataOrder);
+
+    $html = '';
+    if (!empty($saleinfo)) {
+
+        $order_code = $saleinfo[0]->order_code;
+        $shipping_name_client = $saleinfo[0]->shipping_name_client;
+        $shipping_address = $saleinfo[0]->shipping_address;
+        $order_phone = $saleinfo[0]->order_phone;
+        $order_mail = $saleinfo[0]->order_mail;
+        $home_delivery = $saleinfo[0]->home_delivery;
+
+
+        $subsidiary_name = $saleinfo[0]->subsidiary_name;
+        $subsidiary_phone = $saleinfo[0]->subsidiary_phone;
+
+
+        $txt_entrega = "Por favor acude a la dirección <strong>" . $shipping_address . "</strong> para la entrega en sucursal";
+        if ($home_delivery) {
+            $txt_entrega = "Nuestro personal acudirá a tu dirección <strong> " . $shipping_address . "</strong> para entregarlo en la comodidad de tu domicilio";
+        }
+
+        $sqlGetDataOrder = "UPDATE u803991314_main.orders SET id_orders_status_types = 4
+        WHERE id_orders = $id_order
+        ";
+        $saleinfo = $queries->InsertData($sqlGetDataOrder);
+
+        sendMailConfirmationOrderReady($order_code, $shipping_name_client, $txt_entrega, $order_phone, $order_mail, $subsidiary_name, $subsidiary_phone);
+
+
+
+        $data = array(
+            'response' => true,
+        );
+    } else {
+
+        $data = array(
+            'response' => false,
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+
+function setOrderDelivered()
+{
+
+
+    $queries = new Queries;
+    $id_order = $_POST['id_sale'];
+
+    $saleinfo = array();
+    $sqlGetDataOrder = "SELECT 
+    order_code,
+    shipping_name_client,
+    shipping_address,
+    order_phone,
+    order_mail,
+    home_delivery,
+    subs_address.*,
+    subs.subsidiary_name,
+    subs.subsidiary_phone,
+    subs.subsidiary_second_phone
+    FROM u803991314_main.orders AS ord
+    INNER JOIN u803991314_main.subsidiary AS subs ON ord.id_subsidiary = subs.id_subsidiary
+    INNER JOIN u803991314_main.subsidiary_address AS subs_address ON subs_address.id_subsidiary_address = subs.id_subsidiary_address
+    WHERE ord.id_orders = $id_order
+    ";
+    $saleinfo = $queries->getData($sqlGetDataOrder);
+
+    $html = '';
+    if (!empty($saleinfo)) {
+
+        $order_code = $saleinfo[0]->order_code;
+        $shipping_name_client = $saleinfo[0]->shipping_name_client;
+        $order_mail = $saleinfo[0]->order_mail;
+
+
+        $sqlGetDataOrder = "UPDATE u803991314_main.orders SET id_orders_status_types = 1
+        WHERE id_orders = $id_order
+        ";
+        $saleinfo = $queries->InsertData($sqlGetDataOrder);
+
+        sendMailConfirmationOrderDelivered($order_code, $shipping_name_client, $order_mail);
+
+
+
+        $data = array(
+            'response' => true,
+        );
+    } else {
+
+        $data = array(
+            'response' => false,
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+
+function sendMailConfirmationOrderReady($order_code, $shipping_name_client, $txt_entrega, $order_phone, $order_mail, $subsidiary_name, $subsidiary_phone)
+{
+
+
+    //Import PHPMailer classes into the global namespace
+    //These must be at the top of your script, not inside a function
+
+
+    //Load Composer's autoloader
+    require dirname(__DIR__ . '', 4) . '/vendor/autoload.php';
+
+    //Create an instance; passing `true` enables exceptions
+    $mail = new PHPMailer(true);
+
+    try {
+        //Server settings
+        $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+        $mail->isSMTP();                                            //Send using SMTP
+        $mail->Host       = 'smtp.hostinger.com';                     //Set the SMTP server to send through
+        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+        $mail->Username   = 'eshop.grupo.salazar@gruposalazar.com.mx';                     //SMTP username
+        $mail->Password   = 'E8%V7w5#ke';                               //SMTP password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+        $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+        //Recipients
+        $mail->setFrom('eshop.grupo.salazar@gruposalazar.com.mx', utf8_decode('TIENDA EN LÍNEA GRUPO SALAZAR'));
+        $mail->addAddress($order_mail, $shipping_name_client);     //Add a recipient
+        //$mail->addAddress('ellen@example.com');               //Name is optional
+        $mail->addReplyTo('eshop.grupo.salazar@gruposalazar.com.mx', utf8_decode('TIENDA EN LÍNEA GRUPO SALAZAR'));
+        //$mail->addCC('soporte@gruposalazar.com.mx');
+        //$mail->addBCC('bcc@example.com');
+
+        //Attachments
+        //$mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
+        //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+        $mail->SMTPDebug = false;
+        //Content
+        $mail->isHTML(true);                                  //Set email format to HTML
+        $mail->Subject = utf8_decode('Tu Órden ' . $order_code . ' está Lista');
+        $mail->Body    = getHTMLMailOrderReady($order_code, $shipping_name_client, $txt_entrega, $subsidiary_name, $subsidiary_phone);
+
+
+        $mail->send();
+
+
+
+        $data = array(
+            'response' => true,
+            'message' => 'Su órden ha sido registrada, y se encuentra en proceso de validación'
+        );
+    } catch (Exception $e) {
+        $data = array(
+            'response' => false,
+            'message' => 'Ocurrió un error al envíar el correo de confirmación'
+        );
+    }
+}
+
+
+function sendMailConfirmationOrderDelivered($order_code, $shipping_name_client, $order_mail)
+{
+
+
+    //Import PHPMailer classes into the global namespace
+    //These must be at the top of your script, not inside a function
+
+
+    //Load Composer's autoloader
+    require dirname(__DIR__ . '', 4) . '/vendor/autoload.php';
+
+    //Create an instance; passing `true` enables exceptions
+    $mail = new PHPMailer(true);
+
+    try {
+        //Server settings
+        $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+        $mail->isSMTP();                                            //Send using SMTP
+        $mail->Host       = 'smtp.hostinger.com';                     //Set the SMTP server to send through
+        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+        $mail->Username   = 'eshop.grupo.salazar@gruposalazar.com.mx';                     //SMTP username
+        $mail->Password   = 'E8%V7w5#ke';                               //SMTP password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+        $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+        //Recipients
+        $mail->setFrom('eshop.grupo.salazar@gruposalazar.com.mx', utf8_decode('TIENDA EN LÍNEA GRUPO SALAZAR'));
+        $mail->addAddress($order_mail, $shipping_name_client);     //Add a recipient
+        //$mail->addAddress('ellen@example.com');               //Name is optional
+        $mail->addReplyTo('eshop.grupo.salazar@gruposalazar.com.mx', utf8_decode('TIENDA EN LÍNEA GRUPO SALAZAR'));
+        //$mail->addCC('soporte@gruposalazar.com.mx');
+        //$mail->addBCC('bcc@example.com');
+
+        //Attachments
+        //$mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
+        //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+        $mail->SMTPDebug = false;
+        //Content
+        $mail->isHTML(true);                                  //Set email format to HTML
+        $mail->Subject = utf8_decode('Tu Órden ' . $order_code . ' fue entregada');
+        $mail->Body    = getHTMLMailOrderDelivered($order_code, $shipping_name_client);
+
+
+        $mail->send();
+
+
+
+        $data = array(
+            'response' => true,
+            'message' => 'Su órden ha sido registrada, y se encuentra en proceso de validación'
+        );
+    } catch (Exception $e) {
+        $data = array(
+            'response' => false,
+            'message' => 'Ocurrió un error al envíar el correo de confirmación'
+        );
+    }
+}
+
+function getHTMLMailOrderReady($order_code, $shipping_name_client, $txt_entrega, $subsidiary_name, $subsidiary_phone)
+{
+
+    $hmtl = '<!DOCTYPE html>
+    <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
+    
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch><o:AllowPNG/></o:OfficeDocumentSettings></xml><![endif]--><!--[if !mso]><!--><!--<![endif]-->
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+    
+            body {
+                margin: 0;
+                padding: 0;
+            }
+    
+            a[x-apple-data-detectors] {
+                color: inherit !important;
+                text-decoration: inherit !important;
+            }
+    
+            #MessageViewBody a {
+                color: inherit;
+                text-decoration: none;
+            }
+    
+            p {
+                line-height: inherit
+            }
+    
+            .desktop_hide,
+            .desktop_hide table {
+                mso-hide: all;
+                display: none;
+                max-height: 0px;
+                overflow: hidden;
+            }
+    
+            .image_block img+div {
+                display: none;
+            }
+    
+            @media (max-width:700px) {
+                .desktop_hide table.icons-inner {
+                    display: inline-block !important;
+                }
+    
+                .icons-inner {
+                    text-align: center;
+                }
+    
+                .icons-inner td {
+                    margin: 0 auto;
+                }
+    
+                .image_block div.fullWidth {
+                    max-width: 100% !important;
+                }
+    
+                .mobile_hide {
+                    display: none;
+                }
+    
+                .row-content {
+                    width: 100% !important;
+                }
+    
+                .stack .column {
+                    width: 100%;
+                    display: block;
+                }
+    
+                .mobile_hide {
+                    min-height: 0;
+                    max-height: 0;
+                    max-width: 0;
+                    overflow: hidden;
+                    font-size: 0px;
+                }
+    
+                .desktop_hide,
+                .desktop_hide table {
+                    display: table !important;
+                    max-height: none !important;
+                }
+            }
+        </style>
+    </head>
+    
+    <body style="background-color: #f9f9f9; margin: 0; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;">
+        <table class="nl-container" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #f9f9f9;">
+            <tbody>
+                <tr>
+                    <td>
+                        <table class="row row-1" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #e5eef9; color: #000000; width: 680px; margin: 0 auto;" width="680">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 20px; padding-top: 20px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <div class="spacer_block block-1" style="height:70px;line-height:70px;font-size:1px;">&#8202;</div>
+                                                        <table class="image_block block-2" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                                            <tr>
+                                                                <td class="pad" style="width:100%;">
+                                                                    <div class="alignment" align="center" style="line-height:10px">
+                                                                        <div style="max-width: 93px;"><img src="https://d1oco4z2z1fhwp.cloudfront.net/templates/default/4971/check-icon.png" style="display: block; height: auto; border: 0; width: 100%;" width="93" alt="Check Icon" title="Check Icon" height="auto"></div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        <table class="text_block block-3" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:25px;padding-left:20px;padding-right:20px;padding-top:10px;">
+                                                                    <div style="font-family: Georgia, Times New Roman, serif">
+                                                                        <div class style="font-size: 14px; font-family: Georgia, Times, Times New Roman, serif; mso-line-height-alt: 16.8px; color: #2f2f2f; line-height: 1.2;">
+                                                                            <p style="margin: 0; font-size: 14px; text-align: center; mso-line-height-alt: 16.8px;"><span style="font-size:42px;">tu compra está lista</span></p>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        <table class="text_block block-4" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:10px;padding-left:30px;padding-right:30px;padding-top:10px;">
+                                                                    <div style="font-family: sans-serif">
+                                                                        <div class style="font-size: 14px; font-family: Arial, Helvetica Neue, Helvetica, sans-serif; mso-line-height-alt: 21px; color: #2f2f2f; line-height: 1.5;">
+                                                                            <p style="margin: 0; font-size: 20px; text-align: center; mso-line-height-alt: 30px; letter-spacing: normal;"><span style="font-size:20px;">Estimado <strong><u>' . $shipping_name_client . '</u></strong>,</span></p>
+                                                                            <p style="margin: 0; font-size: 20px; text-align: center; mso-line-height-alt: 21px; letter-spacing: normal;">&nbsp;</p>
+                                                                            <p style="margin: 0; font-size: 20px; text-align: center; mso-line-height-alt: 30px; letter-spacing: normal;"><span style="font-size:20px;">Te informamos que tu órden con el código <strong>' . $order_code . ' </strong>
+                                                                            ya se encuentra lista para su entrega. ' . $txt_entrega . '<strong><span style>.</span></strong></span></p>
+                                                                            <p style="margin: 0; font-size: 20px; text-align: center; mso-line-height-alt: 21px; letter-spacing: normal;">&nbsp;</p>
+                                                                            <p style="margin: 0; font-size: 20px; text-align: center; mso-line-height-alt: 30px; letter-spacing: normal;"><span style="color:#000000;font-size:20px;">Ante cualquier duda o aclaración no dudes en contactarnos a través de los siguientes medios:</span></p>
+                                                                            <p style="margin: 0; font-size: 20px; text-align: center; mso-line-height-alt: 30px; letter-spacing: normal;"><span style="color:#000000;font-size:20px;">Teléfono: ' . $subsidiary_phone . '</span></p>
+                                                                            <p style="margin: 0; font-size: 20px; text-align: center; mso-line-height-alt: 30px; letter-spacing: normal;"><span style="color:#000000;font-size:20px;">Correo:  soporte@gruposalazar.com.mx</span></p>
+                                                                            <p style="margin: 0; font-size: 20px; text-align: center; mso-line-height-alt: 21px; letter-spacing: normal;">&nbsp;</p>
+                                                                            <p style="margin: 0; font-size: 20px; text-align: center; mso-line-height-alt: 30px; letter-spacing: normal;"><span style="color:#000000;font-size:20px;">Una vez más, Grupo Salazar agradece tu preferencia por adquirir tus productos con nosotros.</span></p>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        <div class="spacer_block block-5" style="height:70px;line-height:70px;font-size:1px;">&#8202;</div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-2" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; color: #000000; width: 680px; margin: 0 auto;" width="680">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-top: 5px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <div class="spacer_block block-1" style="height:20px;line-height:20px;font-size:1px;">&#8202;</div>
+                                                        <table class="image_block block-2" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                                            <tr>
+                                                                <td class="pad" style="width:100%;padding-right:0px;padding-left:0px;">
+                                                                    <div class="alignment" align="center" style="line-height:10px">
+                                                                        <div class="fullWidth" style="max-width: 442px;"><img src="https://d0518c3adf.imgdist.com/pub/bfra/crn8p0k6/hc7/n24/yvk/navbar_logo_lg.png" style="display: block; height: auto; border: 0; width: 100%;" width="442" alt="Yourlogo Light" title="Yourlogo Light" height="auto"></div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table><!-- End -->
+    </body>
+    
+    </html>';
+
+    return $hmtl;
+}
+
+function getHTMLMailOrderDelivered($order_code, $shipping_name_client)
+{
+    $html = '<!DOCTYPE html>
+    <html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
+    
+    <head>
+        <title></title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"><!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch><o:AllowPNG/></o:OfficeDocumentSettings></xml><![endif]--><!--[if !mso]><!-->
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@100;200;300;400;500;600;700;800;900" rel="stylesheet" type="text/css"><!--<![endif]-->
+        <style>
+            * {
+                box-sizing: border-box;
+            }
+    
+            body {
+                margin: 0;
+                padding: 0;
+            }
+    
+            a[x-apple-data-detectors] {
+                color: inherit !important;
+                text-decoration: inherit !important;
+            }
+    
+            #MessageViewBody a {
+                color: inherit;
+                text-decoration: none;
+            }
+    
+            p {
+                line-height: inherit
+            }
+    
+            .desktop_hide,
+            .desktop_hide table {
+                mso-hide: all;
+                display: none;
+                max-height: 0px;
+                overflow: hidden;
+            }
+    
+            .image_block img+div {
+                display: none;
+            }
+    
+            @media (max-width:640px) {
+                .desktop_hide table.icons-outer {
+                    display: inline-table !important;
+                }
+    
+                .desktop_hide table.icons-inner {
+                    display: inline-block !important;
+                }
+    
+                .icons-inner {
+                    text-align: center;
+                }
+    
+                .icons-inner td {
+                    margin: 0 auto;
+                }
+    
+                .image_block div.fullWidth {
+                    max-width: 100% !important;
+                }
+    
+                .mobile_hide {
+                    display: none;
+                }
+    
+                .row-content {
+                    width: 100% !important;
+                }
+    
+                .stack .column {
+                    width: 100%;
+                    display: block;
+                }
+    
+                .mobile_hide {
+                    min-height: 0;
+                    max-height: 0;
+                    max-width: 0;
+                    overflow: hidden;
+                    font-size: 0px;
+                }
+    
+                .desktop_hide,
+                .desktop_hide table {
+                    display: table !important;
+                    max-height: none !important;
+                }
+    
+                .reverse {
+                    display: table;
+                    width: 100%;
+                }
+    
+                .reverse .column.last {
+                    display: table-header-group !important;
+                }
+    
+                .row-5 td.column.last .border {
+                    padding: 25px 20px;
+                    border-top: 0;
+                    border-right: 0px;
+                    border-bottom: 0;
+                    border-left: 0;
+                }
+    
+                .row-4 .column-1 .block-1.spacer_block {
+                    height: 40px !important;
+                }
+    
+                .row-1 .column-1 {
+                    padding: 20px 20px 5px !important;
+                }
+    
+                .row-1 .column-3 {
+                    padding: 5px 20px 25px !important;
+                }
+            }
+        </style>
+    </head>
+    
+    <body style="background-color: #e6e6e6; margin: 0; padding: 0; -webkit-text-size-adjust: none; text-size-adjust: none;">
+        <table class="nl-container" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #e6e6e6;">
+            <tbody>
+                <tr>
+                    <td>
+                        <table class="row row-1" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; border-radius: 0; color: #000000; width: 620px; margin: 0 auto;" width="620">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="25%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-left: 20px; padding-right: 20px; padding-top: 5px; vertical-align: middle; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="icons_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; text-align: center;">
+                                                            <tr>
+                                                                <td class="pad" style="vertical-align: middle; color: #000000; font-family: inherit; font-size: 14px; font-weight: 400; text-align: center;">
+                                                                    <table class="icons-outer" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-table;">
+                                                                        <tr>
+                                                                            <td style="vertical-align: middle; text-align: center; padding-top: 0px; padding-bottom: 0px; padding-left: 0px; padding-right: 0px;"><a href="https://example.com" target="_self" style="text-decoration: none;"><img class="icon" src="https://d0518c3adf.imgdist.com/pub/bfra/crn8p0k6/1tz/c6t/unj/navbar_logo_lg_1.png" alt="Logo" height="auto" width="103" align="center" style="display: block; height: auto; margin: 0 auto; border: 0;"></a></td>
+                                                                        </tr>
+                                                                    </table>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td class="column column-2" width="50%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-left: 20px; padding-right: 20px; padding-top: 5px; vertical-align: middle; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="empty_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                                            <tr>
+                                                                <td class="pad">
+                                                                    <div></div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                    <td class="column column-3" width="25%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 5px; padding-left: 20px; padding-right: 20px; padding-top: 5px; vertical-align: middle; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="empty_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                                            <tr>
+                                                                <td class="pad">
+                                                                    <div></div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-2" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; color: #000000; width: 620px; margin: 0 auto;" width="620">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 10px; padding-left: 20px; padding-right: 20px; padding-top: 40px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="heading_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-bottom:10px;padding-top:10px;text-align:center;width:100%;">
+                                                                    <h1 style="margin: 0; color: #393d47; direction: ltr; font-family: Playfair Display, Georgia, serif; font-size: 38px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 45.6px;"><strong>Gracias por tu preferencia</strong><span class="tinyMce-placeholder">!</span></h1>
+                                                                    <h3 style="margin: 0; color: #393d47; direction: ltr; font-family: Playfair Display, Georgia, serif; font-size: 38px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 45.6px;">Tu órden con el código <strong>' . $order_code . '</strong> ha sido entregada existosamente<span class="tinyMce-placeholder">!</span></h3>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        <table class="image_block block-2" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                                            <tr>
+                                                                <td class="pad" style="padding-top:30px;width:100%;padding-right:0px;padding-left:0px;">
+                                                                    <div class="alignment" align="center" style="line-height:10px">
+                                                                        <div class="fullWidth" style="max-width: 232px;"><img src="https://d0518c3adf.imgdist.com/pub/bfra/crn8p0k6/k7k/jwb/heu/2558190.png" style="display: block; height: auto; border: 0; width: 100%;" width="232" alt="Confirm subscription" title="Confirm subscription" height="auto"></div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-3" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; background-color: #f5f5f5; border-left: 20px solid #FFFFFF; border-right: 20px solid #FFFFFF; width: 620px; margin: 0 auto;" width="620">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 25px; padding-left: 20px; padding-right: 20px; padding-top: 25px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <table class="heading_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                                                            <tr>
+                                                                <td class="pad" style="text-align:center;width:100%;">
+                                                                    <h2 style="margin: 0; color: #393d47; direction: ltr; font-family: Playfair Display, Georgia, serif; font-size: 30px; font-weight: 400; letter-spacing: normal; line-height: 120%; text-align: center; margin-top: 0; margin-bottom: 0; mso-line-height-alt: 36px;">Apreciable ' . $shipping_name_client . '.</h2>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                        <table class="paragraph_block block-2" width="100%" border="0" cellpadding="10" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; word-break: break-word;">
+                                                            <tr>
+                                                                <td class="pad">
+                                                                    <div style="color:#101112;direction:ltr;font-family:Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;font-size:16px;font-weight:400;letter-spacing:0px;line-height:120%;text-align:center;mso-line-height-alt:19.2px;">
+                                                                        <p style="margin: 0; margin-bottom: 16px;">Queremos agradecerte de todo corazón por tu reciente compra en Grupo Salazar. Nos complace saber que has elegido nuestros productos y esperamos que tu adquisición satisfaga tus necesidades.</p>
+                                                                        <p style="margin: 0; margin-bottom: 16px;">En Grupo Salazar, nos esforzamos por ofrecer productos de la más alta calidad y un servicio excepcional. Tu apoyo y confianza significan mucho para nosotros, y estamos comprometidos a seguir brindándote la mejor experiencia de compra posible.</p>
+                                                                        <p style="margin: 0; margin-bottom: 16px;">Si tienes alguna pregunta o necesitas asistencia adicional, no dudes en ponerte en contacto con nosotros. Estamos aquí para ayudarte en lo que necesites.</p>
+                                                                        <p style="margin: 0;">Además, nos encantaría escuchar tus comentarios sobre tu experiencia de compra y los productos adquiridos. Tu opinión nos ayuda a mejorar continuamente. Gracias nuevamente por tu compra. Esperamos verte pronto en <a href="https://www.gruposalazar.com.mx" target="_blank" rel="noopener" style="text-decoration: underline; color: #7747FF;">nuestra tienda en línea Grupo Salazar</a></p>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-4" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; border-radius: 0; color: #000000; background-color: #1b46c6; border-left: 20px solid #FFFFFF; border-right: 20px solid #FFFFFF; width: 620px; margin: 0 auto;" width="620">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="column column-1" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <div class="spacer_block block-1" style="height:40px;line-height:40px;font-size:1px;">&#8202;</div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="row row-5" align="center" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt;">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="row-content stack" align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; background-color: #ffffff; color: #000000; width: 620px; margin: 0 auto;" width="620">
+                                            <tbody>
+                                                <tr class="reverse">
+                                                    <td class="column column-1 last" width="100%" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; font-weight: 400; text-align: left; padding-bottom: 25px; padding-left: 20px; padding-right: 20px; padding-top: 25px; vertical-align: top; border-top: 0px; border-right: 0px; border-bottom: 0px; border-left: 0px;">
+                                                        <div class="border">
+                                                            <table class="icons_block block-1" width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; text-align: center;">
+                                                                <tr>
+                                                                    <td class="pad" style="vertical-align: middle; color: #000000; font-family: inherit; font-size: 14px; font-weight: 400; text-align: center;">
+                                                                        <table class="icons-outer" cellpadding="0" cellspacing="0" role="presentation" style="mso-table-lspace: 0pt; mso-table-rspace: 0pt; display: inline-table;">
+                                                                            <tr>
+                                                                                <td style="vertical-align: middle; text-align: center; padding-top: 0px; padding-bottom: 0px; padding-left: 0px; padding-right: 0px;"><a href="https://example.com" target="_self" style="text-decoration: none;"><img class="icon" src="https://d0518c3adf.imgdist.com/pub/bfra/crn8p0k6/1tz/c6t/unj/navbar_logo_lg_1.png" alt="Logo" height="auto" width="275" align="center" style="display: block; height: auto; margin: 0 auto; border: 0;"></a></td>
+                                                                            </tr>
+                                                                        </table>
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table><!-- End -->
+    </body>
+    
+    </html>';
+
+    return $html;
 }
 function getSaleDetail()
 {
@@ -1015,7 +1770,7 @@ function getSalesStatus()
 
     $queries = new Queries;
 
-    $saleinfo= array();
+    $saleinfo = array();
     $sqlOrderIndex = "SELECT 
     admin_status_description,
     COUNT(*) AS status_quantity
@@ -1048,7 +1803,7 @@ function getSalesMonth()
 
     $queries = new Queries;
 
-    $saleinfo= array();
+    $saleinfo = array();
     $sqlOrderIndex = "SELECT SUM(quantity*ord_det.price) as ammount_prod, MONTH(orders.order_date) AS month_sale
     FROM u803991314_main.order_details AS ord_det
     INNER JOIN u803991314_main.orders AS orders ON orders.id_orders = ord_det.id_orders
