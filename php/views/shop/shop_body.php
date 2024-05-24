@@ -22,11 +22,15 @@
                     }
 
                     ?>
-                    <h2 class="text-white"><?=$title?></h2>
+                    <h2 class="text-white"><?= $title ?></h2>
                 </div>
             </div>
             <div class="col-lg-7">
-
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label text-white">Buscar Producto</label>
+                    <br><br> <input type="text" class="form-control" id="inputSearchProd" placeholder="Buscar producto"><button id="btnSearchProd" class="btn btn-info"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    
+                </div>
             </div>
         </div>
     </div>

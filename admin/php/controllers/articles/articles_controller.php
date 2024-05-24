@@ -251,12 +251,12 @@ function getProductsShop()
     //$product_name = $_POST['product_name'];
     $colsSearch = [
         'br.brand',
-        'product_name',
-        'product_short_name',
-        'product_code',
-        'product_barcode',
+        'prods.product_name',
+        'prods.product_short_name',
+        'prods.product_code',
+        'prods.product_barcode',
         'ct.categories_description',
-        'sku'
+        'prods.sku'
     ];
     $limit =  isset($_POST['limit']) ? $_POST['limit'] : 10;
     $actualPage =  isset($_POST['actualPage']) ? $_POST['actualPage'] : 0;
@@ -308,6 +308,8 @@ function getProductsShop()
     
     $limit
     ";
+
+    //echo $sql;
 
     $getProducts = $queries->getData($sql);
 
