@@ -333,6 +333,36 @@ function getProductsShop()
 
 
         foreach ($getProducts as $product) {
+            $sqlGetDiscount = "SELECT DISTINCT percentage, offer_name
+                FROM u803991314_main.products AS prods
+                INNER JOIN u803991314_main.relationship_products_tags AS rpt ON rpt.id_prducts = prods.id_prducts
+                INNER JOIN u803991314_main.relationship_offers_tags AS rot ON rpt.id_tags = rot.id_tags
+                INNER JOIN u803991314_main.offers AS offr ON offr.id_offers = rot.id_offers
+                WHERE prods.id_prducts = $product->id_prducts
+                ";
+
+            $getDiscount = $queries->getData($sqlGetDiscount);
+
+            $prod_price_sell = round($product->price, 2);
+            $prod_price_sell_og = round($product->price, 2);
+
+            $html_discount = '';
+            $html_discount_price = '';
+
+            if (!empty($getDiscount)) {
+                $prod_discount = $getDiscount[0]->percentage;
+                $prod_price_sell = round($product->price, 2);
+
+                $montoDescuento = ($prod_price_sell * $prod_discount) / 100;
+
+                // Cálculo del precio final
+                $prod_price_sell = round($prod_price_sell - $montoDescuento, 2);
+
+                $html_discount = '';
+                $html_discount = '<p class="text-muted">Producto con el ' . $prod_discount . '% de descuento</p>';
+                $html_discount_price = '<p class="text-muted" style="color:orange !important">Precio regular: <s>$ ' . $prod_price_sell_og . '</s></p>';
+            }
+
             $total_stock = $product->total_stock;
             $percentage = 0;
             if ($product->total_stock > 0) {
@@ -366,9 +396,12 @@ function getProductsShop()
                         <img src="' . $image_prod . '" class="img-fluid product-thumbnail">
                         <h3 class="product-title">' . $product->product_name . '</h3>
                         ' . $html_stock . '
-                        <strong class="product-price">$' . round($product->price, 2) . '</strong>
+                        ' . $html_discount . '
 
-                        <button ' . $enabled . ' class="icon-cross addCartProd"  data-id-product="' . $product->id_prducts . '" data-product-price="' . round($product->price, 2) . '" data-stock="' . $total_stock . '">
+                        <strong class="product-price">$' . $prod_price_sell . '</strong>
+                        ' . $html_discount_price . '
+
+                        <button ' . $enabled . ' class="icon-cross addCartProd"  data-id-product="' . $product->id_prducts . '" data-product-price="' . $prod_price_sell . '" data-stock="' . $total_stock . '">
                             <img src="images/cross.svg" class="img-fluid">
                         </button>
                     </a>
@@ -472,6 +505,28 @@ function getProductsCart()
         $percentage = 0;
         foreach ($getProducts as $product) {
 
+            $sqlGetDiscount = "SELECT DISTINCT percentage, offer_name
+            FROM u803991314_main.products AS prods
+            INNER JOIN u803991314_main.relationship_products_tags AS rpt ON rpt.id_prducts = prods.id_prducts
+            INNER JOIN u803991314_main.relationship_offers_tags AS rot ON rpt.id_tags = rot.id_tags
+            INNER JOIN u803991314_main.offers AS offr ON offr.id_offers = rot.id_offers
+            WHERE prods.id_prducts = $product->id_prducts
+            ";
+
+            $getDiscount = $queries->getData($sqlGetDiscount);
+
+            $prod_price_sell = round($product->price, 2);
+            $prod_price_sell_og = round($product->price, 2);
+
+
+            if (!empty($getDiscount)) {
+                $prod_discount = $getDiscount[0]->percentage;
+                $prod_price_sell = round($product->price, 2);
+                $montoDescuento = ($prod_price_sell * $prod_discount) / 100;
+                // Cálculo del precio final
+                $prod_price_sell = round($prod_price_sell - $montoDescuento, 2);
+            }
+
             if ($product->total_stock > 0) {
                 $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
             }
@@ -490,8 +545,8 @@ function getProductsCart()
                     $image_prod = 'images/sin-imagen.png';
                 }
             }
-            $total_prod = $quantity * round($product->price, 2);
-            $totalSale = $totalSale + $total_prod;
+            $total_prod = number_format($quantity * $prod_price_sell, 2);
+            $totalSale = number_format($totalSale + $total_prod, 2);
             $html .= '
             <tr>
             <td class="product-thumbnail">
@@ -500,20 +555,20 @@ function getProductsCart()
             <td class="product-name">
                 <h2 class="h5 text-black">' . $product->product_name . '</h2>
             </td>
-            <td>$' . round($product->price, 2) . '</td>
+            <td>$' . $prod_price_sell . '</td>
             <td>
                 <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
                     <div class="input-group-prepend">
                         <button data-stock="' . $product->total_stock . '" class="btn btn-outline-black decrease"  type="button">&minus;</button>
                     </div>
-                    <input type="text" disabled class="form-control text-center quantity-amount" data-price="' . round($product->price, 2) . '" value="' . $quantity . '" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
+                    <input type="text" disabled class="form-control text-center quantity-amount" data-price="' . $prod_price_sell . '" value="' . $quantity . '" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
                     <div class="input-group-append">
                         <button data-stock="' . $product->total_stock . '" class="btn btn-outline-black increase" type="button">&plus;</button>
                     </div>
                 </div>
 
             </td>
-            <td class="total-prod" data-stock="' . $product->total_stock . '" data-id-product="' . $id_product . '" data-cart-index="' . $cart_index . '" data-product-quantity="' . $quantity . '"  data-price="' . round($product->price, 2) . '"  data-total-prod="' . $total_prod . '">$' . $total_prod . '</td>
+            <td class="total-prod" data-stock="' . $product->total_stock . '" data-id-product="' . $id_product . '" data-cart-index="' . $cart_index . '" data-product-quantity="' . $quantity . '"  data-price="' . $prod_price_sell . '"  data-total-prod="' . $total_prod . '">$' . $total_prod . '</td>
         </tr>
             ';
             $cart_index++;
@@ -597,6 +652,29 @@ function getProductsCheckout()
         $percentage = 0;
         foreach ($getProducts as $product) {
 
+            $sqlGetDiscount = "SELECT DISTINCT percentage, offer_name
+            FROM u803991314_main.products AS prods
+            INNER JOIN u803991314_main.relationship_products_tags AS rpt ON rpt.id_prducts = prods.id_prducts
+            INNER JOIN u803991314_main.relationship_offers_tags AS rot ON rpt.id_tags = rot.id_tags
+            INNER JOIN u803991314_main.offers AS offr ON offr.id_offers = rot.id_offers
+            WHERE prods.id_prducts = $product->id_prducts
+            ";
+
+            $getDiscount = $queries->getData($sqlGetDiscount);
+
+            $prod_price_sell = round($product->price, 2);
+            $prod_price_sell_og = round($product->price, 2);
+
+
+            if (!empty($getDiscount)) {
+                $prod_discount = $getDiscount[0]->percentage;
+                $prod_price_sell = round($product->price, 2);
+                $montoDescuento = ($prod_price_sell * $prod_discount) / 100;
+                // Cálculo del precio final
+                $prod_price_sell = round($prod_price_sell - $montoDescuento, 2);
+            }
+
+
             if ($product->total_stock > 0) {
                 $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
             }
@@ -615,7 +693,7 @@ function getProductsCheckout()
                     $image_prod = 'images/sin-imagen.png';
                 }
             }
-            $total_prod = $quantity * round($product->price, 2);
+            $total_prod = number_format($quantity * $prod_price_sell, 2);
             $totalSale = $totalSale + $total_prod;
             $html .= '
                         <tr>
@@ -1030,7 +1108,7 @@ function sendMailConfirmation()
         $mail->Body    = getHTMLMailConfirmationClient($client_name, $order_code, $prod_list, $total_sale, $addressShip,  $subsidiary_phone, $text_ship, $order_notes);
 
 
-       $mail->send();
+        $mail->send();
 
 
         $data = array(
@@ -2620,6 +2698,28 @@ function getProducts($cart_shop)
         $percentage = 0;
         foreach ($getProducts as $product) {
 
+            $sqlGetDiscount = "SELECT DISTINCT percentage, offer_name
+            FROM u803991314_main.products AS prods
+            INNER JOIN u803991314_main.relationship_products_tags AS rpt ON rpt.id_prducts = prods.id_prducts
+            INNER JOIN u803991314_main.relationship_offers_tags AS rot ON rpt.id_tags = rot.id_tags
+            INNER JOIN u803991314_main.offers AS offr ON offr.id_offers = rot.id_offers
+            WHERE prods.id_prducts = $product->id_prducts
+            ";
+
+            $getDiscount = $queries->getData($sqlGetDiscount);
+
+            $prod_price_sell = round($product->price, 2);
+            $prod_price_sell_og = round($product->price, 2);
+
+
+            if (!empty($getDiscount)) {
+                $prod_discount = $getDiscount[0]->percentage;
+                $prod_price_sell = round($product->price, 2);
+                $montoDescuento = ($prod_price_sell * $prod_discount) / 100;
+                // Cálculo del precio final
+                $prod_price_sell = round($prod_price_sell - $montoDescuento, 2);
+            }
+
             /*  if ($product->total_stock > 0) {
                 $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
             } */
@@ -2638,7 +2738,7 @@ function getProducts($cart_shop)
                     $image_prod = 'images/sin-imagen.png';
                 }
             }
-            $total_prod = $quantity * round($product->price, 2);
+            $total_prod = number_format($quantity * $prod_price_sell, 2);
             $totalSale = $totalSale + $total_prod;
             $html .= '
                         <tr>
@@ -2670,7 +2770,7 @@ function getProducts($cart_shop)
                                     <tr>
                                         <td class="pad" style="padding-right:15px;">
                                             <div style="color:#555555;font-family:Lato, Tahoma, Verdana, Segoe, sans-serif;font-size:20px;line-height:120%;text-align:center;mso-line-height-alt:24px;">
-                                                <p style="margin: 0; word-break: break-word;">$' . round($product->price, 2) . '</p>
+                                                <p style="margin: 0; word-break: break-word;">$' . $prod_price_sell . '</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -2708,6 +2808,30 @@ function getProductsPDF()
         $percentage = 0;
         foreach ($getProducts as $product) {
 
+            $sqlGetDiscount = "SELECT DISTINCT percentage, offer_name
+            FROM u803991314_main.products AS prods
+            INNER JOIN u803991314_main.relationship_products_tags AS rpt ON rpt.id_prducts = prods.id_prducts
+            INNER JOIN u803991314_main.relationship_offers_tags AS rot ON rpt.id_tags = rot.id_tags
+            INNER JOIN u803991314_main.offers AS offr ON offr.id_offers = rot.id_offers
+            WHERE prods.id_prducts = $product->id_prducts
+            ";
+
+            $getDiscount = $queries->getData($sqlGetDiscount);
+
+            $prod_price_sell = round($product->price, 2);
+            $prod_price_sell_og = round($product->price, 2);
+
+
+            if (!empty($getDiscount)) {
+                $prod_discount = $getDiscount[0]->percentage;
+                $prod_price_sell = round($product->price, 2);
+                $montoDescuento = ($prod_price_sell * $prod_discount) / 100;
+                // Cálculo del precio final
+                $prod_price_sell = round($prod_price_sell - $montoDescuento, 2);
+            }
+
+
+
             /*  if ($product->total_stock > 0) {
                 $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
             } */
@@ -2726,13 +2850,13 @@ function getProductsPDF()
                     $image_prod = 'images/sin-imagen.png';
                 }
             }
-            $total_prod = $quantity * round($product->price, 2);
-            $totalSale = $totalSale + $total_prod;
+            $total_prod = number_format($quantity * $prod_price_sell, 2);
+            $totalSale = number_format($totalSale + $total_prod, 2);
             $product_item = array(
                 'name' => $product->product_name,
                 'quantity' => $quantity,
                 'price' => round($product->price, 2),
-                'prod_total' => round($quantity * (round($product->price, 2)), 2)
+                'prod_total' => number_format($quantity * $prod_price_sell, 2)
             );
 
             array_push($products, $product_item);
