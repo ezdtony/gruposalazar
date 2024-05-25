@@ -31,7 +31,7 @@ $(document).ready(function () {
             } else {
               $("#prod_quantity").attr("disabled", false);
               $("#prod_name").val(data.prod_data[0].product_name);
-              $("#prod_price").val(data.prod_data[0].price.toFixed(2));
+              $("#prod_price").val(data.prod_price);
               $("#addProd").attr("data-barcode", searchProd);
               $("#addProd").attr(
                 "data-id-product",
