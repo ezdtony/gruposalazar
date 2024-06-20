@@ -609,7 +609,7 @@ function getSalesTable()
             <button type="button"class="btn btn-primary getSaleDetail" data-id-order="' . $product->id_orders . '"
             data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-info"></i></button>
             <button type="button"class="btn btn-primary getSaleTicket" data-id-order="' . $product->id_orders . '"
-            data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-print"></i></button>
+            ><i class="fa-solid fa-print"></i></button>
             </div></td>
         </tr>';
         }
@@ -787,7 +787,7 @@ function getOnlineSalesTable()
             <button type="button"class="btn btn-primary getSaleDetail" data-id-order="' . $product->id_orders . '"
             data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-info"></i></button>
             <button type="button"class="btn btn-primary getSaleTicket" data-id-order="' . $product->id_orders . '"
-            data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-print"></i></button>
+            ><i class="fa-solid fa-print"></i></button>
             </div></td>
             <td class=""> <div class="fw-bold">
             <button type="button" ' . $prop_enabled . ' class="btn btn-info saleReady" data-id-order="' . $product->id_orders . '"><i class="fa-solid fa-check"></i></button>
