@@ -9,6 +9,8 @@ include_once dirname(__DIR__ . '', 4) . '/vendor/phpmailer/phpmailer/src/Excepti
 include_once dirname(__DIR__ . '', 4) . '/vendor/phpmailer/phpmailer/src/PHPMailer.php';
 include_once dirname(__DIR__ . '', 4) . '/vendor/phpmailer/phpmailer/src/SMTP.php';
 
+require_once dirname(__DIR__ . '', 3) . '/assets/fpdf/fpdf.php';
+
 session_start();
 date_default_timezone_set('America/Mexico_City');
 
@@ -16,7 +18,6 @@ if (!empty($_POST['mod'])) {
     $function = $_POST['mod'];
     $function();
 }
-
 
 function searchProduct()
 {
@@ -62,7 +63,6 @@ function searchProduct()
 
             // Cálculo del precio final
             $prod_price_sell = round($prod_price_sell - $montoDescuento, 2);
-
         }
 
 
@@ -100,7 +100,7 @@ function SaveOrderCash()
     $ammount = $_POST['ammount'];
     $products = $_POST['products'];
 
-
+$today = date('Y-m-d H:i:s');
 
     $sql = "INSERT INTO u803991314_main.orders(
         id_clients,
@@ -120,7 +120,7 @@ function SaveOrderCash()
             $id_subsidiary,
             $pikup_subsidiary,
             '$ammount',
-            NOW(),
+            '$today',
             $_SESSION[id_user]
     )";
     $insert = $queries->InsertData($sql);
@@ -128,6 +128,11 @@ function SaveOrderCash()
 
     if (!empty($insert)) {
         $last_id = $insert['last_id'];
+        $order_id = $insert['last_id'];
+
+        $order_code = 'TFGS-'  . $order_id . "-" . substr(time(), -4);
+        $sqlOrCD = "UPDATE u803991314_main.orders SET order_code = '$order_code' WHERE id_orders = $order_id";
+        $queries->InsertData($sqlOrCD);
 
         foreach ($products as $prod) {
 
@@ -160,6 +165,7 @@ function SaveOrderCash()
 
         $data = array(
             'response' => true,
+            'order_id' => $order_id
         );
     } else {
         $data = array(
@@ -602,6 +608,8 @@ function getSalesTable()
             <td class=""> <div class="fw-bold">
             <button type="button"class="btn btn-primary getSaleDetail" data-id-order="' . $product->id_orders . '"
             data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-info"></i></button>
+            <button type="button"class="btn btn-primary getSaleTicket" data-id-order="' . $product->id_orders . '"
+            data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-print"></i></button>
             </div></td>
         </tr>';
         }
@@ -778,6 +786,8 @@ function getOnlineSalesTable()
             <td class=""> <div class="fw-bold">
             <button type="button"class="btn btn-primary getSaleDetail" data-id-order="' . $product->id_orders . '"
             data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-info"></i></button>
+            <button type="button"class="btn btn-primary getSaleTicket" data-id-order="' . $product->id_orders . '"
+            data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-print"></i></button>
             </div></td>
             <td class=""> <div class="fw-bold">
             <button type="button" ' . $prop_enabled . ' class="btn btn-info saleReady" data-id-order="' . $product->id_orders . '"><i class="fa-solid fa-check"></i></button>
@@ -1853,6 +1863,61 @@ function getSalesMonth()
         $data = array(
             'response' => false,
             'data' => $saleinfo
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+
+function printTicket()
+{
+
+    $queries = new Queries;
+
+    $id_order = $_POST['id_order'];
+
+
+
+
+    $sql = "SELECT ords.*, colabs.short_name, sbs.subsidiary_name, sbs.id_subsidiary
+        FROM u803991314_main.orders AS ords
+        INNER JOIN u803991314_main.subsidiary AS sbs ON ords.id_subsidiary = sbs.id_subsidiary
+        LEFT JOIN u803991314_main.colaborators AS colabs ON ords.id_user_registered = colabs.id_colaborator
+        WHERE id_orders = $id_order ";
+    $getInfoOrder = $queries->getData($sql);
+
+
+
+    $prodsOrder = array();
+    if (!empty($getInfoOrder)) {
+        $id_subs = $getInfoOrder[0]->id_subsidiary;
+        $sqlGetSubsidiaryInfo = "SELECT sub_add.*,
+        sub.subsidiary_name,
+        sub.subsidiary_phone,
+        sub.subsidiary_second_phone
+        FROM u803991314_main.subsidiary AS sub
+        INNER JOIN u803991314_main.subsidiary_address AS sub_add ON sub_add.id_subsidiary_address = sub.id_subsidiary_address
+        WHERE sub.id_subsidiary = $id_subs";
+        $getSubsidiaryInfo = $queries->getData($sqlGetSubsidiaryInfo);
+
+        $sqlOrderDetail = "SELECT prd.product_name, ord_det.*, (ord_det.price*ord_det.quantity) AS prod_import
+        FROM u803991314_main.order_details AS ord_det
+        INNER JOIN u803991314_main.products AS prd ON ord_det.id_prducts = prd.id_prducts
+        WHERE id_orders = $id_order";
+        $saleDetail = $queries->getData($sqlOrderDetail);
+
+        $data = array(
+            'response' => true,
+            'orderDetails' => $getInfoOrder,
+            'prodsOrder' => $saleDetail,
+            'getSubsidiaryInfo' => $getSubsidiaryInfo
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => "Producto no encontrado",
         );
     }
 

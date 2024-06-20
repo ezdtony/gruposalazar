@@ -117,6 +117,7 @@ $active_search_prod = 0;
 </div>
 </div>
 <script src="js/functions/newSale.js"></script>
+<script src="js/functions/generatePDF/generatePDF.js"></script>
 <?php
 include 'modals/saveNewSale.php';
 ?>

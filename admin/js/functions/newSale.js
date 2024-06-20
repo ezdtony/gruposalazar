@@ -345,7 +345,32 @@ $(document).ready(function () {
             confirmButtonText: "Acepar",
           }).then((result) => {
             loading();
-            location.reload();
+            //location.reload();
+            $.ajax({
+              url: "php/controllers/sales/sales_controller.php",
+              method: "POST",
+              data: {
+                mod: "printTicket",
+                id_order: data.order_id,
+              },
+            })
+              .done(function (data) {
+                Swal.close();
+                var data = JSON.parse(data);
+                console.log(data);
+
+                printSaleTicket(data);
+                //--- --- ---//
+                //--- --- ---//
+              })
+              .fail(function (message) {
+                Swal.close();
+                var myToast = Toastify({
+                  text: data.message,
+                  duration: 3000,
+                });
+                myToast.showToast();
+              });
           });
         } else {
           errorToast(data.message);
@@ -453,6 +478,35 @@ $(document).ready(function () {
       });
     }
   });
+  $(document).on("click", ".getSaleTicket", function (event) {
+    loading();
+    var id_order = $(this).attr("data-id-order");
+    $.ajax({
+      url: "php/controllers/sales/sales_controller.php",
+      method: "POST",
+      data: {
+        mod: "printTicket",
+        id_order: id_order,
+      },
+    })
+      .done(function (data) {
+        Swal.close();
+        var data = JSON.parse(data);
+        console.log(data);
+
+        printSaleTicket(data);
+        //--- --- ---//
+        //--- --- ---//
+      })
+      .fail(function (message) {
+        Swal.close();
+        var myToast = Toastify({
+          text: data.message,
+          duration: 3000,
+        });
+        myToast.showToast();
+      });
+  });
 
   $(document).on("click", "#btnSaveSaleCreditCard", function (event) {
     loading();
@@ -477,7 +531,7 @@ $(document).ready(function () {
 
       products.push({ id_product, quantity, price });
     }
-    if (ticket_id!= "" && ticket_id != undefined) {
+    if (ticket_id != "" && ticket_id != undefined) {
       $.ajax({
         url: "php/controllers/sales/sales_controller.php",
         method: "POST",
@@ -491,7 +545,7 @@ $(document).ready(function () {
           ammount: ammount,
           products: products,
           total_sale: total_sale,
-          ticket_id:ticket_id
+          ticket_id: ticket_id,
         },
       })
         .done(function (data) {
@@ -532,7 +586,6 @@ $(document).ready(function () {
       });
     }
   });
-  
 
   $(document).on("change", "#credit_client", function (event) {
     loading();
@@ -583,7 +636,10 @@ $(document).ready(function () {
     Swal.fire({
       title: "Realize la transacción en la terminal!!",
       icon: "info",
-      text:"Ingrese la cantidad en la terminal: $ " + total_sale + " MXN, después ingrese el ID del ticket en el cuadro de texto.",
+      text:
+        "Ingrese la cantidad en la terminal: $ " +
+        total_sale +
+        " MXN, después ingrese el ID del ticket en el cuadro de texto.",
     });
   }
   function processCreditSalazarPayment() {
