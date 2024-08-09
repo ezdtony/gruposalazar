@@ -485,7 +485,7 @@ function insertTransfer()
     $sqlGetSDestDet = "SELECT * FROM u803991314_main.subsidiary WHERE id_subsidiary = $id_subsidiary_dest";
     $getSDestDet = $queries->getData($sqlGetSDestDet);
     $subsidiary_des_prefix = substr($getSDestDet[0]->subsidiary_prefix, 4, 2);
-
+    $today = date('Y-m-d H:i:s');
 
     $sqlInsertProductsIncome = "INSERT INTO u803991314_main.prods_transfer (
         id_subs_or,
@@ -499,7 +499,7 @@ function insertTransfer()
         $id_subsidiary_dest,
         1,
         $_SESSION[id_user],
-        NOW()
+        '$today'
     )
     ";
 

@@ -16,6 +16,7 @@ $(document).ready(function () {
     var prod_min_stock = $("#prod_min_stock").val();
     var prod_max_stock = $("#prod_max_stock").val();
     var prod_description = $("#prod_description").val();
+    var sat_code = $("#sat_code").val();
     const prod_image = document.querySelector("#prod_image");
 
     /*  console.log("prod_code: " + prod_code);
@@ -63,6 +64,9 @@ $(document).ready(function () {
       prod_max_stock != null &&
       prod_max_stock != "" &&
       prod_max_stock != undefined &&
+      sat_code != null &&
+      sat_code != "" &&
+      sat_code != undefined &&
       prod_description != null &&
       prod_description != "" &&
       prod_description != undefined &&
@@ -449,6 +453,7 @@ $(document).ready(function () {
           $("#edit_prod_min_stock").val(data.prod_info[0].min_stock);
           $("#edit_prod_max_stock").val(data.prod_info[0].ideal_stock);
           $("#edit_prod_description").val(data.prod_info[0].description);
+          $("#edit_sat_code").val(data.prod_info[0].sat_code);
         } else {
           errorToast(data.message);
         }
@@ -898,6 +903,7 @@ $(document).ready(function () {
     var prod_min_stock = $("#prod_min_stock").val();
     var prod_max_stock = $("#prod_max_stock").val();
     var prod_description = $("#prod_description").val();
+    var sat_code = $("#sat_code").val();
     const prod_image = document.querySelector("#prod_image");
 
     if (
@@ -928,6 +934,9 @@ $(document).ready(function () {
       prod_min_stock != null &&
       prod_min_stock != "" &&
       prod_min_stock != undefined &&
+      sat_code != null &&
+      sat_code != "" &&
+      sat_code != undefined &&
       prod_max_stock != null &&
       prod_max_stock != "" &&
       prod_max_stock != undefined &&
@@ -952,6 +961,7 @@ $(document).ready(function () {
       formData.append("prod_min_stock", prod_min_stock);
       formData.append("prod_max_stock", prod_max_stock);
       formData.append("prod_description", prod_description);
+      formData.append("sat_code", sat_code);
       formData.append("prod_image", prod_image);
 
       fetch("php/controllers/articles/articles_controller.php", {

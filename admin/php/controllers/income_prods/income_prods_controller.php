@@ -89,7 +89,7 @@ function insertIncomeOrder()
 {
 
     $queries = new Queries;
-
+    $today = date('Y-m-d H:i:s');
     $id_subsidiary = $_POST['id_subsidiary'];
     $products_income = $_POST['products_income'];
     $colsSearch = [
@@ -113,9 +113,9 @@ function insertIncomeOrder()
         $id_subsidiary,
         1,
         $_SESSION[id_user],
-        NOW(),
-        NOW(),
-        NOW()
+        '$today',
+        '$today',
+        '$today'
     )
     ";
 

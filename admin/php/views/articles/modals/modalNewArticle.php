@@ -101,12 +101,18 @@
                             <div class="mb-4">
                                 <label class="form-label">Descripción: <span class="legend-circle bg-danger"></span></label>
                                 <textarea class="form-control" placeholder="Descripción" id="prod_description" rows="4"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="mb-4">
+                                <label class="form-label">CÓDIGO SAT:</label>
+                                <input data-column-name="sat_code" type="text" data-allow-empty="0" class="form-control" placeholder="Código SAT" data-allow-empty="0" id="sat_code"></input>
 
                             </div>
                         </div>
                         <div class="col-12">
                             <div class="col-md-8">
-                                <label for="validationValidFileInput1">Imagen:  <span class="legend-circle bg-danger"></span></label>
+                                <label for="validationValidFileInput1">Imagen: <span class="legend-circle bg-danger"></span></label>
                                 <input type="file" id="prod_image" class="form-control">
                             </div>
                         </div>

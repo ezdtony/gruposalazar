@@ -2887,6 +2887,7 @@ function saveNewProd()
     $prod_min_stock = $_POST['prod_min_stock'];
     $prod_max_stock = $_POST['prod_max_stock'];
     $prod_description = $_POST['prod_description'];
+    $sat_code = $_POST['sat_code'];
     $prod_image = $_POST['prod_image'];
 
     $fecha_archivo = date('Y_m_d');
@@ -2932,7 +2933,8 @@ function saveNewProd()
         ideal_stock,
         bulk_sell,
         create_date,
-        active_item
+        active_item,
+        sat_code
 
     ) VALUES(
         1,
@@ -2952,8 +2954,9 @@ function saveNewProd()
         '$prod_min_stock',
         '$prod_max_stock',
         $prod_bulk,
-        NOW(),
-        1
+        '$fyh',
+        1,
+        '$sat_code'
     )";
 
         $queries = new Queries;

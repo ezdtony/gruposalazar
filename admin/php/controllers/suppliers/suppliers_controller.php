@@ -36,7 +36,7 @@ function saveSuppliers()
         }
         $address =  $contact_street . " " . $contact_ext_num . $contact_int_num_txt . " " . $contact_colony . " C.P. " . $contact_zipcode . " " . $city . " " . $state;
     }
-
+    $today = date('Y-m-d H:i:s');
     $sql = "INSERT INTO u803991314_main.suppliers
     (
         supplier,
@@ -53,7 +53,7 @@ function saveSuppliers()
         '$contact_name',
         '$contact_phone',
         '$contact_mail',
-        NOW(),
+        '$today',
         1
     )";
 

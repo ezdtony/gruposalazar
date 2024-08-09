@@ -104,6 +104,13 @@
 
                             </div>
                         </div>
+                        <div class="col-4">
+                            <div class="mb-4">
+                                <label class="form-label">CÓDIGO SAT:</label>
+                                <input data-column-name="sat_code" type="text" data-allow-empty="0" class="form-control obligatory updateProduct" placeholder="Código SAT" data-allow-empty="0" id="edit_sat_code"></input>
+
+                            </div>
+                        </div>
                         <div class="col-12">
                             <div class="col-md-8">
                                 <label for="validationValidFileInput1">Imagen:</label>

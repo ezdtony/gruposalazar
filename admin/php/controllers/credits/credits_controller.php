@@ -15,6 +15,7 @@ function saveClientCredit()
     $id_client = $_POST['id_client'];
     $ammount = $_POST['ammount'];
 
+    $today = date('Y-m-d H:i:s');
     $queries = new Queries;
 
     $stmt = "INSERT INTO u803991314_main.clients_credits (
@@ -26,7 +27,7 @@ function saveClientCredit()
         $id_client,
         '$ammount',
         '$ammount',
-        NOW()
+        '$today'
     )";
 
     $insertAddress = $queries->InsertData($stmt);
