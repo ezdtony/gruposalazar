@@ -74,7 +74,7 @@
                             <div class="mb-4">
                                 <br><br>
                                 <div class="form-check form-switch">
-                                    <input data-column-name="bulk_sell" class="form-check-input chckUpdateProduct" type="checkbox" role="switch" data-allow-empty="1" id="edit_prod_bulk">
+                                    <input data-column-name="bulk_sell" class="form-check-input chckUpdateProduct" type="checkbox" role="switch" data-allow-empty="1" id="edit_prod_bulk"  checked="false">
                                     <label class="form-check-label" for="prod_bulk">Venta a granel</label>
                                 </div>
                             </div>

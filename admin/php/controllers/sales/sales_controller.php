@@ -100,7 +100,7 @@ function SaveOrderCash()
     $ammount = $_POST['ammount'];
     $products = $_POST['products'];
 
-$today = date('Y-m-d H:i:s');
+    $today = date('Y-m-d H:i:s');
 
     $sql = "INSERT INTO u803991314_main.orders(
         id_clients,
@@ -193,7 +193,7 @@ function SaveOrderCreditCard()
     $products = $_POST['products'];
     $ticket_id = $_POST['ticket_id'];
 
-$today = date('Y-m-d H:i:s');
+    $today = date('Y-m-d H:i:s');
 
     $sql = "INSERT INTO u803991314_main.orders(
         id_clients,
@@ -1969,6 +1969,82 @@ function getSaleDetailFactura()
     }
 
 
+
+    echo json_encode($data);
+}
+
+function getSaleDataFactura()
+{
+
+    $queries = new Queries;
+
+    $id_order = $_POST['id_sale'];
+
+
+    $prods = [];
+    $conceptos = [];
+
+    $subtotal = 0;
+    $total = 0;
+
+    $sqlOrderIndex = "SELECT * FROM
+    u803991314_main.order_details
+    WHERE id_orders = $id_order";
+    $saleinfo = $queries->getData($sqlOrderIndex);
+
+    $html = '';
+    if (!empty($saleinfo)) {
+        foreach ($saleinfo  as $detail) {
+            $prod_quantity = 1;
+            $prod_price = 100;
+            $productName = "Timbres de Facturacion";
+            $prodImporte = $prod_price * $prod_quantity;
+            $prod_sat_code = "84111506";
+            $prodSatUnity = "Servicio";
+            $prod_SatUnityCode = "E48";
+            $tasa = 0.160000;
+
+            $subtotal += $prod_price;
+            $impuesto_importe  = $prod_price * $tasa;
+
+            $total += $prod_price + $impuesto_importe;
+
+            $prod = (object) [
+                'Cantidad' => $prod_quantity,
+                'CodigoUnidad' => $prod_SatUnityCode,
+                'Unidad' => $prodSatUnity,
+                'CodigoProducto' => $prod_sat_code,
+                'Producto' => $productName,
+                'PrecioUnitario' => $prod_price,
+                'Importe' => $prodImporte,
+                'ObjetoDeImpuesto' => "02",
+                'Impuestos' => [
+                    [
+                        'TipoImpuesto' => "1",
+                        'Impuesto' => "2",
+                        'Factor' => "1",
+                        'Base' => $prod_price,
+                        'Tasa' => "0.160000",
+                        'ImpuestoImporte' => $impuesto_importe,
+                    ]
+                ]
+            ];
+
+            array_push($conceptos, $prod);
+        }
+    } else {
+    }
+
+
+
+
+
+    $data = array(
+        'response' => true,
+        'concepts' => $conceptos,
+        'subtotal' => $subtotal,
+        'total' => $total
+    );
 
     echo json_encode($data);
 }

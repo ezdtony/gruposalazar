@@ -46,6 +46,39 @@ function getMunicipios()
 
     echo json_encode($data);
 }
+function getClientBillingInfo()
+{
+    $id_client = $_POST['id_client'];
+
+    $queries = new Queries;
+
+    $stmt = "SELECT bid.*, colabs.email
+        FROM u803991314_main.clients AS colabs
+        INNER JOIN u803991314_main.clients_billing_data as bid ON bid.id_clients = colabs.id_clients
+        WHERE colabs.id_clients  = $id_client";
+
+    $getMunicipios = $queries->getData($stmt);
+
+    if (!empty($getMunicipios)) {
+
+
+        //--- --- ---//
+        $data = array(
+            'response' => true,
+            'data'                => $getMunicipios
+        );
+        //--- --- ---//
+    } else {
+        //--- --- ---//
+        $data = array(
+            'response' => false,
+            'message'                => ''
+        );
+        //--- --- ---//
+    }
+
+    echo json_encode($data);
+}
 function saveColab()
 {
     $name = $_POST['name'];

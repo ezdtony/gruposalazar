@@ -23,6 +23,17 @@ function saveClient()
     $state = $_POST['state']; */
     $password = $_POST['password'];
 
+    $razon_social = $_POST['razon_social'];
+    $rfc = $_POST['rfc'];
+    $street = $_POST['street'];
+    $ext_num = $_POST['ext_num'];
+    $int_num = $_POST['int_num'];
+    $colony = $_POST['colony'];
+    $locality = $_POST['locality'];
+    $zipcode = $_POST['zipcode'];
+    $state = $_POST['state'];
+    $city = $_POST['city'];
+
     $queries = new Queries;
 
     $stmt = "INSERT INTO u803991314_main.clients (
@@ -42,19 +53,37 @@ function saveClient()
     $insertAddress = $queries->InsertData($stmt);
 
     if (!empty($insertAddress)) {
-        $idUser = $insertAddress['last_id'];
+        $idClient = $insertAddress['last_id'];
 
-        $stmtContact = "INSERT INTO u803991314_main.colaborators_contact (
-            principal_cellphone,
-            email
+        $stmtContact = "INSERT INTO u803991314_main.clients_billing_data (
+            id_clients,
+            rfc,
+            razon_social,
+            street,
+            int_number,
+            ext_number,
+            colony,
+            locality,
+            zip_code,
+            state,
+            city
         ) VALUES (
-            '$phonenumber',
-            '$email'
+            $idClient,
+            '$rfc',
+            '$razon_social',
+            '$street',
+            '$int_num',
+            '$ext_num',
+            '$colony',
+            '$locality',
+            '$zipcode',
+            '$state',
+            '$city'
         )";
 
         $insertContacto = $queries->InsertData($stmtContact);
         if (!empty($insertContacto)) {
-            $idClient = $insertContacto['last_id'];
+            $idBilling = $insertContacto['last_id'];
             $data = array(
                 'response' => true,
                 'id_colab'                => $idClient,

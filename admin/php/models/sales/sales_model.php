@@ -140,4 +140,18 @@ class Sales
 
         return ($getSites);
     }
+    public function getAllClientsBilling()
+    {
+        include_once('php/models/petitions.php');
+        $queries = new Queries;
+        $sql_colabs = "SELECT bid.*
+        FROM u803991314_main.clients AS colabs
+        INNER JOIN u803991314_main.clients_billing_data as bid ON bid.id_clients = colabs.id_clients
+        WHERE colabs.id_clients != 2
+        ";
+
+        $getSites = $queries->getData($sql_colabs);
+
+        return ($getSites);
+    }
 }

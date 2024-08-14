@@ -1,5 +1,7 @@
 <?php
 $getCollaborators = $colabs_model->getAllClients();
+
+$getSates = $colabs_model->getAllStates();
 ?>
 <h1 class="h2">Clientes</h1>
 

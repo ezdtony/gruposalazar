@@ -6,6 +6,7 @@ $getRegimenesFiscales = $sales_model->getRegimenesFiscales();
 $usosCFDI = $sales_model->usosCFDI();
 
 $getSates = $sales_model->getStates();
+$getAllClientsBilling = $sales_model->getAllClientsBilling();
 ?>
 
 

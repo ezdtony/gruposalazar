@@ -1,23 +1,12 @@
-<div class="modal fade" id="modalReceptorData" tabindex="-1" aria-labelledby="modalReceptorDataLabel" aria-hidden="true">
+<div class="modal fade" id="modalClientData" tabindex="-1" aria-labelledby="modalClientDataLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title" id="modalReceptorDataLabel">Datos del Receptor</h3>
+                <h3 class="modal-title" id="modalClientDataLabel">Datos del Cliente</h3>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                
                 <form class="row g-3 needs-validation" novalidate>
-                <div class="col-12">
-                    <label class="form-label">Cliente *</label><br>
-                    <select class="form-select js-example-basic-single" style="width: 75%" id="selectClient" autocomplete="off">
-                        <option value="0" selected value="">Cliente sin registrar</option>
-                        <?php foreach ($getAllClientsBilling as $client) : ?>
-                            <option value="<?= $client->id_clients ?>"><?= $client->rfc ?> | <?= $client->razon_social ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-
                     <div class="col-md-12">
                         <label for="razon_social" class="form-label">Nombre o Razón Social *</label>
                         <input type="text" class="form-control" id="razon_social" placeholder="Nombre o Razón Social" required>
