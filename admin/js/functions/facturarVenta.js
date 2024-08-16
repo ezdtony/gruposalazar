@@ -1,6 +1,8 @@
+let token = null;
 $(document).ready(function () {
   let limitSales = 10;
   let searchInput = "";
+
   let actualPage = 1;
   loadSalesHistory(limitSales, searchInput, actualPage);
 
@@ -159,9 +161,6 @@ $(document).ready(function () {
       ext_num == "" ||
       ext_num == null ||
       ext_num == undefined ||
-      int_num == "" ||
-      int_num == null ||
-      int_num == undefined ||
       colony == "" ||
       colony == null ||
       colony == undefined ||
@@ -190,6 +189,7 @@ $(document).ready(function () {
         icon: "error",
       });
     } else {
+      loading();
       $.ajax({
         url: "php/controllers/sales/sales_controller.php",
         method: "POST",
@@ -201,142 +201,135 @@ $(document).ready(function () {
         .done(function (data) {
           var data = JSON.parse(data);
           console.log(data);
-          var data_receptor = {
-            RFC: rfc,
-            NombreRazonSocial: razon_social,
-            UsoCFDI: uso_cfdi,
-            DomicilioFiscalReceptor: zipcode,
-            RegimenFiscal: reg_fiscal,
-            Direccion: {
-              Calle: street,
-              NumeroExterior: ext_num,
-              NumeroInterior: int_num,
-              Colonia: colony,
-              Localidad: locality,
-              Municipio: selectCity,
-              Estado: selectState,
-              Pais: "Mexico",
-              CodigoPostal: zipcode,
-            },
-          };
-          CSD_Test =
-            "MIIFsDCCA5igAwIBAgIUMzAwMDEwMDAwMDA1MDAwMDM0MTYwDQYJKoZIhvcNAQELBQAwggErMQ8wDQYDVQQDDAZBQyBVQVQxLjAsBgNVBAoMJVNFUlZJQ0lPIERFIEFETUlOSVNUUkFDSU9OIFRSSUJVVEFSSUExGjAYBgNVBAsMEVNBVC1JRVMgQXV0aG9yaXR5MSgwJgYJKoZIhvcNAQkBFhlvc2Nhci5tYXJ0aW5lekBzYXQuZ29iLm14MR0wGwYDVQQJDBQzcmEgY2VycmFkYSBkZSBjYWxpejEOMAwGA1UEEQwFMDYzNzAxCzAJBgNVBAYTAk1YMRkwFwYDVQQIDBBDSVVEQUQgREUgTUVYSUNPMREwDwYDVQQHDAhDT1lPQUNBTjERMA8GA1UELRMIMi41LjQuNDUxJTAjBgkqhkiG9w0BCQITFnJlc3BvbnNhYmxlOiBBQ0RNQS1TQVQwHhcNMjMwNTE4MTE0MzUxWhcNMjcwNTE4MTE0MzUxWjCB1zEnMCUGA1UEAxMeRVNDVUVMQSBLRU1QRVIgVVJHQVRFIFNBIERFIENWMScwJQYDVQQpEx5FU0NVRUxBIEtFTVBFUiBVUkdBVEUgU0EgREUgQ1YxJzAlBgNVBAoTHkVTQ1VFTEEgS0VNUEVSIFVSR0FURSBTQSBERSBDVjElMCMGA1UELRMcRUtVOTAwMzE3M0M5IC8gVkFEQTgwMDkyN0RKMzEeMBwGA1UEBRMVIC8gVkFEQTgwMDkyN0hTUlNSTDA1MRMwEQYDVQQLEwpTdWN1cnNhbCAxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtmecO6n2GS0zL025gbHGQVxznPDICoXzR2uUngz4DqxVUC/w9cE6FxSiXm2ap8Gcjg7wmcZfm85EBaxCx/0J2u5CqnhzIoGCdhBPuhWQnIh5TLgj/X6uNquwZkKChbNe9aeFirU/JbyN7Egia9oKH9KZUsodiM/pWAH00PCtoKJ9OBcSHMq8Rqa3KKoBcfkg1ZrgueffwRLws9yOcRWLb02sDOPzGIm/jEFicVYt2Hw1qdRE5xmTZ7AGG0UHs+unkGjpCVeJ+BEBn0JPLWVvDKHZAQMj6s5Bku35+d/MyATkpOPsGT/VTnsouxekDfikJD1f7A1ZpJbqDpkJnss3vQIDAQABox0wGzAMBgNVHRMBAf8EAjAAMAsGA1UdDwQEAwIGwDANBgkqhkiG9w0BAQsFAAOCAgEAFaUgj5PqgvJigNMgtrdXZnbPfVBbukAbW4OGnUhNrA7SRAAfv2BSGk16PI0nBOr7qF2mItmBnjgEwk+DTv8Zr7w5qp7vleC6dIsZFNJoa6ZndrE/f7KO1CYruLXr5gwEkIyGfJ9NwyIagvHHMszzyHiSZIA850fWtbqtythpAliJ2jF35M5pNS+YTkRB+T6L/c6m00ymN3q9lT1rB03YywxrLreRSFZOSrbwWfg34EJbHfbFXpCSVYdJRfiVdvHnewN0r5fUlPtR9stQHyuqewzdkyb5jTTw02D2cUfL57vlPStBj7SEi3uOWvLrsiDnnCIxRMYJ2UA2ktDKHk+zWnsDmaeleSzonv2CHW42yXYPCvWi88oE1DJNYLNkIjua7MxAnkNZbScNw01A6zbLsZ3y8G6eEYnxSTRfwjd8EP4kdiHNJftm7Z4iRU7HOVh79/lRWB+gd171s3d/mI9kte3MRy6V8MMEMCAnMboGpaooYwgAmwclI2XZCczNWXfhaWe0ZS5PmytD/GDpXzkX0oEgY9K/uYo5V77NdZbGAjmyi8cE2B2ogvyaN2XfIInrZPgEffJ4AB7kFA2mwesdLOCh0BLD9itmCve3A1FGR4+stO2ANUoiI3w3Tv2yQSg4bjeDlJ08lXaaFCLW2peEXMXjQUk7fmpb5MNuOUTW6BE=";
-          privateKeyTest =
-            "MIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIAgEAAoIBAQACAggAMBQGCCqGSIb3DQMHBAgwggS/AgEAMASCBMh4EHl7aNSCaMDA1VlRoXCZ5UUmqErAbucoZQObOaLUEm+I+QZ7Y8Giupo+F1XWkLvAsdk/uZlJcTfKLJyJbJwsQYbSpLOCLataZ4O5MVnnmMbfG//NKJn9kSMvJQZhSwAwoGLYDm1ESGezrvZabgFJnoQv8Si1nAhVGTk9FkFBesxRzq07dmZYwFCnFSX4xt2fDHs1PMpQbeq83aL/PzLCce3kxbYSB5kQlzGtUYayiYXcu0cVRu228VwBLCD+2wTDDoCmRXtPesgrLKUR4WWWb5N2AqAU1mNDC+UEYsENAerOFXWnmwrcTAu5qyZ7GsBMTpipW4Dbou2yqQ0lpA/aB06n1kz1aL6mNqGPaJ+OqoFuc8Ugdhadd+MmjHfFzoI20SZ3b2geCsUMNCsAd6oXMsZdWm8lzjqCGWHFeol0ik/xHMQvuQkkeCsQ28PBxdnUgf7ZGer+TN+2ZLd2kvTBOk6pIVgy5yC6cZ+o1Tloql9hYGa6rT3xcMbXlW+9e5jM2MWXZliVW3ZhaPjptJFDbIfWxJPjz4QvKyJk0zok4muv13Iiwj2bCyefUTRz6psqI4cGaYm9JpscKO2RCJN8UluYGbbWmYQU+Int6LtZj/lv8p6xnVjWxYI+rBPdtkpfFYRp+MJiXjgPw5B6UGuoruv7+vHjOLHOotRo+RdjZt7NqL9dAJnl1Qb2jfW6+d7NYQSI/bAwxO0sk4taQIT6Gsu/8kfZOPC2xk9rphGqCSS/4q3Os0MMjA1bcJLyoWLp13pqhK6bmiiHw0BBXH4fbEp4xjSbpPx4tHXzbdn8oDsHKZkWh3pPC2J/nVl0k/yF1KDVowVtMDXE47k6TGVcBoqe8PDXCG9+vjRpzIidqNo5qebaUZu6riWMWzldz8x3Z/jLWXuDiM7/Yscn0Z2GIlfoeyz+GwP2eTdOw9EUedHjEQuJY32bq8LICimJ4Ht+zMJKUyhwVQyAER8byzQBwTYmYP5U0wdsyIFitphw+/IH8+v08Ia1iBLPQAeAvRfTTIFLCs8foyUrj5Zv2B/wTYIZy6ioUM+qADeXyo45uBLLqkN90Rf6kiTqDld78NxwsfyR5MxtJLVDFkmf2IMMJHTqSfhbi+7QJaC11OOUJTD0v9wo0X/oO5GvZhe0ZaGHnm9zqTopALuFEAxcaQlc4R81wjC4wrIrqWnbcl2dxiBtD73KW+wcC9ymsLf4I8BEmiN25lx/OUc1IHNyXZJYSFkEfaxCEZWKcnbiyf5sqFSSlEqZLc4lUPJFAoP6s1FHVcyO0odWqdadhRZLZC9RCzQgPlMRtji/OXy5phh7diOBZv5UYp5nb+MZ2NAB/eFXm2JLguxjvEstuvTDmZDUb6Uqv++RdhO5gvKf/AcwU38ifaHQ9uvRuDocYwVxZS2nr9rOwZ8nAh+P2o4e0tEXjxFKQGhxXYkn75H3hhfnFYjik/2qunHBBZfcdG148MaNP6DjX33M238T9Zw/GyGx00JMogr2pdP4JAErv9a5yt4YR41KGf8guSOUbOXVARw6+ybh7+meb7w4BeTlj3aZkv8tVGdfIt3lrwVnlbzhLjeQY6PplKp3/a5Kr5yM0T4wJoKQQ6v3vSNmrhpbuAtKxpMILe8CQoo=";
-          CSDPasswordTest = "12345678a";
-          dataEmisorTest = {
-            RFC: "EKU9003173C9",
-            NombreRazonSocial: "ESCUELA KEMPER URGATE",
-            RegimenFiscal: "601",
-            Direccion: [
-              {
-                Calle: "Serapio Rendon 1",
-                NumeroExterior: "122",
-                NumeroInterior: "5",
-                Colonia: "San Rafael",
-                Localidad: "CDMX",
-                Municipio: "Cuauhtemoc",
-                Estado: "Ciudad de Mexico",
-                Pais: "Mexico",
-                CodigoPostal: "06470",
-              },
-            ],
-          };
-          CPTest = "06470";
-          console.log(data.concepts[0]);
-          conceptsTest = data.concepts[0];
-
-          CSD_Prod =
-            "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";
-          privateKeyProd =
-            "MIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIAgEAAoIBAQACAggAMBQGCCqGSIb3DQMHBAgwggS+AgEAMASCBMi+c+YqmejJ5ouDbO7jOzwn2ujPFnRXo0WOANBkziYN+ek5f1DIgO0nEvcbOWfSul6/CtjSpIQHpyrrVXcjszXFPZgxiSESUPxed1Sfl46XBHTjp4D5PSrfvsWVH9XprBogeSM3VDp8pJWY2L2neh4+yHqgJZgs4ECKOehmXE/tR5RVYo53QQU1DG8BT1OTwQrLarFVimnAwydu7UsX7kIHNrUMtHVBUvfQHRO+Z0Iwlsk3sLoQtTjL/c64xkYlXfD1RJWnbLkRRqDGn7sOFqOt6LKINDDAtPGaj/qkDcQhNHemGum/rUUEuudLHTLi2ZExwePd6kLFObBHJab70AoaAt3v8a11GKuvP0PYbn0bvnupQbIeIgpMTQbJc+pO7X38htUfWTbD+bEGh88sL8QPLtwTogODSEQ1Tsr6iF51SGAKwJb30SvSIKVmm+mT5B7pG4vHzEwr+GVDoCDHY25Mx5gkEN9b3GdHXlRjxIWBvedcfwxHpvoCnMsf0zSH5JcFSTksycxWPSeD6bi8XVSUJrfj08Dxrfd8GuH4pZ6kw0BhQHzeqhxeymEEgcP/aCmgSiKoboKleUPkTODk57ueA63N8sOmVfWJIyXnzaLMxTvR8tqPjJcbHVmtfm/OPThS4MJq448uhmrptgjSvtZdXBxSHftmkq4CoIxRGU2/1OF5Hl9OsLC3cBrnA0bY+AumqxVzYYVTY90LHLo6X9UA+89GAdMEML586msQU0D0Vl1ZarFCveL35LBpMYnbjuHwn2dgHD6cP415SJxHjagacJgJ4tkte6wNCHOGUDsdqvJAA7oXGv4VMMnzigYbtVCRJCapUBezDP6Hyx/OCSO5rAgBHac+3tRVr4YfwRnk3P6TfX3AgP5dtED0p+UZjI+TxWhplM6zYxEUIr5y/LTkTlnkALdYiYymmU6TrCrlhIvAERSK25FcvVLuDUOasZ5HUG0Bxf+BxZGrKIPA3KM+eDAcRKAZCBNsAgXwHunAKzUp7z75W3Nmr2hR+2oJEVC9Ic7s6mVKxBvRDgLRZaQTJIav/ZRZvgExdcPinY7IlyZkzYeXsnV9KB2yZBGtR+xxYWXM9ca/Q9WaewjumINOKyq55J8WEP2uT4l+jUt7Et0EYbHu0QafcfG6QRAZHmastRJU+keYEJKmBIfeWC/1qzI/PEoMaWDfKNGvHY/J3nArpQLUFSzVyAGtWyiLdxdf4JvfzJ3ZBDzC37hDvX6WKacHjRLmTSAUCAkyZ8Ba+0jHe6CTR2J8VPZKzSBhKNK+GouKh1Yv8WcXbwQfgNQ3Cuu3Yvlod21/BpRE8TVAPL+yWT6GSaU/JIHKmWSgBiF7YT3+n2+tNaKpCBu0JXJaQrSwTkW3qxGQdu/OadTcUj4bWhYswJOfVmpZFF46XjTkeQrdM2qzNk6oS4jiAA4o4EaZbR/OREMx/9TmPd6UvZS6iemWpHp8j5XqpWRs4Z2BwPM6aekGJ46ocGIXSqZtSbjw0kwUjRjtWMIYnrhxxZV2SbWDTV7k0lBwg3Di9051/AhJW8Ydj4MNoodI5JRfWb6c7v+ZBBL07hABQVXknG9taDGPNVPM51n0ejQRr3vH5eOke1rEY1otaxPeGx9rIb5ypFcfv4k=";
-          CSDPasswordProd = "Sellos.Sami21";
-          dataEmisorProd = {
-            RFC: "SAMI791007Q15",
-            NombreRazonSocial: "IVAN SALAZAR MARTINEZ",
-            RegimenFiscal: "601",
-            Direccion: [
-              {
-                Calle: "CUAUTEPEC",
-                NumeroExterior: "81",
-                NumeroInterior: "LOCAL 6",
-                Colonia: "JORGE NEGRETE",
-                Localidad: "CDMX",
-                Municipio: "GUSTAVO A MADERO",
-                Estado: "Ciudad de Mexico",
-                Pais: "Mexico",
-                CodigoPostal: "07280",
-              },
-            ],
-          };
-          CPProd = "07280";
-          conceptsProd = {
-            Cantidad: "1",
-            CodigoUnidad: "E48",
-            Unidad: "Servicio",
-            CodigoProducto: "84111506",
-            Producto: "Timbres de Facturacion",
-            PrecioUnitario: "100",
-            Importe: "100",
-            ObjetoDeImpuesto: "02",
-            Impuestos: [
-              {
-                TipoImpuesto: "1",
-                Impuesto: "2",
-                Factor: "1",
-                Base: "100",
-                Tasa: "0.160000",
-                ImpuestoImporte: "16",
-              },
-            ],
-          };
-
-          logoBase64 = getLogoFactura();
-
-          var bodyParms = {
-            DatosGenerales: {
-              Version: "4.0",
-              CSD: CSD_Test,
-              LlavePrivada: privateKeyTest,
-              CSDPassword: CSDPasswordTest,
-              GeneraPDF: true,
-              Logotipo: logoBase64,
-              CFDI: "Factura",
-              OpcionDecimales: "1",
-              NumeroDecimales: "2",
-              TipoCFDI: "Ingreso",
-              EnviaEmail: true,
-              ReceptorEmail: "micorreo@midominio.com",
-              ReceptorCC: "",
-              ReceptorCCO: "",
-              EmailMensaje:
-                "prueba de envio y generacion de factura por rest api desde el servicio de timbrado de FacturoPorTi",
-            },
-            Encabezado: {
-              CFDIsRelacionados: "",
-              TipoRelacion: "04",
-              Emisor: dataEmisorTest,
-              Receptor: data_receptor,
-              Fecha: date_fact,
-              Serie: "AB",
-              Folio: "102",
-              MetodoPago: "PUE",
-              FormaPago: "01",
-              Moneda: "MXN",
-              LugarExpedicion: CPTest,
-              SubTotal: "100.00",
-              Total: "116",
-            },
-            Conceptos: [conceptsTest],
-          };
-
-          consumeAPI(bodyParms);
-          Swal.close();
           if (data.response == true) {
+            var data_receptor = {
+              RFC: rfc,
+              NombreRazonSocial: razon_social,
+              UsoCFDI: uso_cfdi,
+              DomicilioFiscalReceptor: zipcode,
+              RegimenFiscal: reg_fiscal,
+              Direccion: {
+                Calle: street,
+                NumeroExterior: ext_num,
+                NumeroInterior: int_num,
+                Colonia: colony,
+                Localidad: locality,
+                Municipio: selectCity,
+                Estado: selectState,
+                Pais: "Mexico",
+                CodigoPostal: zipcode,
+              },
+            };
+            CSD_Test =
+              "MIIFsDCCA5igAwIBAgIUMzAwMDEwMDAwMDA1MDAwMDM0MTYwDQYJKoZIhvcNAQELBQAwggErMQ8wDQYDVQQDDAZBQyBVQVQxLjAsBgNVBAoMJVNFUlZJQ0lPIERFIEFETUlOSVNUUkFDSU9OIFRSSUJVVEFSSUExGjAYBgNVBAsMEVNBVC1JRVMgQXV0aG9yaXR5MSgwJgYJKoZIhvcNAQkBFhlvc2Nhci5tYXJ0aW5lekBzYXQuZ29iLm14MR0wGwYDVQQJDBQzcmEgY2VycmFkYSBkZSBjYWxpejEOMAwGA1UEEQwFMDYzNzAxCzAJBgNVBAYTAk1YMRkwFwYDVQQIDBBDSVVEQUQgREUgTUVYSUNPMREwDwYDVQQHDAhDT1lPQUNBTjERMA8GA1UELRMIMi41LjQuNDUxJTAjBgkqhkiG9w0BCQITFnJlc3BvbnNhYmxlOiBBQ0RNQS1TQVQwHhcNMjMwNTE4MTE0MzUxWhcNMjcwNTE4MTE0MzUxWjCB1zEnMCUGA1UEAxMeRVNDVUVMQSBLRU1QRVIgVVJHQVRFIFNBIERFIENWMScwJQYDVQQpEx5FU0NVRUxBIEtFTVBFUiBVUkdBVEUgU0EgREUgQ1YxJzAlBgNVBAoTHkVTQ1VFTEEgS0VNUEVSIFVSR0FURSBTQSBERSBDVjElMCMGA1UELRMcRUtVOTAwMzE3M0M5IC8gVkFEQTgwMDkyN0RKMzEeMBwGA1UEBRMVIC8gVkFEQTgwMDkyN0hTUlNSTDA1MRMwEQYDVQQLEwpTdWN1cnNhbCAxMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtmecO6n2GS0zL025gbHGQVxznPDICoXzR2uUngz4DqxVUC/w9cE6FxSiXm2ap8Gcjg7wmcZfm85EBaxCx/0J2u5CqnhzIoGCdhBPuhWQnIh5TLgj/X6uNquwZkKChbNe9aeFirU/JbyN7Egia9oKH9KZUsodiM/pWAH00PCtoKJ9OBcSHMq8Rqa3KKoBcfkg1ZrgueffwRLws9yOcRWLb02sDOPzGIm/jEFicVYt2Hw1qdRE5xmTZ7AGG0UHs+unkGjpCVeJ+BEBn0JPLWVvDKHZAQMj6s5Bku35+d/MyATkpOPsGT/VTnsouxekDfikJD1f7A1ZpJbqDpkJnss3vQIDAQABox0wGzAMBgNVHRMBAf8EAjAAMAsGA1UdDwQEAwIGwDANBgkqhkiG9w0BAQsFAAOCAgEAFaUgj5PqgvJigNMgtrdXZnbPfVBbukAbW4OGnUhNrA7SRAAfv2BSGk16PI0nBOr7qF2mItmBnjgEwk+DTv8Zr7w5qp7vleC6dIsZFNJoa6ZndrE/f7KO1CYruLXr5gwEkIyGfJ9NwyIagvHHMszzyHiSZIA850fWtbqtythpAliJ2jF35M5pNS+YTkRB+T6L/c6m00ymN3q9lT1rB03YywxrLreRSFZOSrbwWfg34EJbHfbFXpCSVYdJRfiVdvHnewN0r5fUlPtR9stQHyuqewzdkyb5jTTw02D2cUfL57vlPStBj7SEi3uOWvLrsiDnnCIxRMYJ2UA2ktDKHk+zWnsDmaeleSzonv2CHW42yXYPCvWi88oE1DJNYLNkIjua7MxAnkNZbScNw01A6zbLsZ3y8G6eEYnxSTRfwjd8EP4kdiHNJftm7Z4iRU7HOVh79/lRWB+gd171s3d/mI9kte3MRy6V8MMEMCAnMboGpaooYwgAmwclI2XZCczNWXfhaWe0ZS5PmytD/GDpXzkX0oEgY9K/uYo5V77NdZbGAjmyi8cE2B2ogvyaN2XfIInrZPgEffJ4AB7kFA2mwesdLOCh0BLD9itmCve3A1FGR4+stO2ANUoiI3w3Tv2yQSg4bjeDlJ08lXaaFCLW2peEXMXjQUk7fmpb5MNuOUTW6BE=";
+            privateKeyTest =
+              "MIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIAgEAAoIBAQACAggAMBQGCCqGSIb3DQMHBAgwggS/AgEAMASCBMh4EHl7aNSCaMDA1VlRoXCZ5UUmqErAbucoZQObOaLUEm+I+QZ7Y8Giupo+F1XWkLvAsdk/uZlJcTfKLJyJbJwsQYbSpLOCLataZ4O5MVnnmMbfG//NKJn9kSMvJQZhSwAwoGLYDm1ESGezrvZabgFJnoQv8Si1nAhVGTk9FkFBesxRzq07dmZYwFCnFSX4xt2fDHs1PMpQbeq83aL/PzLCce3kxbYSB5kQlzGtUYayiYXcu0cVRu228VwBLCD+2wTDDoCmRXtPesgrLKUR4WWWb5N2AqAU1mNDC+UEYsENAerOFXWnmwrcTAu5qyZ7GsBMTpipW4Dbou2yqQ0lpA/aB06n1kz1aL6mNqGPaJ+OqoFuc8Ugdhadd+MmjHfFzoI20SZ3b2geCsUMNCsAd6oXMsZdWm8lzjqCGWHFeol0ik/xHMQvuQkkeCsQ28PBxdnUgf7ZGer+TN+2ZLd2kvTBOk6pIVgy5yC6cZ+o1Tloql9hYGa6rT3xcMbXlW+9e5jM2MWXZliVW3ZhaPjptJFDbIfWxJPjz4QvKyJk0zok4muv13Iiwj2bCyefUTRz6psqI4cGaYm9JpscKO2RCJN8UluYGbbWmYQU+Int6LtZj/lv8p6xnVjWxYI+rBPdtkpfFYRp+MJiXjgPw5B6UGuoruv7+vHjOLHOotRo+RdjZt7NqL9dAJnl1Qb2jfW6+d7NYQSI/bAwxO0sk4taQIT6Gsu/8kfZOPC2xk9rphGqCSS/4q3Os0MMjA1bcJLyoWLp13pqhK6bmiiHw0BBXH4fbEp4xjSbpPx4tHXzbdn8oDsHKZkWh3pPC2J/nVl0k/yF1KDVowVtMDXE47k6TGVcBoqe8PDXCG9+vjRpzIidqNo5qebaUZu6riWMWzldz8x3Z/jLWXuDiM7/Yscn0Z2GIlfoeyz+GwP2eTdOw9EUedHjEQuJY32bq8LICimJ4Ht+zMJKUyhwVQyAER8byzQBwTYmYP5U0wdsyIFitphw+/IH8+v08Ia1iBLPQAeAvRfTTIFLCs8foyUrj5Zv2B/wTYIZy6ioUM+qADeXyo45uBLLqkN90Rf6kiTqDld78NxwsfyR5MxtJLVDFkmf2IMMJHTqSfhbi+7QJaC11OOUJTD0v9wo0X/oO5GvZhe0ZaGHnm9zqTopALuFEAxcaQlc4R81wjC4wrIrqWnbcl2dxiBtD73KW+wcC9ymsLf4I8BEmiN25lx/OUc1IHNyXZJYSFkEfaxCEZWKcnbiyf5sqFSSlEqZLc4lUPJFAoP6s1FHVcyO0odWqdadhRZLZC9RCzQgPlMRtji/OXy5phh7diOBZv5UYp5nb+MZ2NAB/eFXm2JLguxjvEstuvTDmZDUb6Uqv++RdhO5gvKf/AcwU38ifaHQ9uvRuDocYwVxZS2nr9rOwZ8nAh+P2o4e0tEXjxFKQGhxXYkn75H3hhfnFYjik/2qunHBBZfcdG148MaNP6DjX33M238T9Zw/GyGx00JMogr2pdP4JAErv9a5yt4YR41KGf8guSOUbOXVARw6+ybh7+meb7w4BeTlj3aZkv8tVGdfIt3lrwVnlbzhLjeQY6PplKp3/a5Kr5yM0T4wJoKQQ6v3vSNmrhpbuAtKxpMILe8CQoo=";
+            CSDPasswordTest = "12345678a";
+            dataEmisorTest = {
+              RFC: "EKU9003173C9",
+              NombreRazonSocial: "ESCUELA KEMPER URGATE",
+              RegimenFiscal: "601",
+              Direccion: [
+                {
+                  Calle: "Serapio Rendon 1",
+                  NumeroExterior: "122",
+                  NumeroInterior: "5",
+                  Colonia: "San Rafael",
+                  Localidad: "CDMX",
+                  Municipio: "Cuauhtemoc",
+                  Estado: "Ciudad de Mexico",
+                  Pais: "Mexico",
+                  CodigoPostal: "06470",
+                },
+              ],
+            };
+            CPTest = "06470";
+            console.log(data);
+            conceptsTest = data.concepts;
+            order_code = data.order_code;
+            id_order = data.id_order;
+
+            CSD_Prod =
+              "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";
+            privateKeyProd =
+              "MIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIAgEAAoIBAQACAggAMBQGCCqGSIb3DQMHBAgwggS+AgEAMASCBMi+c+YqmejJ5ouDbO7jOzwn2ujPFnRXo0WOANBkziYN+ek5f1DIgO0nEvcbOWfSul6/CtjSpIQHpyrrVXcjszXFPZgxiSESUPxed1Sfl46XBHTjp4D5PSrfvsWVH9XprBogeSM3VDp8pJWY2L2neh4+yHqgJZgs4ECKOehmXE/tR5RVYo53QQU1DG8BT1OTwQrLarFVimnAwydu7UsX7kIHNrUMtHVBUvfQHRO+Z0Iwlsk3sLoQtTjL/c64xkYlXfD1RJWnbLkRRqDGn7sOFqOt6LKINDDAtPGaj/qkDcQhNHemGum/rUUEuudLHTLi2ZExwePd6kLFObBHJab70AoaAt3v8a11GKuvP0PYbn0bvnupQbIeIgpMTQbJc+pO7X38htUfWTbD+bEGh88sL8QPLtwTogODSEQ1Tsr6iF51SGAKwJb30SvSIKVmm+mT5B7pG4vHzEwr+GVDoCDHY25Mx5gkEN9b3GdHXlRjxIWBvedcfwxHpvoCnMsf0zSH5JcFSTksycxWPSeD6bi8XVSUJrfj08Dxrfd8GuH4pZ6kw0BhQHzeqhxeymEEgcP/aCmgSiKoboKleUPkTODk57ueA63N8sOmVfWJIyXnzaLMxTvR8tqPjJcbHVmtfm/OPThS4MJq448uhmrptgjSvtZdXBxSHftmkq4CoIxRGU2/1OF5Hl9OsLC3cBrnA0bY+AumqxVzYYVTY90LHLo6X9UA+89GAdMEML586msQU0D0Vl1ZarFCveL35LBpMYnbjuHwn2dgHD6cP415SJxHjagacJgJ4tkte6wNCHOGUDsdqvJAA7oXGv4VMMnzigYbtVCRJCapUBezDP6Hyx/OCSO5rAgBHac+3tRVr4YfwRnk3P6TfX3AgP5dtED0p+UZjI+TxWhplM6zYxEUIr5y/LTkTlnkALdYiYymmU6TrCrlhIvAERSK25FcvVLuDUOasZ5HUG0Bxf+BxZGrKIPA3KM+eDAcRKAZCBNsAgXwHunAKzUp7z75W3Nmr2hR+2oJEVC9Ic7s6mVKxBvRDgLRZaQTJIav/ZRZvgExdcPinY7IlyZkzYeXsnV9KB2yZBGtR+xxYWXM9ca/Q9WaewjumINOKyq55J8WEP2uT4l+jUt7Et0EYbHu0QafcfG6QRAZHmastRJU+keYEJKmBIfeWC/1qzI/PEoMaWDfKNGvHY/J3nArpQLUFSzVyAGtWyiLdxdf4JvfzJ3ZBDzC37hDvX6WKacHjRLmTSAUCAkyZ8Ba+0jHe6CTR2J8VPZKzSBhKNK+GouKh1Yv8WcXbwQfgNQ3Cuu3Yvlod21/BpRE8TVAPL+yWT6GSaU/JIHKmWSgBiF7YT3+n2+tNaKpCBu0JXJaQrSwTkW3qxGQdu/OadTcUj4bWhYswJOfVmpZFF46XjTkeQrdM2qzNk6oS4jiAA4o4EaZbR/OREMx/9TmPd6UvZS6iemWpHp8j5XqpWRs4Z2BwPM6aekGJ46ocGIXSqZtSbjw0kwUjRjtWMIYnrhxxZV2SbWDTV7k0lBwg3Di9051/AhJW8Ydj4MNoodI5JRfWb6c7v+ZBBL07hABQVXknG9taDGPNVPM51n0ejQRr3vH5eOke1rEY1otaxPeGx9rIb5ypFcfv4k=";
+            CSDPasswordProd = "Sellos.Sami21";
+            dataEmisorProd = {
+              RFC: "SAMI791007Q15",
+              NombreRazonSocial: "IVAN SALAZAR MARTINEZ",
+              RegimenFiscal: "612",
+              Direccion: [
+                {
+                  Calle: "CUAUTEPEC",
+                  NumeroExterior: "81",
+                  NumeroInterior: "LOCAL 6",
+                  Colonia: "JORGE NEGRETE",
+                  Localidad: "CDMX",
+                  Municipio: "GUSTAVO A MADERO",
+                  Estado: "Ciudad de Mexico",
+                  Pais: "Mexico",
+                  CodigoPostal: "07280",
+                },
+              ],
+            };
+            CPProd = "07280";
+            conceptsProd = data.concepts;
+
+            logoBase64 = getLogoFactura();
+
+            var bodyParms = {
+              DatosGenerales: {
+                Version: "4.0",
+                CSD: CSD_Prod,
+                LlavePrivada: privateKeyProd,
+                CSDPassword: CSDPasswordProd,
+                GeneraPDF: true,
+                Logotipo: logoBase64,
+                CFDI: "Factura",
+                OpcionDecimales: "1",
+                NumeroDecimales: "2",
+                TipoCFDI: "Ingreso",
+                EnviaEmail: true,
+                ReceptorEmail: "micorreo@midominio.com",
+                ReceptorCC: "",
+                ReceptorCCO: "",
+                EmailMensaje:
+                  "prueba de envio y generacion de factura por rest api desde el servicio de timbrado de FacturoPorTi",
+              },
+              Encabezado: {
+                CFDIsRelacionados: "",
+                TipoRelacion: "04",
+                Emisor: dataEmisorProd,
+                Receptor: data_receptor,
+                Fecha: date_fact,
+                Serie: data.serie,
+                Folio: data.folio,
+                MetodoPago: "PUE",
+                FormaPago: data.pay_sat,
+                Moneda: "MXN",
+                LugarExpedicion: CPProd,
+                SubTotal: data.subtotal,
+                Total: data.total,
+              },
+              Conceptos: conceptsProd,
+            };
+
+            consumeAPI(bodyParms, email_receptor, id_order, order_code);
+            if (data.response == true) {
+            } else {
+              Swal.fire({
+                title: data.message,
+                icon: "error",
+              });
+            }
           } else {
             Swal.fire({
-              title: data.message,
+              title: "Error",
+              text: data.message,
               icon: "error",
+              showCancelButton: false,
+              //confirmButtonColor: "#32a852",
+              confirmButtonText: "Acepar",
             });
           }
         })
@@ -351,71 +344,157 @@ $(document).ready(function () {
     /*   */
   });
 
-  function consumeAPI(bodyParms) {
+  function consumeAPI(bodyParms, email_receptor, id_order, order_code) {
     loading();
     console.log("Consuming API");
-
+    //createToken();
+    //exit();
+    // TEST URL "https://testapi.facturoporti.com.mx/token/crear?Usuario=PruebasTimbrado&Password=@Notiene1",
     const options = { method: "GET", headers: { accept: "application/json" } };
-    var token = "";
+
+    token = getToken();
+    console.log(token);
+    const logo = getMainLogo();
+
+    // URL de la API para obtener facturas
+    //TEST URL "https://testapi.facturoporti.com.mx/servicios/timbrar/json";
+    const apiUrl = "https://api.facturoporti.com.mx/servicios/timbrar/json";
+
+    // Token de autenticación (suponiendo que uses un token de API para autenticarte)
+    const apiToken = token;
+
+    const bodyParams = bodyParms;
+    // Configuración de la solicitud
+    const requestOptions = {
+      method: "POST", // Método HTTP
+      headers: {
+        Authorization: `Bearer ${apiToken}`, // Token de autenticación
+        "Content-Type": "application/json", // Tipo de contenido
+      },
+      body: JSON.stringify(bodyParams), // Convertir los parámetros a formato JSON
+    };
+
+    // Realizar la solicitud
+    fetch(apiUrl, requestOptions)
+      .then((response) => {
+        if (!response.ok) {
+          // Manejar errores de respuesta HTTP
+          Swal.fire({
+            title: "Error",
+            text: "La factura no pudo ser generada correctamente, por favor verifique los datos fiscales ingresados e intente nuevamente.",
+            icon: "error",
+            showCancelButton: false,
+            //confirmButtonColor: "#32a852",
+            confirmButtonText: "Acepar",
+          });
+          throw new Error("Network response was not ok " + response.statusText);
+        }
+        return response.json(); // Parsear la respuesta a JSON
+      })
+      .then((data) => {
+        console.log(data);
+        const CFDI = data.cfdiTimbrado.respuesta.selloCFD.substring(0, 8);
+        loading();
+        $("#btnGenFact" + id_order).prop("disabled", true);
+        $.ajax({
+          url: "php/controllers/sales/sales_controller.php",
+          method: "POST",
+          data: {
+            mod: "sendMailFactura",
+            stringPDF: data.cfdiTimbrado.respuesta.pdf,
+            stringXML: data.cfdiTimbrado.respuesta.cfdixml,
+            CFDI: CFDI.toUpperCase(),
+            order_code: order_code,
+            email_receptor: email_receptor,
+            id_order: id_order,
+          },
+        })
+          .done(function (data) {
+            Swal.close();
+            var data = JSON.parse(data);
+            console.log(data);
+            if (data.response == true) {
+              Swal.fire({
+                title: "Factura generada",
+                text: "La factura ha sido generada correctamente",
+                icon: "success",
+                showCancelButton: false,
+                confirmButtonColor: "#32a852",
+                confirmButtonText: "Acepar",
+              }).then((result) => {
+                loading();
+                location.reload();
+              });
+            } else {
+              errorToast(data.message);
+            }
+
+            //--- --- ---//
+            //--- --- ---//
+          })
+          .fail(function (message) {
+            Swal.close();
+            var myToast = Toastify({
+              text: data.message,
+              duration: 3000,
+            });
+            myToast.showToast();
+          });
+
+        // Manejar los datos de la respuesta
+        /*  console.log("Datos de facturas:", data.cfdiTimbrado.respuesta);
+        base64ToPDF(
+          data.cfdiTimbrado.respuesta.pdf,
+          "FACTURA COMPRA " + order_code + " " + CFDI.toUpperCase()
+        );
+        base64ToXmlFile(data.cfdiTimbrado.respuesta.cfdixml, CFDI.toUpperCase());
+        Swal.close(); */
+      })
+      .catch((error) => {
+        // Manejar errores
+        Swal.fire({
+          title: "Error",
+          text: "La factura no pudo ser generada correctamente, por favor verifique los datos ingresados e intente nuevamente.",
+          icon: "error",
+          showCancelButton: false,
+          //confirmButtonColor: "#32a852",
+          confirmButtonText: "Acepar",
+        });
+        console.error("Hubo un problema con la solicitud:", error);
+      });
+  }
+  function createToken() {
+    const options = { method: "GET", headers: { accept: "application/json" } };
+
     fetch(
-      "https://testapi.facturoporti.com.mx/token/crear?Usuario=PruebasTimbrado&Password=@Notiene1",
+      "https://api.facturoporti.com.mx/token/crear?Usuario=SAMI791007Q15&Password=5GQy8DZVA5wGy",
       options
     )
       .then((response) => response.json())
       .then(function (response) {
         token = response.token;
         console.log(token);
-        const logo = getMainLogo();
-
-        // URL de la API para obtener facturas
-        const apiUrl =
-          "https://testapi.facturoporti.com.mx/servicios/timbrar/json";
-
-        // Token de autenticación (suponiendo que uses un token de API para autenticarte)
-        const apiToken = token;
-
-        const bodyParams = bodyParms;
-        // Configuración de la solicitud
-        const requestOptions = {
-          method: "POST", // Método HTTP
-          headers: {
-            Authorization: `Bearer ${apiToken}`, // Token de autenticación
-            "Content-Type": "application/json", // Tipo de contenido
-          },
-          body: JSON.stringify(bodyParams), // Convertir los parámetros a formato JSON
-        };
-
-        // Realizar la solicitud
-        fetch(apiUrl, requestOptions)
-          .then((response) => {
-            if (!response.ok) {
-              // Manejar errores de respuesta HTTP
-              throw new Error(
-                "Network response was not ok " + response.statusText
-              );
-            }
-            return response.json(); // Parsear la respuesta a JSON
-          })
-          .then((data) => {
-            const first8Digits = data.cfdiTimbrado.respuesta.selloCFD.substring(
-              0,
-              8
-            );
-            // Manejar los datos de la respuesta
-            console.log("Datos de facturas:", data.cfdiTimbrado.respuesta);
-            base64ToPDF(
-              data.cfdiTimbrado.respuesta.pdf,
-              "FACTURA COMPRA " + first8Digits
-            );
-            base64ToXmlFile(data.cfdiTimbrado.respuesta.cfdixml, first8Digits);
-            Swal.close();
-          })
-          .catch((error) => {
-            // Manejar errores
-            console.error("Hubo un problema con la solicitud:", error);
-          });
+        return token;
       })
       .catch((err) => console.error(err));
+  }
+  function deleteToken() {
+    const options = {
+      method: "DELETE",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/*+json",
+      },
+      body: '{"usuario":"SAMI791007Q15","password":"5GQy8DZVA5wGy"}',
+    };
+
+    fetch("https://api.facturoporti.com.mx/token/borrar", options)
+      .then((response) => response.json())
+      .then((response) => console.log(response))
+      .catch((err) => console.error(err));
+  }
+  function getToken() {
+    return "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiNVB1NENJcEtaTmQvYkNwY2hVTU9lUT09IiwibmJmIjoxNzIzODMwMjU0LCJleHAiOjE3MjY0MjIyNTQsImlzcyI6IlNjYWZhbmRyYVNlcnZpY2lvcyIsImF1ZCI6IlNjYWZhbmRyYSBTZXJ2aWNpb3MiLCJJZEVtcHJlc2EiOiI1UHU0Q0lwS1pOZC9iQ3BjaFVNT2VRPT0iLCJJZFVzdWFyaW8iOiI2Q0lNZWtxTFYwQURqajBoYlY5SVBRPT0ifQ.FSIlhzlNp7Rj2L5pIJ0YIBAM9NzSIwHNoImM4eZKlLM";
   }
 
   function base64ToPDF(base64String, fileName) {
@@ -588,10 +667,12 @@ $(document).ready(function () {
     }
   });
   function resolveAfter2Seconds(x) {
+    loading();
     return new Promise((resolve) => {
       setTimeout(() => {
         resolve(x);
-      }, 300);
+      }, 800);
+      Swal.close();
     });
   }
   $("#selectState").select2({
