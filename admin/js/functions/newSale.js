@@ -258,6 +258,14 @@ $(document).ready(function () {
         $("#divCreditMethod").hide();
         processCreditSalazarPayment();
         break;
+
+        case "5":
+          //TARJETA
+          $("#divCashMethod").hide();
+          $("#divCreditCardMethod").hide();
+          $("#divCreditMethod").hide();
+          processCardPayment();
+          break;
       default:
         $("#divCashMethod").hide();
         $("#divCreditCardMethod").hide();
