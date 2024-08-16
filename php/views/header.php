@@ -32,6 +32,7 @@
 
 	<link href="css/tiny-slider.css" rel="stylesheet">
 	<link href="css/style.css" rel="stylesheet">
+	<link rel="stylesheet" href="css/person_css/mainCss.css">
 	<script src="js/functions/mainFunctions.js"></script>
 	<title>Grupo Salazar</title>
 </head>

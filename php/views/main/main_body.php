@@ -1,50 +1,55 @@
 <div class="hero">
 	<!-- Offers Section -->
-	<div class="container">
-		<div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
-			<div class="carousel-inner">
-				<div class="carousel-item active">
-
-					<div class="row justify-content-between">
-						<div class="col-lg-5">
-							<div class="intro-excerpt">
-								<h1>Colores que Inspiran <br><span clsas="d-block"></span></h1>
-								<h2 class="text-white">Compra desde la comodidad de tu casa</h2>
-								<p><a href="" class="btn btn-secondary me-2">Comprar ya!!</a></p>
-							</div>
-						</div>
-						<div class="col-lg-7">
-							<br>
-							<br>
-							<br>
-							<div class="hero-img-wrap">
-								<img src="images/banner.png" class="img-fluid">
-							</div>
-						</div>
-					</div>
+	<div class="container responsiveBanner">
+		<div class="row justify-content-between">
+			<div class="col-lg-5">
+				<div class="intro-excerpt">
+					<h1>Colores que Inspiran <br><span clsas="d-block"></span></h1>
+					<h2 class="text-white">Compra desde la comodidad de tu casa</h2>
+					<p><a href="" class="btn btn-secondary me-2">Comprar ya!!</a></p>
 				</div>
-
-				<?php $getOffers = $prods_model->getOffers(); ?>
-				<?php foreach ($getOffers as $offer) : ?>
-					<div class="carousel-item">
-						<img src="<?php echo str_replace("../", "admin/", $offer->thumbnail) ?>" class="d-block w-100" height="450px" alt="">
-					</div>
-				<?php endforeach; ?>
-				<div class="carousel-item">
-					<img src="images/slide_1_sayer.jpg" class="d-block w-100" height="450px" alt="">
+			</div>
+			<div class="col-lg-7">
+				<br>
+				<br>
+				<br>
+				<div class="hero-img-wrap">
+					<img src="images/banner.png" class="img-fluid responsive-image">
 				</div>
-
 			</div>
 		</div>
-		<button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
-			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
-			<span class="visually-hidden">Previous</span>
-		</button>
-		<button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
-			<span class="carousel-control-next-icon" aria-hidden="true"></span>
-			<span class="visually-hidden">Next</span>
-		</button>
 	</div>
+</div>
+
+<div id="myCarousel" class="carousel slide" data-bs-ride="carousel">
+
+	<!-- Contenido del Carrusel -->
+	<div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+		<div class="carousel-inner">
+			<div class="carousel-item active">
+				<img class="d-block w-100" src="images/banner/QueBonitaMiCasa.jpg" alt="First slide">
+			</div>
+			<div class="carousel-item">
+				<img class="d-block w-100" src="images/banner/slide_2_sayer.jpg" alt="Second slide">
+			</div>
+			<div class="carousel-item">
+				<img class="d-block w-100" src="images/banner/slide_1_sayer.jpg" alt="Third slide">
+			</div>
+			<div class="carousel-item">
+				<img class="d-block w-100" src="images/banner/slide_3_sayer.jpg" alt="Third slide">
+			</div>
+
+		</div>
+		<a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+			<span class="sr-only">Previous</span>
+		</a>
+		<a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+			<span class="carousel-control-next-icon" aria-hidden="true"></span>
+			<span class="sr-only">Next</span>
+		</a>
+	</div>
+
 </div>
 
 
@@ -58,7 +63,28 @@
 				<p class="mb-4">En nuestro catálogo encontrarás los productos de la mas alta calidad.</p>
 				<p><a href="shop.php" class="btn">Explorar</a></p>
 			</div>
-
+			<div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
+				<a style="background-color:#186788 !important" href="https://www.gruposayer.com/v2/simulador.php" target="_blank" class="product-item cardBanner" href="cart.html">
+					<img src="images/vendor/banner_simuladordecolor.jpg" class="img-fluid product-thumbnail">
+					<h2 class="text-white">Simulador de Color Sayer</h2>
+					<h6 class="text-white">Personaliza tus espacios con nuestra herramienta online, que te ayuda
+						a seleccionar la combinación de colores ideal para ti.</h6>
+				</a>
+			</div>
+			<div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
+				<a style="background-color:#86b301 !important" href="https://www.gruposayer.com/v2/contenidos/donde_comprar_sayer.php" target="_blank" class="product-item cardBanner" href="cart.html">
+					<img src="images/vendor/banner_sucursales.jpg" class="img-fluid product-thumbnail">
+					<h2 class="text-white">¿Donde Comprar?</h2>
+					<h6 class="text-white">Encuentra nuestra sucursal mas cercana.</h6>
+				</a>
+			</div>
+			<div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
+				<a style="background-color:#b20000 !important" href="shop.php?parms=filtered&filter=METALITE&mod=categories" target="_blank" class="product-item cardBanner" href="cart.html">
+					<img src="images/vendor/banner_manosalaobra.jpg" class="img-fluid product-thumbnail">
+					<h2 class="text-white">Línea Industrial</h2>
+					<h6 class="text-white">Conoce nuestra amplia gama de soluciones para el sector industrial y comercial.</h6>
+				</a>
+			</div>
 			<?php $getThirdProds = $prods_model->getThirdArticles(); ?>
 			<?php foreach ($getThirdProds as $prod) : ?>
 				<!-- <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
@@ -77,13 +103,37 @@
 		</div>
 	</div>
 </div>
+
+<div id="myCarousel" class="carousel slide" data-bs-ride="carousel">
+	<div id="carouselExampleControls1" class="carousel slide" data-ride="carousel">
+		<div class="carousel-inner">
+			<div class="carousel-item active">
+				<img class="d-block w-100" src="images/banner/banner_gp_slzr.jpg" alt="First slide">
+			</div>
+			<div class="carousel-item">
+				<img class="d-block w-100" src="images/banner/banner_sayerlamejorpintura.jpg" alt="Second slide">
+			</div>
+
+		</div>
+		<a class="carousel-control-prev" href="#carouselExampleControls1" role="button" data-slide="prev">
+			<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+			<span class="sr-only">Previous</span>
+		</a>
+		<a class="carousel-control-next" href="#carouselExampleControls1" role="button" data-slide="next">
+			<span class="carousel-control-next-icon" aria-hidden="true"></span>
+			<span class="sr-only">Next</span>
+		</a>
+	</div>
+</div>
+<!-- Contenido del Carrusel -->
+
 <!-- End Product Section -->
-<div class="why-choose-section">
+<!-- <div class="why-choose-section">
 	<div class="container">
 		<div class="row justify-content-between">
 			<div class="col-lg-6">
 				<h2 class="section-title">¿Por qué elegirnos?</h2>
-				<!-- <p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.</p> -->
+				
 
 				<div class="row my-5">
 					<div class="col-6 col-md-6">
@@ -106,25 +156,7 @@
 						</div>
 					</div>
 
-					<!-- <div class="col-6 col-md-6">
-								<div class="feature">
-									<div class="icon">
-										<img src="images/support.svg" alt="Image" class="imf-fluid">
-									</div>
-									<h3>24/7 Support</h3>
-									<p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate.</p>
-								</div>
-							</div>
-
-							<div class="col-6 col-md-6">
-								<div class="feature">
-									<div class="icon">
-										<img src="images/return.svg" alt="Image" class="imf-fluid">
-									</div>
-									<h3>Hassle Free Returns</h3>
-									<p>Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate.</p>
-								</div>
-							</div> -->
+					
 
 				</div>
 			</div>
@@ -137,7 +169,7 @@
 
 		</div>
 	</div>
-</div>
+</div> -->
 <!-- Start Why Choose Us Section -->
 <!-- <div class="why-choose-section">
 			<div class="container">
@@ -201,33 +233,43 @@
 		</div> -->
 <!-- End Why Choose Us Section -->
 
-<!-- Start We Help Section -->
-<!-- <div class="we-help-section">
-			<div class="container">
-				<div class="row justify-content-between">
-					<div class="col-lg-7 mb-5 mb-lg-0">
-						<div class="imgs-grid">
-							<div class="grid grid-1"><img src="images/img-grid-1.jpg" alt="Untree.co"></div>
-							<div class="grid grid-2"><img src="images/img-grid-2.jpg" alt="Untree.co"></div>
-							<div class="grid grid-3"><img src="images/img-grid-3.jpg" alt="Untree.co"></div>
-						</div>
-					</div>
-					<div class="col-lg-5 ps-lg-5">
-						<h2 class="section-title mb-4">We Help You Make Modern Interior Design</h2>
-						<p>Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique. Pellentesque habitant morbi tristique senectus et netus et malesuada</p>
-
-						<ul class="list-unstyled custom-list my-4">
-							<li>Donec vitae odio quis nisl dapibus malesuada</li>
-							<li>Donec vitae odio quis nisl dapibus malesuada</li>
-							<li>Donec vitae odio quis nisl dapibus malesuada</li>
-							<li>Donec vitae odio quis nisl dapibus malesuada</li>
-						</ul>
-						<p><a herf="#" class="btn">Explore</a></p>
-					</div>
+<div class="we-help-section">
+	<div class="container">
+		<div class="row justify-content-between">
+			<div class="col-lg-7 mb-5 mb-lg-0">
+				<div class="imgs-grid">
+					<div class="grid grid-1"><img src="images/vendor/195919613_3835923163123869_744797643594856586_n.jpg" alt=""></div>
+					<div class="grid grid-2"><img src="images/vendor/VS82004L.jpg" alt=""></div>
+					<div class="grid grid-3"><img src="images/vendor/banner_tutoriales.jpg" alt=""></div>
 				</div>
 			</div>
-		</div> -->
-<!-- End We Help Section -->
+			<div class="col-lg-5 ps-lg-5">
+				<h2 class="section-title mb-4">Impermeabiliza fácil con Impersayer</h2>
+				<div class="video-container">
+					<iframe width="560" height="315" src="https://www.youtube.com/embed/kQDPhZ9t9WM?si=XDHdj6P7CYL5f724" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+				</div>
+				<br>
+				<p>Te decimos paso a paso como impermeabilizar tu hogar con Imper sayer Fácil el cual es 100% impermeable, de alta reflectividad, de excelente adherencia sobre cualquier sustrato. Gracias al refuerzo de poliuretano tiene excelente resistencia al envejecimiento.</p>
+
+				<br>
+				<hr>
+				<h2 class="section-title mb-4">Pintura para pizarrón de gis</h2>
+				<div class="video-container">
+					<iframe width="560" height="315" src="https://www.youtube.com/embed/wVRw6QhzAYo?si=Of27M-dsRn4ckcp_" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+				</div>
+
+
+				<!-- <ul class="list-unstyled custom-list my-4">
+					<li>Donec vitae odio quis nisl dapibus malesuada</li>
+					<li>Donec vitae odio quis nisl dapibus malesuada</li>
+					<li>Donec vitae odio quis nisl dapibus malesuada</li>
+					<li>Donec vitae odio quis nisl dapibus malesuada</li>
+				</ul>
+				<p><a herf="#" class="btn">Explore</a></p> -->
+			</div>
+		</div>
+	</div>
+</div>
 
 <!-- Start Popular Product -->
 <!-- <div class="popular-product">
