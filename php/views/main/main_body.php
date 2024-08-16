@@ -32,9 +32,9 @@
 			<div class="carousel-item">
 				<img class="d-block w-100" src="images/banner/slide_2_sayer.jpg" alt="Second slide">
 			</div>
-			<div class="carousel-item">
+			<!-- <div class="carousel-item">
 				<img class="d-block w-100" src="images/banner/slide_1_sayer.jpg" alt="Third slide">
-			</div>
+			</div> -->
 			<div class="carousel-item">
 				<img class="d-block w-100" src="images/banner/slide_3_sayer.jpg" alt="Third slide">
 			</div>
