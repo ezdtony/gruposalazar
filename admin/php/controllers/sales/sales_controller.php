@@ -2590,7 +2590,7 @@ function sendMailFactura()
         //Content
         $mail->isHTML(true);                                  //Set email format to HTML
         $mail->Subject = utf8_decode('Factura de tu compra ' . $order_code);
-        $mail->Body    = getHTMLMailFactura();
+        $mail->Body    = utf8_decode(getHTMLMailFactura());
 
 
         $mail->send();
