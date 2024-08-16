@@ -2571,8 +2571,8 @@ function sendMailFactura()
         //Recipients
         $mail->setFrom('eshop.grupo.salazar@gruposalazar.com.mx', utf8_decode('GRUPO SALAZAR'));
         $mail->addAddress($email_receptor, '');     //Add a recipient
-        $mail->addAddress("antoniogonzalez.rt@gmail.com", '');
-        $mail->addAddress("vanisalazar18@gmail.com", '');
+        //$mail->addAddress("antoniogonzalez.rt@gmail.com", '');
+        //$mail->addAddress("vanisalazar18@gmail.com", '');
         
         //$mail->addAddress('ellen@example.com');               //Name is optional
         $mail->addReplyTo('eshop.grupo.salazar@gruposalazar.com.mx', utf8_decode('GRUPO SALAZAR'));
