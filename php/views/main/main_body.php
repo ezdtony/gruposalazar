@@ -256,6 +256,9 @@
 				<h2 class="section-title mb-4">Pintura para pizarrón de gis</h2>
 				<div class="video-container">
 					<iframe width="560" height="315" src="https://www.youtube.com/embed/wVRw6QhzAYo?si=Of27M-dsRn4ckcp_" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+						<p>
+						La pintura para pizarrón de gis es ideal para tener un espacio donde poder dibujar, hacer anotaciones, frases y todo lo que se te ocurra con la facilidad de borrar y borrar ¡Se puede aplicar en cemento, yeso, vidrio, cerámico y madera!
+						</p>
 				</div>
 
 
