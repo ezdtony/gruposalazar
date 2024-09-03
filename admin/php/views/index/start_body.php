@@ -198,8 +198,6 @@
 
 </div>
 
-<?php if($_SESSION['id_user'] == 2): ?>
-
 <div class="row">
     <div class="col-xxl-8 d-flex">
         <!-- Card -->
@@ -472,4 +470,3 @@
     </div>
 </div>
 <script src="js/functions/indexCharts.js"></script>
-<?php endif; ?>
