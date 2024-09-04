@@ -105,6 +105,32 @@ function saveClient()
     echo json_encode($data);
 }
 
+function updatePaymentDet()
+{
+    $id_credit_purchase_detail = $_POST['id_credit_purchase_detail'];
+
+    $queries = new Queries;
+
+    $stmt = "UPDATE u803991314_main.credit_purchase_detail SET payment_status = 2 WHERE id_credit_purchase_detail = $id_credit_purchase_detail";
+
+    if ($queries->InsertData($stmt)) {
+        $data = array(
+            'response' => true,
+            'message'                => 'Se ha actualizado el pago!!!',
+        );
+        //--- --- ---//
+    } else {
+        //--- --- ---//
+        $data = array(
+            'response' => false,
+            'message'                => ''
+        );
+        //--- --- ---//
+    }
+
+    echo json_encode($data);
+}
+
 function generateRandomString($length)
 {
     return substr(str_shuffle(str_repeat($x = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', ceil($length / strlen($x)))), 1, $length);

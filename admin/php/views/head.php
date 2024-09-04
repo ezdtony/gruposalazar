@@ -29,13 +29,14 @@ include_once "php/controllers/login.php";
     <script src="assets/select2/js/select2.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css" />
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.js"></script>
     <!-- no-JS fallback -->
     <noscript>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" />
     </noscript>
+
+    <script src="vendor/tablefilter/dist/tablefilter/tablefilter.js"></script>
 
     <!-- <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=QrzAoBDR3WSbuQPTmlarSHyCLU04Or_zrHIYkFwS4S3VHwQVu04Krrt-ic9ufKyM" charset="UTF-8"></script> -->
     <script>

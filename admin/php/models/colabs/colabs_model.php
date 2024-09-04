@@ -27,6 +27,30 @@ class Colabs
 
         return ($getSites);
     }
+    public function getCreditsDetailPays()
+    {
+        include_once('php/models/petitions.php');
+        $queries = new Queries;
+        $sql_colabs = "SELECT cpd.*, cdl.deadline_description,
+        UPPER(CONCAT(cli.name, ' ', cli.lastname)) AS client_name
+        FROM u803991314_main.credit_purchase_detail AS cpd
+        INNER JOIN u803991314_main.credit_purchases AS cps ON cpd.id_credit_purchases = cps.id_credit_purchases
+        INNER JOIN u803991314_main.credits_deadlines AS cdl ON cdl.id_credits_deadlines = cps.id_credits_deadlines
+        INNER JOIN u803991314_main.clients AS cli ON cli.id_clients = cps.id_clients
+        ORDER BY cpd.payment_date DESC
+        ";
+
+        $getSites = $queries->getData($sql_colabs);
+
+        return ($getSites);
+    }
+    public function updatePaymentDet($id_credit_purchase_detail, $value)
+    {
+        include_once('php/models/petitions.php');
+        $queries = new Queries;
+        $sql_colabs = "UPDATE u803991314_main.credit_purchase_detail SET payment_status = $value WHERE id_credit_purchase_detail = $id_credit_purchase_detail";
+        $queries->InsertData($sql_colabs);
+    }
     public function getAllClientsCredits()
     {
         include_once('php/models/petitions.php');
