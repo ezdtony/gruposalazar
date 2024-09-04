@@ -6,7 +6,7 @@
 				<div class="intro-excerpt">
 					<h1>Colores que Inspiran <br><span clsas="d-block"></span></h1>
 					<h2 class="text-white">Compra desde la comodidad de tu casa</h2>
-					<p><a href="" class="btn btn-secondary me-2">Comprar ya!!</a></p>
+					<p><a href="shop.php" class="btn btn-secondary me-2">Comprar ya!!</a></p>
 				</div>
 			</div>
 			<div class="col-lg-7">
@@ -72,7 +72,7 @@
 				</a>
 			</div>
 			<div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
-				<a style="background-color:#86b301 !important" href="https://www.gruposayer.com/v2/contenidos/donde_comprar_sayer.php" target="_blank" class="product-item cardBanner" href="cart.html">
+				<a style="background-color:#86b301 !important" href="ourSubsidiarys.php" class="product-item cardBanner" href="cart.html">
 					<img src="images/vendor/banner_sucursales.jpg" class="img-fluid product-thumbnail">
 					<h2 class="text-white">¿Donde Comprar?</h2>
 					<h6 class="text-white">Encuentra nuestra sucursal mas cercana.</h6>

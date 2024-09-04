@@ -58,6 +58,9 @@ $prods_model = new Navbar;
                         </li> -->
                     </ul>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="ourSubsidiarys.php">Sucursales</a>
+                </li>
 
                 <!-- <li><a class="nav-link" href="about.html">About us</a></li> -->
                 <!-- <li><a class="nav-link" href="services.html">Services</a></li> -->

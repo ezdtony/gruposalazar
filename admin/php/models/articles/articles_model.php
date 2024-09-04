@@ -49,6 +49,7 @@ class Articles
 
         return ($getSites);
     }
+    
 
     public function getAllBrands()
     {
