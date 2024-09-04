@@ -95,7 +95,7 @@ class Articles
         include_once('php/models/petitions.php');
         $queries = new Queries;
         $sql_colabs = "SELECT sbs.*, adss.url_google_maps,
-        CONCAT(street, ' #', ext_number, ', Col. ', colony, ' ', delegation, ' C.P. ', postal_code, ', ', state ) AS address_subs
+        CONCAT(street, ' #', ext_number, ', Col. ', colony, ', ', delegation, ' C.P. ', postal_code, ', ', state ) AS address_subs
         FROM u803991314_main.subsidiary AS sbs
         INNER JOIN u803991314_main.subsidiary_address AS adss ON adss.id_subsidiary_address = sbs.id_subsidiary_address
         ORDER BY subsidiary_name
