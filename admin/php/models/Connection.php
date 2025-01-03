@@ -6,7 +6,7 @@ class data_conn
     private $db_user = "u803991314_root";
     private $db_pass = "*cRDCY6ymNt4";
     //private $db_host = "localhost";
-    private $db_host = "srv1442.hstgr.io";
+    private $db_host = "193.203.166.183";
 
     private $db_conn;
     public function dbConn()
