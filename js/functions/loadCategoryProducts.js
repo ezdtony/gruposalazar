@@ -62,7 +62,7 @@ $(document).ready(function () {
       //console.log(actualPage);
   
       $.ajax({
-        url: "/gruposalazar/admin/php/controllers/articles/articles_controller.php",
+        url: "admin/php/controllers/articles/articles_controller.php",
         //url: "admin/php/controllers/articles/articles_controller.php",
   
         method: "POST",
