@@ -1,10 +1,14 @@
-<?php include 'php/views/header.php'; ?>
-		<?php include 'php/views/navbar.php'; ?>
-		<?php include("php/models/prods/prods_model.php");
-		$prods_model = new Articles;
-		$getSates = $prods_model->getStates();
-		$getAllSubsidiary = $prods_model->getAllSubsidiary();
-		?>
-		
-		<?php include 'php/views/shop/checkout_body.php'; ?>
-		<?php include 'php/views/foot.php'; ?>
+<?php
+include_once 'php/views/head.php';
+include_once 'php/views/mycart_shop.php';
+include_once 'php/views/searchBar.php';
+include_once 'php/views/navbar.php';
+//include_once 'php/views/menuCategories.php';
+//include_once 'php/views/newArrivals.php';
+include_once 'php/views/modules/checkout.php';
+//include_once 'php/views/registerUser.php';
+//include_once 'php/views/promoteMobileApp.php';
+//include_once 'php/views/alsoAsk.php';
+include_once 'php/views/finalCaracts.php';
+include_once 'php/views/footer.php';
+include_once 'php/views/endPage.php';

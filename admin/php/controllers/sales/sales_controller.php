@@ -86,6 +86,73 @@ function searchProduct()
     echo json_encode($data);
 }
 
+function searchProductByCode()
+{
+
+    $queries = new Queries;
+
+    $product = $_POST['searchProd'];
+    $_id_subsidiary = $_POST['id_subsidiary'];
+
+
+
+    $sql = "SELECT  
+        prods.*, stk.stock AS sub_stock
+        FROM u803991314_main.products AS prods
+        LEFT JOIN u803991314_main.subsidiary_stocks AS stk ON stk.prducts_id_prducts = prods.id_prducts AND stk.id_subsidiary = $_id_subsidiary
+        WHERE product_code = '$product' ";
+    $getProducts = $queries->getData($sql);
+
+    $total_stock = 0;
+
+    if (!empty($getProducts)) {
+
+        $id_prducts = $getProducts[0]->id_prducts;
+        $sqlGetDiscount = "SELECT DISTINCT percentage, offer_name
+                FROM u803991314_main.products AS prods
+                INNER JOIN u803991314_main.relationship_products_tags AS rpt ON rpt.id_prducts = prods.id_prducts
+                INNER JOIN u803991314_main.relationship_offers_tags AS rot ON rpt.id_tags = rot.id_tags
+                INNER JOIN u803991314_main.offers AS offr ON offr.id_offers = rot.id_offers
+                WHERE prods.id_prducts = $id_prducts
+                ";
+
+        $getDiscount = $queries->getData($sqlGetDiscount);
+
+        $prod_price_sell = round($getProducts[0]->price, 2);
+        $prod_price_sell_og = round($getProducts[0]->price, 2);
+
+
+        if (!empty($getDiscount)) {
+            $prod_discount = $getDiscount[0]->percentage;
+            $prod_price_sell = round($getProducts[0]->price, 2);
+
+            $montoDescuento = ($prod_price_sell * $prod_discount) / 100;
+
+            // Cálculo del precio final
+            $prod_price_sell = round($prod_price_sell - $montoDescuento, 2);
+        }
+
+
+        $totalResults = count($getProducts);
+
+
+        $data = array(
+            'response' => true,
+            'prod_data' => $getProducts,
+            'prod_price' => $prod_price_sell
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => "Producto no encontrado",
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+
 
 function SaveOrderCash()
 {

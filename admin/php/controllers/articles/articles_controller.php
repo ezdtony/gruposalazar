@@ -467,6 +467,1185 @@ function getProductsShop()
     echo json_encode($data);
 }
 
+function getProductsItems()
+{
+
+    $queries = new Queries;
+
+    //$id_product = $_POST['id_product'];
+    //$product_name = $_POST['product_name'];
+    $colsSearch = [
+        'br.brand',
+        'prods.product_name',
+        'prods.product_short_name',
+        'prods.product_code',
+        'prods.product_barcode',
+        'ct.categories_description',
+        'prods.sku'
+    ];
+    $limit =  isset($_POST['limit']) ? $_POST['limit'] : 10;
+    $actualPage =  isset($_POST['actualPage']) ? $_POST['actualPage'] : 0;
+
+    if (!$actualPage) {
+        $begin = 0;
+        $actualPage = 1;
+    } else {
+        $begin = ($actualPage - 1) * $limit;
+    }
+    $where = "";
+    if (isset($_POST['searchInput']) && ($_POST['searchInput'] != '')) {
+        $searchInput = $_POST['searchInput'];
+        $where .= " WHERE (";
+        for ($i = 0; $i < count($colsSearch); $i++) {
+            $where .= $colsSearch[$i] . " LIKE '%" . addslashes($searchInput) . "%' OR ";
+        }
+        $where = substr($where, 0, -3);
+        $where .= ") AND active_item = 1 ";
+    }
+
+
+    if ($limit > 0) {
+        $limit = " LIMIT $begin,  $limit";
+    } else {
+        $limit = "";
+    }
+    //echo $limit;
+    $html = "";
+
+
+
+
+
+    $sql = "SELECT SQL_CALC_FOUND_ROWS
+    CASE 
+        WHEN sb_stk.prducts_id_prducts = prods.id_prducts THEN SUM(sb_stk.stock)
+        ELSE 0
+    END
+    AS total_stock, brand,
+    prods.*
+    FROM u803991314_main.products AS prods
+    INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+    LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts
+    INNER JOIN u803991314_main.relationship_products_categories AS rpc ON rpc.id_prducts = prods.id_prducts
+    INNER JOIN u803991314_main.categories AS ct ON ct.id_categories = rpc.id_categories
+    $where 
+    GROUP BY prods.id_prducts
+    
+    $limit
+    ";
+
+    //echo $sql;
+
+    $getProducts = $queries->getData($sql);
+
+    $total_stock = 0;
+
+    if (!empty($getProducts)) {
+        $totalResults = count($getProducts);
+
+        $sqlAllProdsFiltered = "SELECT FOUND_ROWS() AS founded";
+        $getTotalProductsFiltered = $queries->getData($sqlAllProdsFiltered);
+        if (!empty($getTotalProductsFiltered)) {
+            $totalFiltered = ($getTotalProductsFiltered[0]->founded);
+        }
+
+        $sqlAllProds = "SELECT COUNT(id_prducts) AS founded
+         FROM u803991314_main.products AS prods
+        INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+        LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts";
+        $getTotalProducts = $queries->getData($sqlAllProds);
+        if (!empty($getTotalProducts)) {
+            $totalProds = ($getTotalProducts[0]->founded);
+        }
+
+
+        foreach ($getProducts as $product) {
+            $sqlGetDiscount = "SELECT DISTINCT percentage, offer_name
+                FROM u803991314_main.products AS prods
+                INNER JOIN u803991314_main.relationship_products_tags AS rpt ON rpt.id_prducts = prods.id_prducts
+                INNER JOIN u803991314_main.relationship_offers_tags AS rot ON rpt.id_tags = rot.id_tags
+                INNER JOIN u803991314_main.offers AS offr ON offr.id_offers = rot.id_offers
+                WHERE prods.id_prducts = $product->id_prducts
+                ";
+
+            $getDiscount = $queries->getData($sqlGetDiscount);
+
+            $prod_price_sell = round($product->price, 2);
+            $prod_price_sell_og = round($product->price, 2);
+
+            $html_discount = '';
+            $html_discount_price = '';
+
+            if (!empty($getDiscount)) {
+                $prod_discount = $getDiscount[0]->percentage;
+                $prod_price_sell = round($product->price, 2);
+
+                $montoDescuento = ($prod_price_sell * $prod_discount) / 100;
+
+                // Cálculo del precio final
+                $prod_price_sell = round($prod_price_sell - $montoDescuento, 2);
+
+                $html_discount = '';
+                $html_discount = '<span class="badge bg-success position-absolute m-3">-' . $prod_discount . '%</span>';
+                $html_discount_price = '<p class="text-muted" style="color:orange !important;  size:8px !important"><s>$ ' . $prod_price_sell_og . '</s></p>';
+            }
+
+            $total_stock = $product->total_stock;
+            $percentage = 0;
+            if ($product->total_stock > 0) {
+                $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
+            }
+
+            if ($product->thumbnail == 'NULL' || $product->thumbnail == '') {
+                $image_prod = 'images/sin-imagen.png';
+            } else {
+                $archive_route = str_replace('..', 'admin', $product->thumbnail);
+                $image_prod = $archive_route;
+                $file_exs = dirname(__DIR__ . '', 3) . str_replace('..', '', $product->thumbnail);
+                /* echo $file_exs; */
+
+                if (file_exists($file_exs)) {
+                    $image_prod = $archive_route;
+                } else {
+                    $image_prod = 'images/sin-imagen.png';
+                }
+            }
+            $enabled = "";
+            $html_stock = '<p class="text-muted">' . $total_stock . ' en stock</p>';
+            if ($total_stock <= 0) {
+                $enabled = "disabled";
+                $html_stock = '<p class="text-muted" style="color:red !important;;">Sin stock disponible</p>';
+            }
+
+            $html .= '
+    <div class="col">
+        <div class="product-item">
+            ' . $html_discount . '
+            <figure>
+                <a href="index.html" title="Product Title">
+                    <img src="' . $image_prod . '" class="tab-image">
+                </a>
+            </figure>
+            <h3>' . $product->product_name . '</h3>
+            <span class="qty">' . $html_stock . '</span><span class="rating"><svg width="24" height="24" class="text-primary"></svg></span>
+            <span class="price">$' . $prod_price_sell . '</span> ' . $html_discount_price . '
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="input-group product-qty">
+                    <span class="input-group-btn">
+                        <button type="button" class="quantity-left-minus btn btn-danger btn-number" data-product-id="' . $product->id_prducts . '" data-type="minus">
+                            <svg width="16" height="16">
+                                <use xlink:href="#minus"></use>
+                            </svg>
+                        </button>
+                    </span>
+                    <input type="text" id="quantity-prod-' . $product->id_prducts . '" name="quantity" class="form-control input-number" value="1" min="1" max="' . $total_stock . '">
+                    <span class="input-group-btn">
+                        <button type="button" class="quantity-right-plus btn btn-success btn-number" data-product-id="' . $product->id_prducts . '" data-type="plus">
+                            <svg width="16" height="16">
+                                <use xlink:href="#plus"></use>
+                            </svg>
+                        </button>
+                    </span>
+                </div>
+                <button ' . $enabled . ' class="btn-primary btn-sm addProdToCart" data-id-product="' . $product->id_prducts . '" 
+                                 data-product-price="' . $prod_price_sell . '"
+                                 data-product-name="' . $product->product_name . '"
+                                 data-stock="' . $total_stock . '">
+                    Agregar 
+                    <iconify-icon icon="uil:shopping-cart">
+                    </iconify-icon>
+                </button>
+            </div>
+        </div>
+    </div>';
+        }
+        $html .= '<button type="button" class="btn btn-primary loadMore">Cargar más productos</button>';
+
+        $pagNum = 1;
+        if (($actualPage - 4) > 1) {
+            $pagNum = $actualPage - 4;
+        }
+        $totalPages = ceil($totalProds / $_POST['limit']);
+
+        $pagination = '';
+
+        $stopNav = $pagNum + 9;
+        if ($stopNav > $totalPages) {
+            $stopNav = $totalPages;
+        }
+        $pagination .= '<nav>';
+        $pagination .= '<ul class="nav nav-pills">';
+
+        for ($i = $pagNum; $i <= $stopNav; $i++) {
+            $active = $i == $actualPage ? "active" : "";
+            $pagination .= '<li class="nav-item">';
+            $pagination .= '<a class="nav-link changePage ' . $active . '" aria-current="page" href="#">' . $i . '</a>';
+            $pagination .= '</li>';
+        }
+
+
+
+
+
+
+
+        $pagination .= '</ul>';
+        $pagination .= '</nav>';
+
+        $data = array(
+            'response' => true,
+            'html' => $html,
+            'totalProds' => $totalProds,
+            'totalResults' => $totalResults,
+            'totalFiltered' => $totalFiltered,
+            'totalPages' => $totalPages,
+            'paginationNav' => $pagination
+        );
+    } else {
+
+        $html .= '
+                    </tbody>
+                </table>';
+        $data = array(
+            'response' => false,
+            'html' => $html
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+
+function getProductsBrandsItems()
+{
+
+    $queries = new Queries;
+
+    //$id_product = $_POST['id_product'];
+    //$product_name = $_POST['product_name'];
+    $colsSearch = [
+        'br.id_brands'
+    ];
+    $limit =  isset($_POST['limit']) ? $_POST['limit'] : 10;
+    $actualPage =  isset($_POST['actualPage']) ? $_POST['actualPage'] : 0;
+
+    if (!$actualPage) {
+        $begin = 0;
+        $actualPage = 1;
+    } else {
+        $begin = ($actualPage - 1) * $limit;
+    }
+    $where = "";
+    if (isset($_POST['searchInput']) && ($_POST['searchInput'] != '')) {
+        $searchInput = $_POST['searchInput'];
+        $where .= " WHERE (";
+        for ($i = 0; $i < count($colsSearch); $i++) {
+            $where .= $colsSearch[$i] . " LIKE '%" . addslashes($searchInput) . "%' OR ";
+        }
+        $where = substr($where, 0, -3);
+        $where .= ") AND active_item = 1 ";
+    }
+
+
+    if ($limit > 0) {
+        $limit = " LIMIT $begin,  $limit";
+    } else {
+        $limit = "";
+    }
+    //echo $limit;
+    $html = "";
+
+
+
+
+
+    $sql = "SELECT SQL_CALC_FOUND_ROWS
+    CASE 
+        WHEN sb_stk.prducts_id_prducts = prods.id_prducts THEN SUM(sb_stk.stock)
+        ELSE 0
+    END
+    AS total_stock, brand,
+    prods.*
+    FROM u803991314_main.products AS prods
+    INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+    LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts
+    INNER JOIN u803991314_main.relationship_products_categories AS rpc ON rpc.id_prducts = prods.id_prducts
+    INNER JOIN u803991314_main.categories AS ct ON ct.id_categories = rpc.id_categories
+    $where 
+    GROUP BY prods.id_prducts
+    
+    $limit
+    ";
+
+    //echo $sql;
+
+    $getProducts = $queries->getData($sql);
+
+    $total_stock = 0;
+
+    if (!empty($getProducts)) {
+        $totalResults = count($getProducts);
+
+        $sqlAllProdsFiltered = "SELECT FOUND_ROWS() AS founded";
+        $getTotalProductsFiltered = $queries->getData($sqlAllProdsFiltered);
+        if (!empty($getTotalProductsFiltered)) {
+            $totalFiltered = ($getTotalProductsFiltered[0]->founded);
+        }
+
+        $sqlAllProds = "SELECT COUNT(id_prducts) AS founded
+         FROM u803991314_main.products AS prods
+        INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+        LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts";
+        $getTotalProducts = $queries->getData($sqlAllProds);
+        if (!empty($getTotalProducts)) {
+            $totalProds = ($getTotalProducts[0]->founded);
+        }
+
+
+        foreach ($getProducts as $product) {
+            $sqlGetDiscount = "SELECT DISTINCT percentage, offer_name
+                FROM u803991314_main.products AS prods
+                INNER JOIN u803991314_main.relationship_products_tags AS rpt ON rpt.id_prducts = prods.id_prducts
+                INNER JOIN u803991314_main.relationship_offers_tags AS rot ON rpt.id_tags = rot.id_tags
+                INNER JOIN u803991314_main.offers AS offr ON offr.id_offers = rot.id_offers
+                WHERE prods.id_prducts = $product->id_prducts
+                ";
+
+            $getDiscount = $queries->getData($sqlGetDiscount);
+
+            $prod_price_sell = round($product->price, 2);
+            $prod_price_sell_og = round($product->price, 2);
+
+            $html_discount = '';
+            $html_discount_price = '';
+
+            if (!empty($getDiscount)) {
+                $prod_discount = $getDiscount[0]->percentage;
+                $prod_price_sell = round($product->price, 2);
+
+                $montoDescuento = ($prod_price_sell * $prod_discount) / 100;
+
+                // Cálculo del precio final
+                $prod_price_sell = round($prod_price_sell - $montoDescuento, 2);
+
+                $html_discount = '';
+                $html_discount = '<span class="badge bg-success position-absolute m-3">-' . $prod_discount . '%</span>';
+                $html_discount_price = '<p class="text-muted" style="color:orange !important;  size:8px !important"><s>$ ' . $prod_price_sell_og . '</s></p>';
+            }
+
+            $total_stock = $product->total_stock;
+            $percentage = 0;
+            if ($product->total_stock > 0) {
+                $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
+            }
+
+            if ($product->thumbnail == 'NULL' || $product->thumbnail == '') {
+                $image_prod = 'images/sin-imagen.png';
+            } else {
+                $archive_route = str_replace('..', 'admin', $product->thumbnail);
+                $image_prod = $archive_route;
+                $file_exs = dirname(__DIR__ . '', 3) . str_replace('..', '', $product->thumbnail);
+                /* echo $file_exs; */
+
+                if (file_exists($file_exs)) {
+                    $image_prod = $archive_route;
+                } else {
+                    $image_prod = 'images/sin-imagen.png';
+                }
+            }
+            $enabled = "";
+            $html_stock = '<p class="text-muted">' . $total_stock . ' en stock</p>';
+            if ($total_stock <= 0) {
+                $enabled = "disabled";
+                $html_stock = '<p class="text-muted" style="color:red !important;;">Sin stock disponible</p>';
+            }
+
+            $html .= '
+    <div class="col">
+        <div class="product-item">
+            ' . $html_discount . '
+            <figure>
+                <a href="index.html" title="Product Title">
+                    <img src="' . $image_prod . '" class="tab-image">
+                </a>
+            </figure>
+            <h3>' . $product->product_name . '</h3>
+            <span class="qty">' . $html_stock . '</span><span class="rating"><svg width="24" height="24" class="text-primary"></svg></span>
+            <span class="price">$' . $prod_price_sell . '</span> ' . $html_discount_price . '
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="input-group product-qty">
+                    <span class="input-group-btn">
+                        <button type="button" class="quantity-left-minus btn btn-danger btn-number" data-product-id="' . $product->id_prducts . '" data-type="minus">
+                            <svg width="16" height="16">
+                                <use xlink:href="#minus"></use>
+                            </svg>
+                        </button>
+                    </span>
+                    <input type="text" id="quantity-prod-' . $product->id_prducts . '" name="quantity" class="form-control input-number" value="1" min="1" max="' . $total_stock . '">
+                    <span class="input-group-btn">
+                        <button type="button" class="quantity-right-plus btn btn-success btn-number" data-product-id="' . $product->id_prducts . '" data-type="plus">
+                            <svg width="16" height="16">
+                                <use xlink:href="#plus"></use>
+                            </svg>
+                        </button>
+                    </span>
+                </div>
+                <button ' . $enabled . ' class="btn-primary btn-sm addProdToCart" data-id-product="' . $product->id_prducts . '" 
+                                 data-product-price="' . $prod_price_sell . '"
+                                 data-product-name="' . $product->product_name . '"
+                                 data-stock="' . $total_stock . '">
+                    Agregar 
+                    <iconify-icon icon="uil:shopping-cart">
+                    </iconify-icon>
+                </button>
+            </div>
+        </div>
+    </div>';
+        }
+        if (count($getProducts) >= 25) {
+            $html .= '</br><button type="button" class="btn btn-primary loadMore">Cargar más productos</button>';
+        }
+
+
+        $pagNum = 1;
+        if (($actualPage - 4) > 1) {
+            $pagNum = $actualPage - 4;
+        }
+        $totalPages = ceil($totalProds / $_POST['limit']);
+
+        $pagination = '';
+
+        $stopNav = $pagNum + 9;
+        if ($stopNav > $totalPages) {
+            $stopNav = $totalPages;
+        }
+        $pagination .= '<nav>';
+        $pagination .= '<ul class="nav nav-pills">';
+
+        for ($i = $pagNum; $i <= $stopNav; $i++) {
+            $active = $i == $actualPage ? "active" : "";
+            $pagination .= '<li class="nav-item">';
+            $pagination .= '<a class="nav-link changePage ' . $active . '" aria-current="page" href="#">' . $i . '</a>';
+            $pagination .= '</li>';
+        }
+
+
+
+
+
+
+
+        $pagination .= '</ul>';
+        $pagination .= '</nav>';
+
+        $data = array(
+            'response' => true,
+            'html' => $html,
+            'totalProds' => $totalProds,
+            'totalResults' => $totalResults,
+            'totalFiltered' => $totalFiltered,
+            'totalPages' => $totalPages,
+            'paginationNav' => $pagination
+        );
+    } else {
+
+        $html .= '
+                    </tbody>
+                </table>';
+        $data = array(
+            'response' => false,
+            'html' => $html
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+
+function getProductsCategoryItems()
+{
+
+    $queries = new Queries;
+
+    //$id_product = $_POST['id_product'];
+    //$product_name = $_POST['product_name'];
+    $colsSearch = [
+        'ct.id_categories'
+    ];
+    $limit =  isset($_POST['limit']) ? $_POST['limit'] : 10;
+    $actualPage =  isset($_POST['actualPage']) ? $_POST['actualPage'] : 0;
+
+    if (!$actualPage) {
+        $begin = 0;
+        $actualPage = 1;
+    } else {
+        $begin = ($actualPage - 1) * $limit;
+    }
+    $where = "";
+    if (isset($_POST['searchInput']) && ($_POST['searchInput'] != '')) {
+        $searchInput = $_POST['searchInput'];
+        $where .= " WHERE (";
+        for ($i = 0; $i < count($colsSearch); $i++) {
+            $where .= $colsSearch[$i] . " LIKE '%" . addslashes($searchInput) . "%' OR ";
+        }
+        $where = substr($where, 0, -3);
+        $where .= ") AND active_item = 1 ";
+    }
+
+
+    if ($limit > 0) {
+        $limit = " LIMIT $begin,  $limit";
+    } else {
+        $limit = "";
+    }
+    //echo $limit;
+    $html = "";
+
+
+
+
+
+    $sql = "SELECT SQL_CALC_FOUND_ROWS
+    CASE 
+        WHEN sb_stk.prducts_id_prducts = prods.id_prducts THEN SUM(sb_stk.stock)
+        ELSE 0
+    END
+    AS total_stock, brand,
+    prods.*
+    FROM u803991314_main.products AS prods
+    INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+    LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts
+    INNER JOIN u803991314_main.relationship_products_categories AS rpc ON rpc.id_prducts = prods.id_prducts
+    INNER JOIN u803991314_main.categories AS ct ON ct.id_categories = rpc.id_categories
+    $where 
+    GROUP BY prods.id_prducts
+    
+    $limit
+    ";
+
+    //echo $sql;
+
+    $getProducts = $queries->getData($sql);
+
+    $total_stock = 0;
+
+    if (!empty($getProducts)) {
+        $totalResults = count($getProducts);
+
+        $sqlAllProdsFiltered = "SELECT FOUND_ROWS() AS founded";
+        $getTotalProductsFiltered = $queries->getData($sqlAllProdsFiltered);
+        if (!empty($getTotalProductsFiltered)) {
+            $totalFiltered = ($getTotalProductsFiltered[0]->founded);
+        }
+
+        $sqlAllProds = "SELECT COUNT(id_prducts) AS founded
+         FROM u803991314_main.products AS prods
+        INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+        LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts";
+        $getTotalProducts = $queries->getData($sqlAllProds);
+        if (!empty($getTotalProducts)) {
+            $totalProds = ($getTotalProducts[0]->founded);
+        }
+
+
+        foreach ($getProducts as $product) {
+            $sqlGetDiscount = "SELECT DISTINCT percentage, offer_name
+                FROM u803991314_main.products AS prods
+                INNER JOIN u803991314_main.relationship_products_tags AS rpt ON rpt.id_prducts = prods.id_prducts
+                INNER JOIN u803991314_main.relationship_offers_tags AS rot ON rpt.id_tags = rot.id_tags
+                INNER JOIN u803991314_main.offers AS offr ON offr.id_offers = rot.id_offers
+                WHERE prods.id_prducts = $product->id_prducts
+                ";
+
+            $getDiscount = $queries->getData($sqlGetDiscount);
+
+            $prod_price_sell = round($product->price, 2);
+            $prod_price_sell_og = round($product->price, 2);
+
+            $html_discount = '';
+            $html_discount_price = '';
+
+            if (!empty($getDiscount)) {
+                $prod_discount = $getDiscount[0]->percentage;
+                $prod_price_sell = round($product->price, 2);
+
+                $montoDescuento = ($prod_price_sell * $prod_discount) / 100;
+
+                // Cálculo del precio final
+                $prod_price_sell = round($prod_price_sell - $montoDescuento, 2);
+
+                $html_discount = '';
+                $html_discount = '<span class="badge bg-success position-absolute m-3">-' . $prod_discount . '%</span>';
+                $html_discount_price = '<p class="text-muted" style="color:orange !important;  size:8px !important"><s>$ ' . $prod_price_sell_og . '</s></p>';
+            }
+
+            $total_stock = $product->total_stock;
+            $percentage = 0;
+            if ($product->total_stock > 0) {
+                $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
+            }
+
+            if ($product->thumbnail == 'NULL' || $product->thumbnail == '') {
+                $image_prod = 'images/sin-imagen.png';
+            } else {
+                $archive_route = str_replace('..', 'admin', $product->thumbnail);
+                $image_prod = $archive_route;
+                $file_exs = dirname(__DIR__ . '', 3) . str_replace('..', '', $product->thumbnail);
+                /* echo $file_exs; */
+
+                if (file_exists($file_exs)) {
+                    $image_prod = $archive_route;
+                } else {
+                    $image_prod = 'images/sin-imagen.png';
+                }
+            }
+            $enabled = "";
+            $html_stock = '<p class="text-muted">' . $total_stock . ' en stock</p>';
+            if ($total_stock <= 0) {
+                $enabled = "disabled";
+                $html_stock = '<p class="text-muted" style="color:red !important;;">Sin stock disponible</p>';
+            }
+
+            $html .= '
+    <div class="col">
+        <div class="product-item">
+            ' . $html_discount . '
+            <figure>
+                <a href="index.html" title="Product Title">
+                    <img src="' . $image_prod . '" class="tab-image">
+                </a>
+            </figure>
+            <h3>' . $product->product_name . '</h3>
+            <span class="qty">' . $html_stock . '</span><span class="rating"><svg width="24" height="24" class="text-primary"></svg></span>
+            <span class="price">$' . $prod_price_sell . '</span> ' . $html_discount_price . '
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="input-group product-qty">
+                    <span class="input-group-btn">
+                        <button type="button" class="quantity-left-minus btn btn-danger btn-number" data-product-id="' . $product->id_prducts . '" data-type="minus">
+                            <svg width="16" height="16">
+                                <use xlink:href="#minus"></use>
+                            </svg>
+                        </button>
+                    </span>
+                    <input type="text" id="quantity-prod-' . $product->id_prducts . '" name="quantity" class="form-control input-number" value="1" min="1" max="' . $total_stock . '">
+                    <span class="input-group-btn">
+                        <button type="button" class="quantity-right-plus btn btn-success btn-number" data-product-id="' . $product->id_prducts . '" data-type="plus">
+                            <svg width="16" height="16">
+                                <use xlink:href="#plus"></use>
+                            </svg>
+                        </button>
+                    </span>
+                </div>
+                <button ' . $enabled . ' class="btn-primary btn-sm addProdToCart" data-id-product="' . $product->id_prducts . '" 
+                                 data-product-price="' . $prod_price_sell . '"
+                                 data-product-name="' . $product->product_name . '"
+                                 data-stock="' . $total_stock . '">
+                    Agregar 
+                    <iconify-icon icon="uil:shopping-cart">
+                    </iconify-icon>
+                </button>
+            </div>
+        </div>
+    </div>';
+        }
+        if (count($getProducts) >= 25) {
+            $html .= '</br><button type="button" class="btn btn-primary loadMore">Cargar más productos</button>';
+        }
+
+
+        $pagNum = 1;
+        if (($actualPage - 4) > 1) {
+            $pagNum = $actualPage - 4;
+        }
+        $totalPages = ceil($totalProds / $_POST['limit']);
+
+        $pagination = '';
+
+        $stopNav = $pagNum + 9;
+        if ($stopNav > $totalPages) {
+            $stopNav = $totalPages;
+        }
+        $pagination .= '<nav>';
+        $pagination .= '<ul class="nav nav-pills">';
+
+        for ($i = $pagNum; $i <= $stopNav; $i++) {
+            $active = $i == $actualPage ? "active" : "";
+            $pagination .= '<li class="nav-item">';
+            $pagination .= '<a class="nav-link changePage ' . $active . '" aria-current="page" href="#">' . $i . '</a>';
+            $pagination .= '</li>';
+        }
+
+
+
+
+
+
+
+        $pagination .= '</ul>';
+        $pagination .= '</nav>';
+
+        $data = array(
+            'response' => true,
+            'html' => $html,
+            'totalProds' => $totalProds,
+            'totalResults' => $totalResults,
+            'totalFiltered' => $totalFiltered,
+            'totalPages' => $totalPages,
+            'paginationNav' => $pagination
+        );
+    } else {
+
+        $html .= '
+                    </tbody>
+                </table>';
+        $data = array(
+            'response' => false,
+            'html' => $html
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+
+function getOfferProductsItems()
+{
+
+    $queries = new Queries;
+
+    //$id_product = $_POST['id_product'];
+    //$product_name = $_POST['product_name'];
+    $colsSearch = [
+        'ct.id_categories'
+    ];
+    $limit =  isset($_POST['limit']) ? $_POST['limit'] : 10;
+    $actualPage =  isset($_POST['actualPage']) ? $_POST['actualPage'] : 0;
+
+    if (!$actualPage) {
+        $begin = 0;
+        $actualPage = 1;
+    } else {
+        $begin = ($actualPage - 1) * $limit;
+    }
+    $where = "";
+    if (isset($_POST['searchInput']) && ($_POST['searchInput'] != '')) {
+        $searchInput = $_POST['searchInput'];
+        $where .= " WHERE (";
+        for ($i = 0; $i < count($colsSearch); $i++) {
+            $where .= $colsSearch[$i] . " LIKE '%" . addslashes($searchInput) . "%' OR ";
+        }
+        $where = substr($where, 0, -3);
+        $where .= ") AND active_item = 1 ";
+    }
+
+
+    if ($limit > 0) {
+        $limit = " LIMIT $begin,  $limit";
+    } else {
+        $limit = "";
+    }
+    //echo $limit;
+    $html = "";
+
+
+
+
+
+    $sql = "SELECT SQL_CALC_FOUND_ROWS
+    CASE 
+        WHEN sb_stk.prducts_id_prducts = prods.id_prducts THEN SUM(sb_stk.stock)
+        ELSE 0
+    END
+    AS total_stock, brand,
+    prods.*
+    FROM u803991314_main.products AS prods
+    INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+    LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts
+    INNER JOIN u803991314_main.relationship_products_categories AS rpc ON rpc.id_prducts = prods.id_prducts
+    INNER JOIN u803991314_main.categories AS ct ON ct.id_categories = rpc.id_categories
+    INNER JOIN u803991314_main.relationship_products_tags AS rpt ON rpt.id_prducts = prods.id_prducts
+    INNER JOIN u803991314_main.relationship_offers_tags AS rot ON rot.id_tags = rpt.id_tags
+    $where 
+    GROUP BY prods.id_prducts
+    
+    $limit
+    ";
+
+    //echo $sql;
+
+    $getProducts = $queries->getData($sql);
+
+    $total_stock = 0;
+
+    if (!empty($getProducts)) {
+        $totalResults = count($getProducts);
+
+        $sqlAllProdsFiltered = "SELECT FOUND_ROWS() AS founded";
+        $getTotalProductsFiltered = $queries->getData($sqlAllProdsFiltered);
+        if (!empty($getTotalProductsFiltered)) {
+            $totalFiltered = ($getTotalProductsFiltered[0]->founded);
+        }
+
+        $sqlAllProds = "SELECT COUNT(id_prducts) AS founded
+         FROM u803991314_main.products AS prods
+        INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+        LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts";
+        $getTotalProducts = $queries->getData($sqlAllProds);
+        if (!empty($getTotalProducts)) {
+            $totalProds = ($getTotalProducts[0]->founded);
+        }
+
+
+        foreach ($getProducts as $product) {
+            $sqlGetDiscount = "SELECT DISTINCT percentage, offer_name
+                FROM u803991314_main.products AS prods
+                INNER JOIN u803991314_main.relationship_products_tags AS rpt ON rpt.id_prducts = prods.id_prducts
+                INNER JOIN u803991314_main.relationship_offers_tags AS rot ON rpt.id_tags = rot.id_tags
+                INNER JOIN u803991314_main.offers AS offr ON offr.id_offers = rot.id_offers
+                WHERE prods.id_prducts = $product->id_prducts
+                ";
+
+            $getDiscount = $queries->getData($sqlGetDiscount);
+
+            $prod_price_sell = round($product->price, 2);
+            $prod_price_sell_og = round($product->price, 2);
+
+            $html_discount = '';
+            $html_discount_price = '';
+
+            if (!empty($getDiscount)) {
+                $prod_discount = $getDiscount[0]->percentage;
+                $prod_price_sell = round($product->price, 2);
+
+                $montoDescuento = ($prod_price_sell * $prod_discount) / 100;
+
+                // Cálculo del precio final
+                $prod_price_sell = round($prod_price_sell - $montoDescuento, 2);
+
+                $html_discount = '';
+                $html_discount = '<span class="badge bg-success position-absolute m-3">-' . $prod_discount . '%</span>';
+                $html_discount_price = '<p class="text-muted" style="color:orange !important;  size:8px !important"><s>$ ' . $prod_price_sell_og . '</s></p>';
+            }
+
+            $total_stock = $product->total_stock;
+            $percentage = 0;
+            if ($product->total_stock > 0) {
+                $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
+            }
+
+            if ($product->thumbnail == 'NULL' || $product->thumbnail == '') {
+                $image_prod = 'images/sin-imagen.png';
+            } else {
+                $archive_route = str_replace('..', 'admin', $product->thumbnail);
+                $image_prod = $archive_route;
+                $file_exs = dirname(__DIR__ . '', 3) . str_replace('..', '', $product->thumbnail);
+                /* echo $file_exs; */
+
+                if (file_exists($file_exs)) {
+                    $image_prod = $archive_route;
+                } else {
+                    $image_prod = 'images/sin-imagen.png';
+                }
+            }
+            $enabled = "";
+            $html_stock = '<p class="text-muted">' . $total_stock . ' en stock</p>';
+            if ($total_stock <= 0) {
+                $enabled = "disabled";
+                $html_stock = '<p class="text-muted" style="color:red !important;;">Sin stock disponible</p>';
+            }
+
+            $html .= '
+    <div class="col">
+        <div class="product-item">
+            ' . $html_discount . '
+            <figure>
+                <a href="index.html" title="Product Title">
+                    <img src="' . $image_prod . '" class="tab-image">
+                </a>
+            </figure>
+            <h3>' . $product->product_name . '</h3>
+            <span class="qty">' . $html_stock . '</span><span class="rating"><svg width="24" height="24" class="text-primary"></svg></span>
+            <span class="price">$' . $prod_price_sell . '</span> ' . $html_discount_price . '
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="input-group product-qty">
+                    <span class="input-group-btn">
+                        <button type="button" class="quantity-left-minus btn btn-danger btn-number" data-product-id="' . $product->id_prducts . '" data-type="minus">
+                            <svg width="16" height="16">
+                                <use xlink:href="#minus"></use>
+                            </svg>
+                        </button>
+                    </span>
+                    <input type="text" id="quantity-prod-' . $product->id_prducts . '" name="quantity" class="form-control input-number" value="1" min="1" max="' . $total_stock . '">
+                    <span class="input-group-btn">
+                        <button type="button" class="quantity-right-plus btn btn-success btn-number" data-product-id="' . $product->id_prducts . '" data-type="plus">
+                            <svg width="16" height="16">
+                                <use xlink:href="#plus"></use>
+                            </svg>
+                        </button>
+                    </span>
+                </div>
+                <button ' . $enabled . ' class="btn-primary btn-sm addProdToCart" data-id-product="' . $product->id_prducts . '" 
+                                 data-product-price="' . $prod_price_sell . '" 
+                                 data-product-name="' . $product->product_name . '"
+                                 data-stock="' . $total_stock . '">
+                    Agregar 
+                    <iconify-icon icon="uil:shopping-cart">
+                    </iconify-icon>
+                </button>
+            </div>
+        </div>
+    </div>';
+        }
+        if (count($getProducts) >= 25) {
+            $html .= '</br><button type="button" class="btn btn-primary loadMore">Cargar más productos</button>';
+        }
+
+
+        $pagNum = 1;
+        if (($actualPage - 4) > 1) {
+            $pagNum = $actualPage - 4;
+        }
+        $totalPages = ceil($totalProds / $_POST['limit']);
+
+        $pagination = '';
+
+        $stopNav = $pagNum + 9;
+        if ($stopNav > $totalPages) {
+            $stopNav = $totalPages;
+        }
+        $pagination .= '<nav>';
+        $pagination .= '<ul class="nav nav-pills">';
+
+        for ($i = $pagNum; $i <= $stopNav; $i++) {
+            $active = $i == $actualPage ? "active" : "";
+            $pagination .= '<li class="nav-item">';
+            $pagination .= '<a class="nav-link changePage ' . $active . '" aria-current="page" href="#">' . $i . '</a>';
+            $pagination .= '</li>';
+        }
+
+
+
+
+
+
+
+        $pagination .= '</ul>';
+        $pagination .= '</nav>';
+
+        $data = array(
+            'response' => true,
+            'html' => $html,
+            'totalProds' => $totalProds,
+            'totalResults' => $totalResults,
+            'totalFiltered' => $totalFiltered,
+            'totalPages' => $totalPages,
+            'paginationNav' => $pagination
+        );
+    } else {
+
+        $html .= '
+                    </tbody>
+                </table>';
+        $data = array(
+            'response' => false,
+            'html' => $html
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
+
+function getTopProductsItems()
+{
+
+    $queries = new Queries;
+
+    //echo $limit;
+    $html = "";
+
+
+
+
+
+    $sql = "SELECT SQL_CALC_FOUND_ROWS
+    SUM(ord_det.quantity) AS total_comprados,  -- Sumar las cantidades compradas
+    CASE 
+        WHEN sb_stk.prducts_id_prducts = prods.id_prducts THEN SUM(sb_stk.stock)
+        ELSE 0
+    END
+    AS total_stock, brand,
+    prods.*
+    FROM u803991314_main.products AS prods
+    INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+    LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts
+    INNER JOIN u803991314_main.relationship_products_categories AS rpc ON rpc.id_prducts = prods.id_prducts
+    INNER JOIN u803991314_main.categories AS ct ON ct.id_categories = rpc.id_categories
+    INNER JOIN u803991314_main.order_details AS ord_det ON ord_det.id_prducts = prods.id_prducts
+    WHERE active_item = 1
+    GROUP BY prods.id_prducts
+    LIMIT 10
+    ";
+
+    //echo $sql;
+
+    $getProducts = $queries->getData($sql);
+
+    $total_stock = 0;
+
+    if (!empty($getProducts)) {
+        $totalResults = count($getProducts);
+
+        $sqlAllProdsFiltered = "SELECT FOUND_ROWS() AS founded";
+        $getTotalProductsFiltered = $queries->getData($sqlAllProdsFiltered);
+        if (!empty($getTotalProductsFiltered)) {
+            $totalFiltered = ($getTotalProductsFiltered[0]->founded);
+        }
+
+        $sqlAllProds = "SELECT COUNT(id_prducts) AS founded
+         FROM u803991314_main.products AS prods
+        INNER JOIN u803991314_main.brands AS br ON br.id_brands = prods.id_brands
+        LEFT JOIN u803991314_main.subsidiary_stocks AS sb_stk ON sb_stk.prducts_id_prducts = prods.id_prducts";
+        $getTotalProducts = $queries->getData($sqlAllProds);
+        if (!empty($getTotalProducts)) {
+            $totalProds = ($getTotalProducts[0]->founded);
+        }
+
+
+        foreach ($getProducts as $product) {
+            $sqlGetDiscount = "SELECT DISTINCT percentage, offer_name
+                FROM u803991314_main.products AS prods
+                INNER JOIN u803991314_main.relationship_products_tags AS rpt ON rpt.id_prducts = prods.id_prducts
+                INNER JOIN u803991314_main.relationship_offers_tags AS rot ON rpt.id_tags = rot.id_tags
+                INNER JOIN u803991314_main.offers AS offr ON offr.id_offers = rot.id_offers
+                WHERE prods.id_prducts = $product->id_prducts
+                ";
+
+            $getDiscount = $queries->getData($sqlGetDiscount);
+
+            $prod_price_sell = round($product->price, 2);
+            $prod_price_sell_og = round($product->price, 2);
+
+            $html_discount = '';
+            $html_discount_price = '';
+
+            if (!empty($getDiscount)) {
+                $prod_discount = $getDiscount[0]->percentage;
+                $prod_price_sell = round($product->price, 2);
+
+                $montoDescuento = ($prod_price_sell * $prod_discount) / 100;
+
+                // Cálculo del precio final
+                $prod_price_sell = round($prod_price_sell - $montoDescuento, 2);
+
+                $html_discount = '';
+                $html_discount = '<span class="badge bg-success position-absolute m-3">-' . $prod_discount . '%</span>';
+                $html_discount_price = '<p class="text-muted" style="color:orange !important;  size:8px !important"><s>$ ' . $prod_price_sell_og . '</s></p>';
+            }
+
+            $total_stock = $product->total_stock;
+            $percentage = 0;
+            if ($product->total_stock > 0) {
+                $percentage = number_format((($product->total_stock / $product->ideal_stock) * 100), 0);
+            }
+
+            if ($product->thumbnail == 'NULL' || $product->thumbnail == '') {
+                $image_prod = 'images/sin-imagen.png';
+            } else {
+                $archive_route = str_replace('..', 'admin', $product->thumbnail);
+                $image_prod = $archive_route;
+                $file_exs = dirname(__DIR__ . '', 3) . str_replace('..', '', $product->thumbnail);
+                /* echo $file_exs; */
+
+                if (file_exists($file_exs)) {
+                    $image_prod = $archive_route;
+                } else {
+                    $image_prod = 'images/sin-imagen.png';
+                }
+            }
+            $enabled = "";
+            $html_stock = '<p class="text-muted">' . $total_stock . ' en stock</p>';
+            if ($total_stock <= 0) {
+                $enabled = "disabled";
+                $html_stock = '<p class="text-muted" style="color:red !important;;">Sin stock disponible</p>';
+            }
+
+            $html .= '
+    <div class="col">
+        <div class="product-item">
+            ' . $html_discount . '
+            <figure>
+                <a href="index.html" title="Product Title">
+                    <img src="' . $image_prod . '" class="tab-image">
+                </a>
+            </figure>
+            <h3>' . $product->product_name . '</h3>
+            <span class="qty">' . $html_stock . '</span><span class="rating"><svg width="24" height="24" class="text-primary"></svg></span>
+            <span class="price">$' . $prod_price_sell . '</span> ' . $html_discount_price . '
+            <div class="d-flex align-items-center justify-content-between">
+                <div class="input-group product-qty">
+                    <span class="input-group-btn">
+                        <button type="button" class="quantity-left-minus btn btn-danger btn-number" data-product-id="' . $product->id_prducts . '" data-type="minus">
+                            <svg width="16" height="16">
+                                <use xlink:href="#minus"></use>
+                            </svg>
+                        </button>
+                    </span>
+                    <input type="text" id="quantity-prod-' . $product->id_prducts . '" name="quantity" class="form-control input-number" value="1" min="1" max="' . $total_stock . '">
+                    <span class="input-group-btn">
+                        <button type="button" class="quantity-right-plus btn btn-success btn-number" data-product-id="' . $product->id_prducts . '" data-type="plus">
+                            <svg width="16" height="16">
+                                <use xlink:href="#plus"></use>
+                            </svg>
+                        </button>
+                    </span>
+                </div>
+                <button ' . $enabled . ' class="btn-primary btn-sm addProdToCart" data-id-product="' . $product->id_prducts . '" 
+                                 data-product-price="' . $prod_price_sell . '"
+                                 data-product-name="' . $product->product_name . '"
+                                 data-stock="' . $total_stock . '">
+                    Agregar 
+                    <iconify-icon icon="uil:shopping-cart">
+                    </iconify-icon>
+                </button>
+            </div>
+        </div>
+    </div>';
+        }
+
+        $pagNum = 1;
+
+
+        $pagination = '';
+
+        $stopNav = $pagNum + 9;
+
+        $data = array(
+            'response' => true,
+            'html' => $html,
+            'totalProds' => $totalProds,
+            'totalResults' => $totalResults,
+            'totalFiltered' => $totalFiltered,
+        );
+    } else {
+
+        $html .= '
+                    </tbody>
+                </table>';
+        $data = array(
+            'response' => false,
+            'html' => $html
+        );
+    }
+
+
+
+    echo json_encode($data);
+}
 
 function getProductsCart()
 {

@@ -72,13 +72,19 @@
                         </div>
                         <div class="col-3">
                             <div class="mb-4">
+                                <label class="form-label">Precio a crédito:</label>
+                                <input data-column-name=" credit_price" data-allow-empty="0" id="edit_prod_price_credit" type="text" class="form-control obligatory updateProductPrice" placeholder="Precio unitario">
+                            </div>
+                        </div>
+                        <!-- <div class="col-3">
+                            <div class="mb-4">
                                 <br><br>
                                 <div class="form-check form-switch">
                                     <input data-column-name="bulk_sell" class="form-check-input chckUpdateProduct" type="checkbox" role="switch" data-allow-empty="1" id="edit_prod_bulk"  checked="false">
                                     <label class="form-check-label" for="prod_bulk">Venta a granel</label>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <div style="display:none" class="col-4">
                             <div class="mb-4">
                                 <label class="form-label">Stock inicial:</label>

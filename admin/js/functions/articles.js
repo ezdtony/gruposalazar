@@ -446,6 +446,7 @@ $(document).ready(function () {
           $("#edit_prod_meassure").trigger("change"); // Notify any JS components that the value changed
           $("#edit_prod_purchase_price").val(data.prod_info[0].purchase_price);
           $("#edit_prod_price").val(data.prod_info[0].price);
+          $("#edit_prod_price").val(data.prod_info[0].credit_price);
           if (data.prod_info[0].bulk_sell) {
             $("#edit_prod_bulk").prop("checked", true);
           }

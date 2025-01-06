@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => '__root__',
-        'pretty_version' => 'dev-gpo_slzr_master',
-        'version' => 'dev-gpo_slzr_master',
-        'reference' => 'b58a6891e9d49f68fee3c6377c64ddff4d93ae8e',
+        'pretty_version' => '1.0.0+no-version-set',
+        'version' => '1.0.0.0',
+        'reference' => null,
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -11,18 +11,18 @@
     ),
     'versions' => array(
         '__root__' => array(
-            'pretty_version' => 'dev-gpo_slzr_master',
-            'version' => 'dev-gpo_slzr_master',
-            'reference' => 'b58a6891e9d49f68fee3c6377c64ddff4d93ae8e',
+            'pretty_version' => '1.0.0+no-version-set',
+            'version' => '1.0.0.0',
+            'reference' => null,
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
             'dev_requirement' => false,
         ),
         'phpmailer/phpmailer' => array(
-            'pretty_version' => 'v6.9.1',
-            'version' => '6.9.1.0',
-            'reference' => '039de174cd9c17a8389754d3b877a2ed22743e18',
+            'pretty_version' => 'v6.9.3',
+            'version' => '6.9.3.0',
+            'reference' => '2f5c94fe7493efc213f643c23b1b1c249d40f47e',
             'type' => 'library',
             'install_path' => __DIR__ . '/../phpmailer/phpmailer',
             'aliases' => array(),

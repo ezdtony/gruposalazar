@@ -1,0 +1,56 @@
+/* Fondo de la sección */
+section.py-5.bg-light {
+  background-color: #f8f9fa;
+}
+
+/* Diseño de cada tarjeta de sucursal */
+.post-entry {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.post-entry:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Botón de enlace */
+.post-entry .btn {
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+  padding: 10px 20px;
+  border-radius: 30px;
+  transition: background-color 0.3s;
+}
+
+.post-entry .btn:hover {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Estilo del texto */
+.post-content-entry h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.post-content-entry p {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.mapsFrame {
+  margin-bottom: 40px; /* Aumenta el margen inferior */
+}
+
+@media (max-width: 768px) {
+  .mapsFrame {
+    margin-bottom: 30px; /* Ajuste para pantallas más pequeñas */
+  }
+}
+
+@media (min-width: 768px) {
+  .mapsFrame {
+    margin-bottom: 50px; /* Margen mayor para pantallas medianas y grandes */
+  }
+}

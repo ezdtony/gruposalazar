@@ -50,6 +50,10 @@ $active_search_prod = 0;
                                     <input <?php echo $active_search_prod ? '' : 'disabled' ?> type="text" class="form-control" id="search_prod" placeholder="Código de barras" aria-label="Código de barras" aria-describedby="basic-addon1">
                                     <span class="input-group-text btn btn-info" id="basic-addon1"><i class="fa-solid fa-barcode"></i></span>
                                 </div>
+                                <div class="input-group mb-3">
+                                    <input <?php echo $active_search_prod ? '' : 'disabled' ?> type="text" class="form-control" id="search_prod_bycode" placeholder="Código del producto" aria-label="Código del producto" aria-describedby="basic-addon1">
+                                    <span class="input-group-text btn btn-info" id="basic-addon1"><i class="fa-solid fa-font"></i></span>
+                                </div>
                                 <div class="mb-3">
                                     <label class="form-label" for="prod_name">Nombre de producto</label>
                                     <input type="text" disabled id="prod_name" class="form-control">

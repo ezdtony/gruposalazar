@@ -4,7 +4,6 @@ class data_conn
 {
     private $db_name = "u803991314_main";
     private $db_user = "u803991314_root";
-    
     private $db_pass = "A&k?k&5t";
     //private $db_host = "localhost";
     private $db_host = "193.203.166.183";

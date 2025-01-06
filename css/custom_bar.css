@@ -1,0 +1,220 @@
+.video-section {
+  background-color: #f8f9fc; /* Fondo gris claro */
+  padding: 60px 0;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #3c486b; /* Azul pastel oscuro */
+  margin-bottom: 0.5rem;
+}
+
+.section-subtitle {
+  font-size: 1.2rem;
+  color: #6c757d; /* Texto gris suave */
+  margin-bottom: 2rem;
+}
+
+.video-card {
+  background: linear-gradient(145deg, #fdfdff, #eef0f5); /* Efecto 3D suave */
+  border-radius: 12px;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.1),
+    -5px -5px 15px rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #f0f0f5;
+}
+
+.video-card:hover {
+  transform: scale(1.03);
+  box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.2),
+    -5px -5px 20px rgba(255, 255, 255, 0.6);
+}
+
+.video-frame {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+  border-bottom: 5px solid #6fa3f1; /* Rosa pastel */
+}
+
+.video-frame iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.video-description {
+  padding: 20px;
+  text-align: center;
+}
+
+.video-description h5 {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #6fa3f1; /* Amarillo pastel */
+  margin-bottom: 0.5rem;
+}
+
+.video-description p {
+  font-size: 0.95rem;
+  color: #6c757d; /* Gris suave */
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+  }
+}
+.testimonials-carousel {
+  position: relative;
+  padding: 40px 0; /* Más espacio arriba y abajo */
+  min-height: 500px; /* Altura mínima para asegurar que los testimonios se vean bien */
+}
+
+.testimonial-slider {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem; /* Mayor espacio entre los testimonios */
+  overflow: hidden;
+  padding: 0 20px;
+  width: 100%;
+  align-items: center; /* Centra los items verticalmente */
+}
+
+.testimonial-item {
+  display: none;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: all 0.3s ease-in-out;
+  background: #fdfdff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  max-width: 280px; /* Ajuste de tamaño para dispositivos pequeños */
+  text-align: center;
+  margin: 0 auto; /* Centrar los testimonios */
+}
+
+.testimonial-item.visible {
+  display: block;
+  opacity: 0.6; /* Opacidad reducida para testimonios no resaltados */
+  transform: scale(1);
+}
+
+.testimonial-item.active {
+  transform: scale(1.2); /* Resaltar el testimonio central */
+  opacity: 1; /* Opacidad completa para el testimonio central */
+  background-color: #f0f8ff;
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2); /* Sombra para resaltar más */
+}
+
+.testimonial-item .quote {
+  font-style: italic;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.testimonial-item h5 {
+  font-size: 1.25rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.testimonial-item .rating {
+  font-size: 1.2rem;
+  color: #ffd700;
+}
+
+.testimonial-slider:hover .testimonial-item {
+  opacity: 0.3;
+}
+
+.testimonial-slider:hover .testimonial-item.active {
+  opacity: 1;
+}
+
+/* Controles del carrusel */
+.testimonials-carousel .btn-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  border: none;
+  font-size: 2rem;
+  padding: 10px;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+}
+
+.testimonials-carousel .btn-prev {
+  left: 10px;
+}
+
+.testimonials-carousel .btn-next {
+  right: 10px;
+}
+
+/* Media Queries para Responsividad */
+
+@media (max-width: 768px) {
+  .testimonial-slider {
+    gap: 1rem; /* Reduce el espacio entre testimonios en pantallas más pequeñas */
+  }
+
+  .testimonial-item {
+    max-width: 100%; /* Los testimonios ocupan el 100% del ancho en dispositivos pequeños */
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .testimonial-slider {
+    gap: 0.5rem; /* Menos espacio entre testimonios en pantallas extra pequeñas */
+  }
+
+  .testimonial-item {
+    max-width: 100%;
+    padding: 10px;
+    font-size: 0.9rem; /* Ajuste de texto en pantallas pequeñas */
+  }
+}
+
+/* Estilos exclusivos para los items del carrito */
+.cart-item {
+  display: flex;
+  align-items: center; /* Centra verticalmente los elementos dentro del li */
+  justify-content: space-between; /* Alinea los elementos al principio y al final */
+  padding: 0.75rem 1.25rem; /* Espaciado de los items */
+}
+
+.cart-item .removeFromCart {
+  margin-right: 10px; /* Espacio entre el ícono de eliminar y el contenido */
+  min-width: 30px; /* Ancho fijo para el ícono de eliminar */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cart-item .d-flex {
+  display: flex;
+  flex-direction: column; /* Apila los textos de producto y cantidad */
+  flex-grow: 1; /* Hace que el contenedor ocupe todo el espacio disponible */
+  margin-right: 10px; /* Espacio entre los textos y el precio */
+}
+
+.cart-item span {
+  min-width: 60px; /* Ancho fijo para el precio */
+  text-align: right; /* Alinea el precio a la derecha */
+}

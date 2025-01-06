@@ -1,0 +1,85 @@
+/* Estilos para el botón primario */
+.btn-primary {
+  color: #fff;
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+  color: #fff;
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.btn-primary:focus,
+.btn-primary.focus {
+  box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.5);
+}
+
+.btn-primary.disabled,
+.btn-primary:disabled {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  opacity: 0.65;
+}
+
+.btn-primary:not(:disabled):not(.disabled):active,
+.btn-primary:not(:disabled):not(.disabled).active {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.btn-primary:not(:disabled):not(.disabled):active:focus,
+.btn-primary:not(:disabled):not(.disabled).active:focus {
+  box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.5);
+}
+
+/* Estilos para el tamaño pequeño del botón */
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  border-radius: 0.2rem;
+}
+
+.tab-image {
+  max-width: 100%; /* La imagen no excederá el ancho del contenedor */
+  max-height: 200px; /* La altura máxima será de 200px */
+  object-fit: contain; /* Asegura que la imagen mantenga su relación de aspecto */
+}
+
+/* Estilos generales para la imagen del banner */
+.banner-image {
+  width: 100%;
+  height: auto; /* Mantiene la proporción de la imagen */
+  object-fit: cover; /* Asegura que la imagen cubra todo el contenedor */
+}
+
+/* Ajustes para la categoría en pantallas pequeñas */
+.categories {
+  font-size: 1.25rem; /* Aumenta el tamaño del texto */
+  font-weight: bold;
+}
+
+.banner-title {
+  font-size: 2rem; /* Tamaño grande para el título */
+}
+
+/* Mejorar la visibilidad del texto en móviles */
+@media (max-width: 768px) {
+  .banner-content {
+    text-align: center; /* Centra el texto en pantallas pequeñas */
+  }
+
+  .content-wrapper {
+    margin-top: 20px;
+  }
+
+  .btn-lg {
+    font-size: 0.9rem; /* Reduce el tamaño del botón en pantallas pequeñas */
+  }
+
+  .banner-ad {
+    margin-bottom: 20px; /* Agrega espacio entre los banners */
+  }
+}
