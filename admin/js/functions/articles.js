@@ -1015,7 +1015,7 @@ $(document).ready(function () {
             timer: 3000,
           }).then((result) => {
             loading();
-            location.reload();
+            //location.reload();
           });
         });
     } else {
