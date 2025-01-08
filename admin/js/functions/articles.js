@@ -1012,7 +1012,7 @@ $(document).ready(function () {
           Swal.fire({
             icon: "success",
             title: "Éxito",
-            text: "Registro actualizado exitosamente",
+            text: "Imagen actualizada exitosamente",
             timer: 3000,
           }).then((result) => {
             console.log("heree");
