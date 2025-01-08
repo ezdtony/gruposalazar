@@ -1008,12 +1008,14 @@ $(document).ready(function () {
         .then((respuesta) => respuesta.json())
         .then((decodificado) => {
           loading();
+          console.log("heree2");
           Swal.fire({
             icon: "success",
             title: "Éxito",
             text: "Registro actualizado exitosamente",
             timer: 3000,
           }).then((result) => {
+            console.log("heree");
             //loading();
             //location.reload();
           });
