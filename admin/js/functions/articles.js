@@ -1014,7 +1014,7 @@ $(document).ready(function () {
             text: "Registro actualizado exitosamente",
             timer: 3000,
           }).then((result) => {
-            loading();
+            //loading();
             //location.reload();
           });
         });
