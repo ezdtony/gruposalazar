@@ -139,7 +139,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     shippingMethod.classList.remove("is-invalid");
 
-    if (selectedShippingMethod === "2" && totalCart < 20) {
+    if (selectedShippingMethod === "2" && totalCart <= 2000) {
       showAlert(
         "Envío a domicilio",
         "El total del carrito debe ser mayor o igual a $2000 para envío a domicilio.",
@@ -221,7 +221,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
       case "2":
         if ($("#paypal-button-container").html() == 0) {
-          switch (selectedPaymentMethod) {
+          switch (selectedShippingMethod) {
             //entrega en sucursal
             case "1":
               paypal
@@ -271,7 +271,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
               break;
             case "2":
-              if (totalCart < 20) {
+              if (totalCart <= 2000) {
                 Swal.fire({
                   title: "Atención",
                   icon: "error",
@@ -354,7 +354,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (selectedMethod === "2") {
       // Envío a domicilio
-      if (totalCart < 20) {
+      if (totalCart <= 2000) {
         divHomeDelivery.style.display = "none";
         Array.from(divHomeDelivery.querySelectorAll("input, select")).forEach(
           (field) => {

@@ -286,7 +286,7 @@ $(document).ready(function () {
     Toastify({
       text: text,
       duration: 3000,
-      destination: "cart.php",
+      destination: "cart_shop.php",
       newWindow: true,
       close: true,
       gravity: "top", // `top` or `bottom`

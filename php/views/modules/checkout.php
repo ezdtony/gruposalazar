@@ -1,7 +1,7 @@
 <?php $getAllSubsidiary = $prods_model->getAllSubsidiary();
 $getSates = $prods_model->getStates();
 ?>
-<script src="https://www.paypal.com/sdk/js?client-id=AaVkSbvZ9BICdJk-32C_9ExWnrb60kJudGJAh6Npb0466E0THZiKsdTGH4QohPBPmex7lGH25iJX0yUI&currency=MXN"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=AW7o9QMWqbYeg4LGtI0_SpfbUW6isS155zUIA1GvVISlsB1NzUFx-qaq1C28TE4HowzSMmR9DTsl6hO2&currency=MXN&locale=es_MX"></script>
 <div class="container py-5">
     <h2 class="mb-4 text-primary" style="color: #4287f5 !important">Proceso de Pago</h2>
     <form id="payment-form">
