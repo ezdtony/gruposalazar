@@ -36,7 +36,7 @@
 
                                             <button type="button" class="btn btn-success" disabled id="btnSaveSaleCash">Imprimir ticket y guardar venta</button>
                                             
-                                            <button type="button" class="btn btn-danger btnGenerateFacture generateFactura"  disabled> <i class="fa-solid fa-file-pdf"></i> Generar factura</button>
+                                            <button type="button" class="btn btn-danger btnGenerateFacture"  data-bs-toggle="modal" data-bs-target="#modalReceptorData" disabled> <i class="fa-solid fa-file-pdf"></i> Generar factura</button>
                                         </div>
                                         <div class="mb-3" id="divCreditMethod" style="display:none">
                                             <h3 class="card-title" id="lblTotalSalePayment" data-total="0">Total: </h3>
@@ -49,7 +49,7 @@
                                             <h3 class="card-title" id="lblCashExchange" data-total="0">Cambio: </h3>
 
                                             <button type="button" class="btn btn-success" disabled id="btnSaveSaleCash">Imprimir ticket y guardar venta</button>
-                                            <button type="button" class="btn btn-danger btnGenerateFacture generateFactura"  disabled> <i class="fa-solid fa-file-pdf"></i> Generar factura</button>
+                                            <button type="button" class="btn btn-danger btnGenerateFacture"  data-bs-toggle="modal" data-bs-target="#modalReceptorData" disabled> <i class="fa-solid fa-file-pdf"></i> Generar factura</button>
                                         </div>
                                         <div class="mb-3" id="divCreditCardMethod" style="display:none">
                                             <h3 class="card-title" id="lblTotalSalePayment" data-total="0">Total: </h3>
@@ -57,7 +57,7 @@
                                             <div class="col-md-7">
                                                 <label class="form-label" for="prod_price">ID de ticket:</label>
                                                 <input type="text" id="ticket_id" class="form-control form-control-lg" placeholder="Ingrese el ID del ticket">
-                                                <button type="button" class="btn btn-danger btnGenerateFacture generateFactura"  disabled> <i class="fa-solid fa-file-pdf"></i> Generar factura</button>
+                                                <button type="button" class="btn btn-danger btnGenerateFacture" data-bs-toggle="modal" data-bs-target="#modalReceptorData"  disabled> <i class="fa-solid fa-file-pdf"></i> Generar factura</button>
                                             </div>
                                             <br>
 

@@ -679,10 +679,8 @@ function getSalesTable()
             <td class=""> <div class="fw-bold">
             <button type="button"class="btn btn-primary getSaleDetail" data-id-order="' . $product->id_orders . '"
             data-bs-toggle="modal" data-bs-target="#modalSaleDetail"><i class="fa-solid fa-info"></i></button>
-            <button type="button"class="btn btn-primary getSaleTicket" data-id-order="' . $product->id_orders . '"
-            ><i class="fa-solid fa-print"></i></button>
-            <button type="button"class="btn btn-danger generateFactura" ' . $btn_dis . ' id="btnGenFact' . $product->id_orders . '" data-id-order="' . $product->id_orders . '"
-            ><i class="fa-solid fa-print"></i></button>
+            <button title="Generar Ticket" type="button"class="btn btn-primary getSaleTicket" data-id-order="' . $product->id_orders . '"
+            ><i class="fa-solid fa-ticket"></i></button>
             </div></td>
         </tr>';
         }

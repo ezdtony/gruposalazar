@@ -5,6 +5,16 @@ $getAllSubsidiary = $sales_model->getAllSubsidiary();
 $getPaymentsMethods = $sales_model->getPaymentMethods();
 $active_search_prod = 0;
 ?>
+<?php
+$getAllSubsidiary = $sales_model->getAllSubsidiary();
+$getPaymentsMethods = $sales_model->getPaymentMethods();
+
+$getRegimenesFiscales = $sales_model->getRegimenesFiscales();
+$usosCFDI = $sales_model->usosCFDI();
+
+$getSates = $sales_model->getStates();
+$getAllClientsBilling = $sales_model->getAllClientsBilling();
+?>
 
 
 <div class="row">
@@ -122,6 +132,8 @@ $active_search_prod = 0;
 </div>
 <script src="js/functions/newSale.js"></script>
 <script src="js/functions/generatePDF/generatePDF.js"></script>
+<script src="js/functions/facturarVenta.js"></script>
 <?php
 include 'modals/saveNewSale.php';
+include 'modals/receptorData.php';
 ?>

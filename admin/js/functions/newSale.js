@@ -448,7 +448,6 @@ $(document).ready(function () {
                 var data = JSON.parse(data);
                 console.log(data);
 
-                
                 $(".btnGenerateFacture").attr("disabled", false);
 
                 $("#btnSaveSaleCash").attr("disabled", true);
@@ -484,8 +483,8 @@ $(document).ready(function () {
   });
 
   $("#saveNewSaleModal").on("hidden.bs.modal", function () {
-    loading();
-    location.reload();
+    /* loading();
+    location.reload(); */
   });
 
   $(document).on("click", "#btnSaveSaleCredit", function (event) {
@@ -607,33 +606,12 @@ $(document).ready(function () {
         myToast.showToast();
       });
   });
-  $(document).on("click", ".generateFactura", function (event) {
+  $(document).on("click", ".btnGenerateFacture", function (event) {
     loading();
-    var id_order = $(this).attr("data-id-order");
-    $.ajax({
-      url: "php/controllers/sales/sales_controller.php",
-      method: "POST",
-      data: {
-        mod: "printTicket",
-        id_order: id_order,
-      },
-    })
-      .done(function (data) {
-        Swal.close();
-        var data = JSON.parse(data);
-        console.log(data);
-        consumeAPI();
-        //--- --- ---//
-        //--- --- ---//
-      })
-      .fail(function (message) {
-        Swal.close();
-        var myToast = Toastify({
-          text: data.message,
-          duration: 3000,
-        });
-        myToast.showToast();
-      });
+    $("#saveNewSaleModal").modal("hide");
+    var id_sale = $(this).attr("data-id-order");
+    $("#btnGenerarFactura").attr("data-id-order", id_sale);
+    Swal.close();
   });
 
   $(document).on("click", "#btnSaveSaleCreditCard", function (event) {
