@@ -32,13 +32,11 @@ class Queries extends data_conn
 
         try {
 
-            if($this->conn->query($stmt)){
+            if ($this->conn->query($stmt)) {
                 $last_id = $this->conn->lastInsertId();
                 $results['status'] = 'success';
                 $results['last_id'] = $last_id;
             }
-
-            
         } catch (Exception $e) {
             echo 'Exception -> ' . $stmt;
             var_dump($e->getMessage());
@@ -46,5 +44,21 @@ class Queries extends data_conn
 
         return $results;
     }
-    
+
+    public function executeQuery($stmt, $params = [])
+    {
+        try {
+            $query = $this->conn->prepare($stmt);
+
+            foreach ($params as $key => $value) {
+                $query->bindValue($key, $value);
+            }
+
+            return $query->execute();
+        } catch (Exception $e) {
+            echo 'Exception -> ' . $stmt;
+            var_dump($e->getMessage());
+            return false;
+        }
+    }
 }

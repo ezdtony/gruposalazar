@@ -79,6 +79,36 @@ function getClientBillingInfo()
 
     echo json_encode($data);
 }
+function updateColabProp()
+{
+    $id_colab = $_POST['id_colab'];
+    $active = $_POST['active'];
+
+    $queries = new Queries;
+
+    $stmt = "UPDATE u803991314_main.colaborators SET status = $active WHERE id_colaborator = $id_colab";
+
+
+    if ($queries->InsertData($stmt)) {
+
+
+        //--- --- ---//
+        $data = array(
+            'response' => true,
+            'message'                => 'Actualizado exitosamente'
+        );
+        //--- --- ---//
+    } else {
+        //--- --- ---//
+        $data = array(
+            'response' => false,
+            'message'                => 'Ocurrió un error'
+        );
+        //--- --- ---//
+    }
+
+    echo json_encode($data);
+}
 function saveColab()
 {
     $name = $_POST['name'];
@@ -152,7 +182,7 @@ function saveColab()
             }
             $pre_str = generateRandomString(3);
 
-            $colab_code = substr($curp, 0, 4) . "-" . $prenum.$lastUserID . "-" . $pre_str;
+            $colab_code = substr($curp, 0, 4) . "-" . $prenum . $lastUserID . "-" . $pre_str;
             $stmtColab = "INSERT INTO u803991314_main.colaborators (
                 id_colaborators_contact,
                 id_colaborators_addresess,
@@ -241,6 +271,183 @@ function saveColab()
 
     echo json_encode($data);
 }
+
+function getColabInfo()
+{
+    $colabId = $_POST['id_colab'];
+    $queries = new Queries;
+    // Asegúrate de tener una conexión PDO configurada
+    global $pdo; // Usa tu variable de conexión global
+    try {
+        // Consultar datos del colaborador principal
+        $stmt = "SELECT 
+                c.id_colaborator,
+                c.colaborator_code,
+                c.name,
+                c.lastname,
+                c.curp,
+                c.rfc,
+                c.nss,
+                c.business_mail,
+                c.password_access,
+                ca.street,
+                ca.int_number,
+                ca.ext_number,
+                ca.colony,
+                ca.delegation AS city,
+                ca.postal_code AS zipcode,
+                ca.state,
+                cc.principal_cellphone AS phonenumber,
+                cc.email,
+                rcp.id_user_profiles AS position,
+                rcs.id_subsidiary AS subsidiary
+            FROM u803991314_main.colaborators AS c
+            LEFT JOIN u803991314_main.colaborators_addresess AS ca
+                ON c.id_colaborators_addresess = ca.id_colaborators_addresess
+            LEFT JOIN u803991314_main.colaborators_contact AS cc
+                ON c.id_colaborators_contact = cc.id_colaborators_contact
+            LEFT JOIN u803991314_main.relationship_colab_prof AS rcp
+                ON c.id_colaborator = rcp.id_colaborator
+            LEFT JOIN u803991314_main.relationship_colabs_subs AS rcs
+                ON c.id_colaborator = rcs.id_colaborator
+            WHERE c.id_colaborator = $colabId
+        ";
+        $colabData = $queries->getData($stmt);
+
+        if ($colabData) {
+            echo json_encode([
+                'response' => true,
+                'data' => $colabData,
+            ]);
+        } else {
+            echo json_encode([
+                'response' => false,
+                'message' => 'No se encontró el colaborador con el ID proporcionado.',
+            ]);
+        }
+    } catch (PDOException $e) {
+        echo json_encode([
+            'response' => false,
+            'message' => 'Error al obtener los datos del colaborador: ' . $e->getMessage(),
+        ]);
+    }
+}
+
+function updateColab()
+{
+    $id_colab = $_POST['id_colab'];
+    $name = $_POST['name'];
+    $lastname = $_POST['lastname'];
+    $email = $_POST['email'];
+    $phonenumber = $_POST['phonenumber'];
+    $curp = $_POST['curp'];
+    $rfc = $_POST['rfc'];
+    $nss = $_POST['nss'];
+    $subsidiary = $_POST['subsidiary'];
+    $position = $_POST['position'];
+    $assigned_mail = $_POST['assigned_mail'];
+    $password = $_POST['password'];
+
+    $queries = new Queries;
+
+    // Actualizar datos del colaborador
+    $stmt = "UPDATE u803991314_main.colaborators 
+             SET name = :name, lastname = :lastname, curp = :curp, rfc = :rfc, 
+                 nss = :nss, business_mail = :assigned_mail, password_access = :password 
+             WHERE id_colaborator = :id_colab";
+    $params = [
+        ":name" => $name,
+        ":lastname" => $lastname,
+        ":curp" => $curp,
+        ":rfc" => $rfc,
+        ":nss" => $nss,
+        ":assigned_mail" => $assigned_mail,
+        ":password" => $password,
+        ":id_colab" => $id_colab,
+    ];
+    $updateColab = $queries->executeQuery($stmt, $params);
+
+    // Actualizar relación con la sucursal
+    $stmtSubs = "UPDATE u803991314_main.relationship_colabs_subs 
+                 SET id_subsidiary = :subsidiary 
+                 WHERE id_colaborator = :id_colab";
+    $paramsSubs = [
+        ":subsidiary" => $subsidiary,
+        ":id_colab" => $id_colab,
+    ];
+    $updateSubs = $queries->executeQuery($stmtSubs, $paramsSubs);
+
+    // Actualizar relación con el puesto
+    $stmtPos = "UPDATE u803991314_main.relationship_colab_prof 
+                SET id_user_profiles = :position 
+                WHERE id_colaborator = :id_colab";
+    $paramsPos = [
+        ":position" => $position,
+        ":id_colab" => $id_colab,
+    ];
+    $updatePos = $queries->executeQuery($stmtPos, $paramsPos);
+
+    if ($updateColab && $updateSubs && $updatePos) {
+        $data = [
+            "response" => true,
+            "message" => "Cambios guardados con éxito.",
+        ];
+    } else {
+        $data = [
+            "response" => false,
+            "message" => "Ocurrió un error al guardar los cambios.",
+        ];
+    }
+
+    echo json_encode($data);
+}
+function deleteColab()
+{
+    $id_colab = $_POST['id_colab'];
+    $queries = new Queries();
+
+    // Validar el ID recibido
+    if (empty($id_colab) || !is_numeric($id_colab)) {
+        echo json_encode([
+            'response' => false,
+            'message' => 'ID de colaborador inválido.',
+        ]);
+        return;
+    }
+
+    try {
+        // Eliminar relaciones en tablas dependientes
+        $stmtDeleteProf = "DELETE FROM relationship_colab_prof WHERE id_colaborator = :id_colab";
+        $queries->executeQuery($stmtDeleteProf, [':id_colab' => $id_colab]);
+
+        $stmtDeleteSubs = "DELETE FROM relationship_colabs_subs WHERE id_colaborator = :id_colab";
+        $queries->executeQuery($stmtDeleteSubs, [':id_colab' => $id_colab]);
+
+        // Eliminar el colaborador
+        $stmt = "DELETE FROM colaborators WHERE id_colaborator = :id_colab";
+        $result = $queries->executeQuery($stmt, [':id_colab' => $id_colab]);
+
+        if ($result) {
+            echo json_encode([
+                'response' => true,
+                'message' => 'Colaborador eliminado con éxito.',
+            ]);
+        } else {
+            echo json_encode([
+                'response' => false,
+                'message' => 'No se pudo eliminar al colaborador.',
+            ]);
+        }
+    } catch (Exception $e) {
+        echo json_encode([
+            'response' => false,
+            'message' => 'Error al procesar la solicitud: ' . $e->getMessage(),
+        ]);
+    }
+}
+
+
+
 
 function generateRandomString($length)
 {

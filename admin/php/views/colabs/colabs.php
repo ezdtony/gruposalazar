@@ -21,7 +21,6 @@ $getPositions = $colabs_model->getPositions();
                     Registrar usuario
                 </a>
             </div>
-
             <!-- Table -->
             <div class="table-responsive">
                 <table class="table table-sm table-borderless align-middle mb-0" id="tableColabs">
@@ -30,13 +29,17 @@ $getPositions = $colabs_model->getPositions();
                             <th>Código</th>
                             <th>Nombre</th>
                             <th>Correo</th>
-                            <th class="text-end">Contraseña acceso</th>
+                            <th>Contraseña acceso</th>
+                            <th>Activo</th>
+                            <th>Editar</th>
+                            <th>Eliminar</th>
                         </tr>
                     </thead>
 
                     <tbody id="tbodyColabs">
                         <?php foreach ($getCollaborators as $colab) : ?>
                             <tr>
+
                                 <!-- <td>
                                 <div class="d-flex align-items-center">
                                     <div class="avatar avatar-circle avatar-xs me-2">
@@ -52,9 +55,22 @@ $getPositions = $colabs_model->getPositions();
                                 <td><?= $colab->colaborator_code ?></td>
                                 <td><?= $colab->name ?> <?= $colab->lastname ?></td>
                                 <td><?= $colab->business_mail ?></td>
-                                <td class="text-end">
+                                <td>
                                     <div class="fw-bold"><?= $colab->password_access ?></div>
                                 </td>
+                                <td>
+                                    <div class="form-check form-switch">
+                                        <input <?= $colab->status ? 'checked' : '' ?> class="form-check-input activeColab" data-id-colab="<?= $colab->id_colaborator ?>" type="checkbox" role="switch" data-id-colab="<?= $colab->id_colaborator ?> ">
+                                        <label class="form-check-label" for="activeColab<?= $colab->id_colaborator ?>"></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn text-bg-primary-soft btnEditColab" data-bs-toggle="modal" data-id-colab="<?= $colab->id_colaborator ?>" data-bs-target="#editColabModal"><i class="fa-solid fa-pen-to-square"></i></i></button>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn text-bg-danger-soft deleteColab" data-id-colab="<?= $colab->id_colaborator ?>"><i class="fa-solid fa-trash"></i></button>
+                                </td>
+
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -67,4 +83,5 @@ $getPositions = $colabs_model->getPositions();
 <script src="js/functions/colabs.js"></script>
 <?php
 include 'modals/modalNewColab.php';
+include 'modals/editColab.php';
 ?>
