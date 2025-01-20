@@ -33,7 +33,7 @@ $usosCFDI = $sales_model->usosCFDI();
                             <th>Correo</th>
                             <th>Contraseña</th>
                             <th>Editar</th>
-                            <th>Borrar</th>
+                            <!-- <th>Borrar</th> -->
                         </tr>
                     </thead>
 
@@ -61,9 +61,9 @@ $usosCFDI = $sales_model->usosCFDI();
                                 <td>
                                     <button type="button" class="btn text-bg-primary-soft btnEditClient" data-bs-toggle="modal" data-id-client="<?= $colab->id_clients ?>" data-bs-target="#editClientModal"><i class="fa-solid fa-pen-to-square"></i></i></button>
                                 </td>
-                                <td>
+                               <!--  <td>
                                     <button type="button" class="btn text-bg-danger-soft deleteClient" data-id-client="<?= $colab->id_clients ?>"><i class="fa-solid fa-trash"></i></button>
-                                </td>
+                                </td> -->
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

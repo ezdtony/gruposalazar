@@ -627,6 +627,8 @@ $(document).ready(function () {
               $("#colony").val(data.data[0].colony);
               $("#locality").val(data.data[0].locality);
               $("#zipcode").val(data.data[0].zip_code);
+              $("#select-uso-cfdi").val(data.data[0].c_UsoCFDI);
+              $("#select-reg-fiscal").val(data.data[0].c_RegimenFiscal);
               $("#selectState").val(data.data[0].state).trigger("change");
               var x = await resolveAfter2Seconds(10);
               console.log(x); // 10
