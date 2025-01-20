@@ -2,6 +2,8 @@
 $getCollaborators = $colabs_model->getAllClients();
 
 $getSates = $colabs_model->getAllStates();
+$getRegimenesFiscales = $sales_model->getRegimenesFiscales();
+$usosCFDI = $sales_model->usosCFDI();
 ?>
 <h1 class="h2">Clientes</h1>
 
@@ -29,7 +31,9 @@ $getSates = $colabs_model->getAllStates();
                             <th>Nombre</th>
                             <th>Teléfono</th>
                             <th>Correo</th>
-                            <th class="text-end">Contraseña</th>
+                            <th>Contraseña</th>
+                            <th>Editar</th>
+                            <th>Borrar</th>
                         </tr>
                     </thead>
 
@@ -51,8 +55,14 @@ $getSates = $colabs_model->getAllStates();
                                 <td><?= $colab->name ?> <?= $colab->lastname ?></td>
                                 <td><?= $colab->cellphone ?></td>
                                 <td><?= $colab->email ?></td>
-                                <td class="text-end">
+                                <td>
                                     <div class="fw-bold"><?= $colab->password ?></div>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn text-bg-primary-soft btnEditClient" data-bs-toggle="modal" data-id-client="<?= $colab->id_clients ?>" data-bs-target="#editClientModal"><i class="fa-solid fa-pen-to-square"></i></i></button>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn text-bg-danger-soft deleteClient" data-id-client="<?= $colab->id_clients ?>"><i class="fa-solid fa-trash"></i></button>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -66,4 +76,5 @@ $getSates = $colabs_model->getAllStates();
 <script src="js/functions/clients.js"></script>
 <?php
 include 'modals/newClient.php';
+include 'modals/editClient.php';
 ?>

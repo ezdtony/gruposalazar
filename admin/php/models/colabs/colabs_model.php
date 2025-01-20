@@ -20,7 +20,7 @@ class Colabs
         include_once('php/models/petitions.php');
         $queries = new Queries;
         $sql_colabs = "SELECT *
-        FROM u803991314_main.clients AS colabs
+        FROM u803991314_main.clients AS colabs WHERE status = 1
         ";
 
         $getSites = $queries->getData($sql_colabs);
