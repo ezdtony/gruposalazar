@@ -31,11 +31,12 @@ class Colabs
     {
         include_once('php/models/petitions.php');
         $queries = new Queries;
-        $sql_colabs = "SELECT cpd.*, cdl.deadline_description,
+        $sql_colabs = "SELECT cpd.*, cdl.deadline_description, ord.uu_id_factura,
         UPPER(CONCAT(cli.name, ' ', cli.lastname)) AS client_name
         FROM u803991314_main.credit_purchase_detail AS cpd
         INNER JOIN u803991314_main.credit_purchases AS cps ON cpd.id_credit_purchases = cps.id_credit_purchases
         INNER JOIN u803991314_main.credits_deadlines AS cdl ON cdl.id_credits_deadlines = cps.id_credits_deadlines
+        INNER JOIN u803991314_main.orders AS ord ON ord.id_orders = cps.id_orders
         INNER JOIN u803991314_main.clients AS cli ON cli.id_clients = cps.id_clients
         ORDER BY cpd.payment_date DESC
         ";

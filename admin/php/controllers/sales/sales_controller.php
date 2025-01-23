@@ -418,7 +418,9 @@ function SaveOrderCredit()
             total_purchase,
             interests,
             active_interests,
-            datelog
+            datelog,
+            saldo_anterior,
+            saldo_insoluto
         ) VALUES(
             $id_client,
             $id_order,
@@ -427,7 +429,9 @@ function SaveOrderCredit()
             '$ammount',
             '0.03',
             $var_interests,
-            '$today'
+            '$today',
+            '$ammount',
+            '$ammount'
         )";
         $insertCreditPurchase = $queries->InsertData($sqlInsertCredit);
 
@@ -444,7 +448,7 @@ function SaveOrderCredit()
             $today_date = date("Y-m-d");
             //sumo 1 mes
 
-
+            $parciality = 1;
             for ($i = 0; $i < $months_term; $i++) {
 
                 $paym_date = date("Y-m-d", strtotime($today_date . "+ " . $i + 1 . " month"));
@@ -454,16 +458,20 @@ function SaveOrderCredit()
                                         amount_payable,
                                         payment_date,
                                         payment_status,
-                                        datelog) 
+                                        datelog,
+                                        no_parciality
+                                        ) 
                                         
                                         VALUES(
                                         $id_credit_purchase,
                                         '$payment_month',
                                         '$paym_date',
                                         1,
-                                        '$today'
+                                        '$today',
+                                        $parciality
                                     )";
                 $insertDetailCredit = $queries->InsertData($sqlInsertDetail);
+                $parciality++;
             }
 
             $sqlUpdateCredit = "UPDATE u803991314_main.clients_credits SET credit_ammount = credit_ammount - $ammount WHERE id_clients_credits = $credit_client";
@@ -471,7 +479,8 @@ function SaveOrderCredit()
         }
         $data = array(
             'response' => true,
-            'SQL' => $sqlGetDeadline
+            'SQL' => $sqlGetDeadline,
+            'order_id' => $id_order
         );
     } else {
         $data = array(
@@ -546,6 +555,7 @@ function getCreditSalazarClient()
         $html .= '<label class="form-check-label" for="check_interests">Habiliar intereses</label>';
         $html .= '</div>';
         $html .= '<button type="button" class="btn btn-success" id="btnSaveSaleCredit">Imprimir ticket y guardar venta</button>';
+        $html .= '<button type="button" class="btn btn-danger btnGenerateFacture" data-bs-toggle="modal" data-bs-target="#modalReceptorData"  disabled> <i class="fa-solid fa-file-pdf"></i> Generar factura</button>';
 
         $html .= '</div>';
         $html .= '</div>';
@@ -2495,6 +2505,7 @@ function getSaleDataFactura()
     unit.sat_unity_code,
     ord.order_code,
     pym.codigo_sat AS pay_sat,
+    pym.forma_pago_sat AS forma_pago_sat,
     payment_method_description
     FROM u803991314_main.order_details AS det
     INNER JOIN u803991314_main.products AS prod ON prod.id_prducts = det.id_prducts
@@ -2525,8 +2536,8 @@ function getSaleDataFactura()
                 $valid_info = false;
             }
 
-            
-            $impuesto_precio =round(bcmul($prod_price, $tasa, 10), 2);
+
+            $impuesto_precio = round(bcmul($prod_price, $tasa, 10), 2);
             $precio_sin_iva = $prod_price - $impuesto_precio;
 
             $impuesto_importe = round(bcmul($prodImporte, $tasa, 10), 2);
@@ -2534,7 +2545,7 @@ function getSaleDataFactura()
 
             $subtotal += $importe_sin_iva;
             //$impuesto_importe  = $prodImporte * $tasa;
-            
+
 
             $total += round($importe_sin_iva + $impuesto_importe, 2);
 
@@ -2558,7 +2569,6 @@ function getSaleDataFactura()
                     ]
                 ]
             ];
-
         }
     } else {
     }
@@ -2591,6 +2601,169 @@ function getSaleDataFactura()
     echo json_encode($data);
 }
 
+function getSaleDataREP()
+{
+    $queries = new Queries;
+    $id_pay = $_POST['id_pay'];
+
+    $prods = [];
+    $conceptos = [];
+
+    $subtotal = 0;
+    $total = 0;
+
+    $sqlOrderIndex = "SELECT
+    ord.order_code,
+    ord.uu_id_factura,
+    UPPER(ord.serie_factura) AS serie_factura,
+    UPPER(ord.folio_factura) AS folio_factura,
+    ord.CFDI,
+    ord.ammount,
+    pym.codigo_sat AS pay_sat,
+    no_parciality,
+    amount_payable,
+    payment_date,
+    saldo_anterior,
+    saldo_insoluto,
+    payment_method_description
+    FROM u803991314_main.credit_purchase_detail AS cpd
+        INNER JOIN u803991314_main.credit_purchases AS cps ON cpd.id_credit_purchases = cps.id_credit_purchases
+        INNER JOIN u803991314_main.orders AS ord ON ord.id_orders = cps.id_orders
+    INNER JOIN u803991314_main.payment_methods AS pym ON pym.id_payment_methods = cpd.id_payment_methods
+        WHERE cpd.id_credit_purchase_detail = $id_pay
+    ";
+
+    $saleinfo = $queries->getData($sqlOrderIndex);
+
+    $html = '';
+    $order_code = '';
+    $valid_info = true;
+
+    $new_insoluto = "";
+    $new_saldo_anterior = "";
+
+    if (!empty($saleinfo)) {
+        foreach ($saleinfo as $detail) {
+            $order_code = $detail->order_code;
+            $uu_id_factura = $detail->uu_id_factura;
+            $CFDI = $detail->CFDI;
+            $ammount = $detail->ammount;
+            $pay_sat = $detail->pay_sat;
+            $no_parciality = $detail->no_parciality;
+            $amount_payable = $detail->amount_payable;
+            $payment_date = $detail->payment_date;
+            $payment_method_description = $detail->payment_method_description;
+            $codigo_factura = $detail->payment_method_description;
+            $serie_factur = $detail->serie_factura;
+            $folio_factura = $detail->folio_factura;
+
+            $saldo_anterior = $detail->saldo_anterior;
+            $saldo_insoluto = $saldo_anterior - $amount_payable;
+
+            $tasa = 0.160000; // Tasa de IVA
+
+            // Cálculo de la base para IVA
+            $importe_sin_iva = $ammount / (1 + $tasa); // Base es el monto sin IVA
+            // Cálculo del impuesto
+            $impuesto_importe = round(bcmul($importe_sin_iva, $tasa, 10), 2);
+            $importe_sin_iva = round($importe_sin_iva, 2); // Redondeo de la base sin IVA
+
+            // Cálculo para el monto pagado
+            $importe_sin_iva_pagado = $amount_payable / (1 + $tasa); // Base del pago sin IVA
+            $impuesto_importe_pagado = round(bcmul($importe_sin_iva_pagado, $tasa, 10), 2);
+            $importe_sin_iva_pagado = round($importe_sin_iva_pagado, 2); // Redondeo de la base sin IVA pagado
+
+            $subtotal += $importe_sin_iva; // Total sin IVA
+            $total += round($importe_sin_iva + $impuesto_importe, 2); // Total con IVA
+
+            $complemento = [
+                "TipoComplemento" => 28,
+                "PagosV20" => [
+                    "Pagos" => [
+                        [
+                            "FechaPago" => $payment_date,
+                            "FormaPago" => $pay_sat,
+                            "Moneda" => "MXN",
+                            "TipoCambio" => 1,
+                            "DocumentosRelacionados" => [
+                                [
+                                    "IdDocumento" => $uu_id_factura,
+                                    "Serie" => $serie_factur,
+                                    "Folio" => $folio_factura,
+                                    "Moneda" => "MXN",
+                                    "Equivalencia" => 1,
+                                    "NumeroParcialidad" => $no_parciality,
+                                    "ImporteSaldoAnterior" => $saldo_anterior,
+                                    "ImportePagado" => $amount_payable,
+                                    "ImporteSaldoInsoluto" => $saldo_insoluto,
+                                    "ObjetoDeImpuesto" => "02",
+                                    "Impuestos" => [
+                                        "Trasladados" => [
+                                            [
+                                                "Impuesto" => 2,
+                                                "Factor" => 1,
+                                                "Base" => $importe_sin_iva_pagado, // Base de pago sin IVA
+                                                "Tasa" => '0.160000',
+                                                "Importe" => $impuesto_importe_pagado // IVA sobre el monto pagado
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            "Impuestos" => [
+                                "Trasladados" => [
+                                    [
+                                        "Impuesto" => 2,
+                                        "Factor" => 1,
+                                        "Base" => $importe_sin_iva_pagado, // Base de pago sin IVA
+                                        "Tasa" => '0.160000',
+                                        "Importe" => $impuesto_importe_pagado // IVA sobre el monto pagado
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    "Totales" => [
+                        "TotalTrasladosBaseIVA16" => $importe_sin_iva_pagado, // Base total sin IVA pagado
+                        "TotalTrasladosImpuestoIVA16" => $impuesto_importe_pagado, // IVA total pagado
+                        "MontoTotalPagos" => $amount_payable // Monto total pagado
+                    ]
+                ]
+            ];
+
+            $new_insoluto = $saldo_insoluto;
+            $new_saldo_anterior = $saldo_insoluto;
+        }
+    } else {
+        $valid_info = false;
+    }
+
+    $serie = generateUniqueString();
+    $folio = generateUniqueNumericString();
+
+    if ($valid_info) {
+        $data = array(
+            'response' => true,
+            'complementos' => $complemento,
+            'order_code' => $order_code,
+            'pay_sat' => $pay_sat,
+            'payment_method_description' => $payment_method_description,
+            'serie' => $serie,
+            'folio' => $folio,
+            'new_insoluto' => $new_insoluto,
+            'new_saldo_anterior' => $new_saldo_anterior,
+        );
+    } else {
+        $data = array(
+            'response' => false,
+            'message' => "La información necesaria de los productos no está completa para poder realizar la facturación. Por favor verifique las propiedades de los productos de la orden e intente nuevamente"
+        );
+    }
+
+    echo json_encode($data);
+}
+
+
 function sendMailFactura()
 {
     $queries = new Queries;
@@ -2601,13 +2774,19 @@ function sendMailFactura()
     $pdf = $_POST['stringPDF'];
     $xml = $_POST['stringXML'];
     $CFDI = mb_strtoupper($_POST['CFDI']);
+    $uu_id = mb_strtoupper($_POST['uuid']);
     $order_code = mb_strtoupper($_POST['order_code']);
     $email_receptor = $_POST['email_receptor'];
+    $serie_fac = $_POST['serie_fac'];
+    $folio_fac = $_POST['folio_fac'];
 
     $stmt = "UPDATE u803991314_main.orders 
     SET
     factura_generada = 1,
-    CFDI = '$CFDI'
+    CFDI = '$CFDI', uu_id_factura = '$uu_id',
+    base64_pdf = '$pdf',
+    serie_factura = '$serie_fac',
+    folio_factura = '$folio_fac'
     WHERE id_orders = $id_order
     ";
     $queries->InsertData($stmt);
@@ -2638,7 +2817,7 @@ function sendMailFactura()
         $mail->addAddress($email_receptor, '');     //Add a recipient
         //$mail->addAddress("antoniogonzalez.rt@gmail.com", '');
         //$mail->addAddress("vanisalazar18@gmail.com", '');
-        
+
         //$mail->addAddress('ellen@example.com');               //Name is optional
         $mail->addReplyTo('eshop.grupo.salazar@gruposalazar.com.mx', utf8_decode('GRUPO SALAZAR'));
         //$mail->addCC('soporte@gruposalazar.com.mx');
@@ -2646,8 +2825,8 @@ function sendMailFactura()
 
         //Attachments
         $pdfDecoded = base64_decode($pdf);
-        $mail->addStringAttachment($pdfDecoded, "FACTURA COMPRA $order_code  $CFDI" . ".pdf", 'base64', 'application/pdf');
-        $mail->addStringAttachment($xml, "$CFDI.xml", '8bit', 'application/xml');
+        $mail->addStringAttachment($pdfDecoded, "FACTURA COMPRA $order_code  $uu_id" . ".pdf", 'base64', 'application/pdf');
+        $mail->addStringAttachment($xml, "$uu_id.xml", '8bit', 'application/xml');
 
         //$mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
         //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
@@ -2672,6 +2851,126 @@ function sendMailFactura()
             'message' => 'Ocurrió un error al envíar el correo de confirmación'
         );
     }
+    echo json_encode($data);
+}
+
+function sendMailREP()
+{
+    $queries = new Queries;
+
+    $id_pay = $_POST['id_pay'];
+
+
+    $pdf = $_POST['stringPDF'];
+    $xml = $_POST['stringXML'];
+    $CFDI = mb_strtoupper($_POST['CFDI']);
+    $uu_id = mb_strtoupper($_POST['uuid']);
+    $email_receptor = $_POST['email_receptor'];
+    $new_insoluto = $_POST['new_insoluto'];
+    $new_saldo_anterior = $_POST['new_saldo_anterior'];
+
+    $stmt = "UPDATE u803991314_main.credit_purchase_detail
+    SET
+    base64_pdf_rep = '$pdf'
+    WHERE id_credit_purchase_detail  = $id_pay
+    ";
+    $queries->InsertData($stmt);
+
+    $stmt = "UPDATE u803991314_main.credit_purchases
+             INNER JOIN u803991314_main.credit_purchase_detail ON u803991314_main.credit_purchase_detail.id_credit_purchases = u803991314_main.credit_purchases.id_credit_purchases
+             SET
+             u803991314_main.credit_purchases.saldo_anterior = $new_saldo_anterior,
+             u803991314_main.credit_purchases.saldo_insoluto = $new_insoluto
+    WHERE id_credit_purchase_detail  = $id_pay
+    ";
+    $queries->InsertData($stmt);
+
+    //Import PHPMailer classes into the global namespace
+    //These must be at the top of your script, not inside a function
+
+
+    //Load Composer's autoloader
+    require dirname(__DIR__ . '', 4) . '/vendor/autoload.php';
+
+    //Create an instance; passing `true` enables exceptions
+    $mail = new PHPMailer(true);
+
+    try {
+        //Server settings
+        $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+        $mail->isSMTP();                                            //Send using SMTP
+        $mail->Host       = 'smtp.hostinger.com';                     //Set the SMTP server to send through
+        $mail->SMTPAuth   = true;                                   //Enable SMTP authentication
+        $mail->Username   = 'eshop.grupo.salazar@gruposalazar.com.mx';                     //SMTP username
+        $mail->Password   = 'E8%V7w5#ke';                               //SMTP password
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+        $mail->Port       = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+
+        //Recipients
+        $mail->setFrom('eshop.grupo.salazar@gruposalazar.com.mx', utf8_decode('GRUPO SALAZAR'));
+        $mail->addAddress($email_receptor, '');     //Add a recipient
+        //$mail->addAddress("antoniogonzalez.rt@gmail.com", '');
+        //$mail->addAddress("vanisalazar18@gmail.com", '');
+
+        //$mail->addAddress('ellen@example.com');               //Name is optional
+        $mail->addReplyTo('eshop.grupo.salazar@gruposalazar.com.mx', utf8_decode('GRUPO SALAZAR'));
+        //$mail->addCC('soporte@gruposalazar.com.mx');
+        $mail->addBCC('facturas@gruposalazar.com.mx');
+
+        //Attachments
+        $pdfDecoded = base64_decode($pdf);
+        $mail->addStringAttachment($pdfDecoded, "COMPLEMENTO DE PAGO $uu_id" . ".pdf", 'base64', 'application/pdf');
+        $mail->addStringAttachment($xml, "$uu_id.xml", '8bit', 'application/xml');
+
+        //$mail->addAttachment('/var/tmp/file.tar.gz');         //Add attachments
+        //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');    //Optional name
+        $mail->SMTPDebug = false;
+        //Content
+        $mail->isHTML(true);                                  //Set email format to HTML
+        $mail->Subject = utf8_decode('COMPLEMENTO DE PAGO');
+        $mail->Body    = utf8_decode(getHTMLMailFactura());
+
+
+        $mail->send();
+
+
+
+        $data = array(
+            'response' => true,
+            'message' => 'Su órden ha sido registrada, y se encuentra en proceso de validación'
+        );
+    } catch (Exception $e) {
+        $data = array(
+            'response' => false,
+            'message' => 'Ocurrió un error al envíar el correo de confirmación'
+        );
+    }
+    echo json_encode($data);
+}
+
+function updatePaymentPay()
+{
+    $queries = new Queries;
+
+    $id_pay = $_POST['id_pay'];
+    $id_payment_method = $_POST['id_payment_method'];
+    $today = date('Y-m-d');
+    $subtotal = 0;
+    $total = 0;
+
+    $sqlOrderIndex = "UPDATE u803991314_main.credit_purchase_detail SET id_payment_methods = $id_payment_method, payment_date = '$today', payment_status = 2
+    WHERE id_credit_purchase_detail = $id_pay";
+
+    if ($queries->InsertData($sqlOrderIndex)) {
+        $data = array(
+            'response' => true,
+        );
+    } else {
+        $data = array(
+            'response' => false,
+        );
+    }
+
     echo json_encode($data);
 }
 

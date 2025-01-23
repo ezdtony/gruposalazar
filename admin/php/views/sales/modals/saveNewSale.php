@@ -48,8 +48,9 @@
                                             <br>
                                             <h3 class="card-title" id="lblCashExchange" data-total="0">Cambio: </h3>
 
-                                            <button type="button" class="btn btn-success" disabled id="btnSaveSaleCash">Imprimir ticket y guardar venta</button>
+                                            <button type="button" class="btn btn-success" disabled id="btnSaveSaleCash">Imprimir ticket y guardar ventas</button>
                                             <button type="button" class="btn btn-danger btnGenerateFacture"  data-bs-toggle="modal" data-bs-target="#modalReceptorData" disabled> <i class="fa-solid fa-file-pdf"></i> Generar factura</button>
+                                            
                                         </div>
                                         <div class="mb-3" id="divCreditCardMethod" style="display:none">
                                             <h3 class="card-title" id="lblTotalSalePayment" data-total="0">Total: </h3>
@@ -62,6 +63,7 @@
                                             <br>
 
                                             <button type="button" class="btn btn-success"  id="btnSaveSaleCreditCard">Guardar venta</button>
+                                            <button type="button" class="btn btn-danger btnGenerateFacture"  data-bs-toggle="modal" data-bs-target="#modalReceptorData" disabled> <i class="fa-solid fa-file-pdf"></i> Generar factura</button>
                                         </div>
                                     </div>
                                 </div>

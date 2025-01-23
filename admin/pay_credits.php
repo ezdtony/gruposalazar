@@ -4,6 +4,12 @@ include("php/views/navbar.php");
 include("php/views/header.php");
 include("php/models/colabs/colabs_model.php");
 
+include("php/models/sales/sales_model.php");
+
+$active_module = "sales";
+
+$sales_model = new Sales();
+
 $active_module="coalbs";
 
 $colabs_model = new Colabs();

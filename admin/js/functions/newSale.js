@@ -553,7 +553,39 @@ $(document).ready(function () {
               confirmButtonText: "Acepar",
             }).then((result) => {
               loading();
-              location.reload();
+              //location.reload();
+              id_order = data.order_id;
+              $(".btnGenerateFacture").attr("data-id-order", id_order);
+              $.ajax({
+                url: "php/controllers/sales/sales_controller.php",
+                method: "POST",
+                data: {
+                  mod: "printTicket",
+                  id_order: id_order,
+                },
+              })
+                .done(function (data) {
+                  Swal.close();
+  
+                  var data = JSON.parse(data);
+                  console.log(data);
+  
+                  $(".btnGenerateFacture").attr("disabled", false);
+  
+                  $("#btnSaveSaleCash").attr("disabled", true);
+                  printSaleTicket(data);
+  
+                  //--- --- ---//
+                  //--- --- ---//
+                })
+                .fail(function (message) {
+                  Swal.close();
+                  var myToast = Toastify({
+                    text: data.message,
+                    duration: 3000,
+                  });
+                  myToast.showToast();
+                });
             });
           } else {
             errorToast(data.message);

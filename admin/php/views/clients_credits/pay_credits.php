@@ -2,6 +2,15 @@
 $getCollaborators = $colabs_model->getAllClientsCredits();
 $getAllClients = $colabs_model->getAllClients();
 $getCreditsDetailPays = $colabs_model->getCreditsDetailPays();
+
+$getAllSubsidiary = $sales_model->getAllSubsidiary();
+$getPaymentsMethods = $sales_model->getPaymentMethods();
+
+$getRegimenesFiscales = $sales_model->getRegimenesFiscales();
+$usosCFDI = $sales_model->usosCFDI();
+
+$getSates = $sales_model->getStates();
+$getAllClientsBilling = $sales_model->getAllClientsBilling();
 ?>
 <h1 class="h2">Créditos</h1>
 
@@ -30,8 +39,11 @@ $getCreditsDetailPays = $colabs_model->getCreditsDetailPays();
                             <th>Cantidad de pago</th>
                             <th>Fecha de Pago</th>
                             <th>Plan de Pago</th>
+                            <th>Factura Relacionada</th>
                             <th>Status</th>
-                            <th class="text-end">Marcar como pagado</th>
+                            <th>Marcar como pagado</th>
+                            <th>Generar REP</th>
+                            <th>Descargar REP</th>
                         </tr>
                     </thead>
 
@@ -66,13 +78,36 @@ $getCreditsDetailPays = $colabs_model->getCreditsDetailPays();
                                 <td>$ <?= round($crpay->amount_payable, 2) ?> </td>
                                 <td><?= $crpay->payment_date ?></td>
                                 <td><?= $crpay->deadline_description ?></td>
+                                <td><?= $crpay->uu_id_factura ?></td>
                                 <td><?php echo $span ?> <?php echo $txt_stat ?> </td>
                                 <td class="text-end">
                                     <div class="fw-bold">
-                                        <button <?=$enable_btn_pay?> type="button" class="btn btn-primary payCreditDetail"
+                                        <button <?= $enable_btn_pay ?> type="button" <?= $crpay->base64_pdf_rep == '' ? '' : 'disabled' ?> class="btn btn-primary setPaymentMethodPay"
+                                        data-id-pay="<?= $crpay->id_credit_purchase_detail ?>"
+                                        data-bs-toggle="modal" data-bs-target="#setPayModal"
                                             data-id=" <?= $crpay->id_credit_purchase_detail ?>"><i class="fas fa-hand-holding-usd"></i></i></button>
                                     </div>
                                 </td>
+                                <td>
+                                    <div class="fw-bold">
+                                        <button type="button" class="btn btn-danger startGenREP"
+                                            data-id-pay="<?= $crpay->id_credit_purchase_detail ?>" <?= $crpay->base64_pdf_rep == '' && $crpay->payment_status == 2 ? '' : 'disabled' ?> data-bs-toggle="modal" data-bs-target="#modalReceptorData"><i class="fa-solid fa-file-pdf"></i></button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">
+                                        <button
+                                            type="button"
+                                            class="btn btn-success"
+                                            data-id-pay="<?= $crpay->id_credit_purchase_detail ?>"
+                                            onclick="downloadPDF('<?= $crpay->base64_pdf_rep ?>')"
+                                            <?= $crpay->base64_pdf_rep != '' ? '' : 'disabled' ?>>
+                                            <i class="fa-solid fa-cloud-arrow-down"></i>
+                                        </button>
+                                    </div>
+
+                                </td>
+
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -84,7 +119,10 @@ $getCreditsDetailPays = $colabs_model->getCreditsDetailPays();
 </div>
 <script src="js/functions/credits.js"></script>
 <script src="js/functions/payCredits.js"></script>
+<script src="js/functions/generateREP.js"></script>
 <?php
+include 'modals/generateREP.php';
+include 'modals/setPay.php';
 //include 'modals/newClientCredit.php';
 //include 'modals/purchaseHistory.php';
 ?>

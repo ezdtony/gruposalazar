@@ -202,6 +202,8 @@ $(document).ready(function () {
           var data = JSON.parse(data);
           console.log(data);
           if (data.response == true) {
+const serie_fac =             data.serie;
+const folio_fac = data.folio;
             var data_receptor = {
               RFC: rfc,
               NombreRazonSocial: razon_social,
@@ -304,7 +306,7 @@ $(document).ready(function () {
                 Fecha: date_fact,
                 Serie: data.serie,
                 Folio: data.folio,
-                MetodoPago: "PUE",
+                MetodoPago: data.forma_pago_sat,
                 FormaPago: data.pay_sat,
                 Moneda: "MXN",
                 LugarExpedicion: CPProd,
@@ -314,7 +316,7 @@ $(document).ready(function () {
               Conceptos: conceptsProd,
             };
 
-            consumeAPI(bodyParms, email_receptor, id_order, order_code);
+            consumeAPI(bodyParms, email_receptor, id_order, order_code, serie_fac, folio_fac);
             if (data.response == true) {
             } else {
               Swal.fire({
@@ -344,7 +346,9 @@ $(document).ready(function () {
     /*   */
   });
 
-  function consumeAPI(bodyParms, email_receptor, id_order, order_code) {
+  function consumeAPI(bodyParms, email_receptor, id_order, order_code, serie_fac, folio_fac) {
+    
+    
     loading();
     console.log("Consuming API");
     //createToken();
@@ -392,8 +396,11 @@ $(document).ready(function () {
         return response.json(); // Parsear la respuesta a JSON
       })
       .then((data) => {
+        console.log(serie_fac);
+        console.log(folio_fac);
         console.log(data);
-        const CFDI = data.cfdiTimbrado.respuesta.selloCFD.substring(0, 8);
+        const CFDI = data.cfdiTimbrado.respuesta.selloCFD;
+        const uuid  = data.cfdiTimbrado.respuesta.uuid;
         loading();
         $("#btnGenFact" + id_order).prop("disabled", true);
         $.ajax({
@@ -404,9 +411,12 @@ $(document).ready(function () {
             stringPDF: data.cfdiTimbrado.respuesta.pdf,
             stringXML: data.cfdiTimbrado.respuesta.cfdixml,
             CFDI: CFDI.toUpperCase(),
+            uuid:uuid.toUpperCase(),
             order_code: order_code,
             email_receptor: email_receptor,
             id_order: id_order,
+            serie_fac:serie_fac,
+            folio_fac:folio_fac,
           },
         })
           .done(function (data) {
