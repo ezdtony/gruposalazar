@@ -41,7 +41,7 @@
                         <div class="col-4">
                             <div class="mb-4">
                                 <label class="form-label">Código de barras: <span class="legend-circle bg-danger"></span></label>
-                                <input type="number" id="prod_barcode" class="form-control obligatory" placeholder="Código de barras">
+                                <input type="text" id="prod_barcode" class="form-control obligatory" placeholder="Código de barras">
                             </div>
                         </div>
                     </div>
